@@ -8,7 +8,8 @@ function Patientform() {
                 <div className="content">
                     <div className="row">
                         <div className="col-lg-8 offset-lg-2">
-                            <h4 className="page-title">Adicionar Paciente</h4>
+                            <h2 className="">Dados pessoais</h2>
+                            <hr />
                         </div>
                     </div>
 
@@ -18,10 +19,22 @@ function Patientform() {
                                 <div className="row">
                                     <div className="col-sm-6">
                                         <div className="form-group">
+                                            <label>Avatar</label>
+                                            <div className="profile-upload">
+                                                <div className="upload-img">
+                                                    <img alt="" src="assets/img/user.jpg" />
+                                                </div>
+                                                <div className="upload-input">
+                                                    <input type="file" accept="image/png, image/jpeg" className="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
                                             <label>
                                                 Nome completo<span className="text-danger">*</span>
                                             </label>
-                                            <input className="form-control" type="text" />
+                                            <input className="form-control" type="text" required />
                                         </div>
                                         <div className="form-group">
                                             <label>RG</label>
@@ -58,8 +71,18 @@ function Patientform() {
                                             <label>Profissão da mãe</label>
                                             <input className="form-control" type="text" />
                                         </div>
-                                    </div>
+                                        <div className="form-group">
+                                            <label>Nome do responsável</label>
+                                            <input className="form-control" type="text" />
+                                        </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input type="checkbox" name="rn" className="form-check-input" /> RN na Guia do convênio
+                                            </label>
+                                        </div>
 
+
+                                    </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Nome social</label>
@@ -84,6 +107,10 @@ function Patientform() {
                                             </select>
                                         </div>
                                         <div className="form-group">
+                                            <label>Data de Nascimento</label>
+                                            <input type="date" className="form-control" />
+                                        </div>
+                                        <div className="form-group">
                                             <label>Nome do pai</label>
                                             <input className="form-control" type="text" />
                                         </div>
@@ -91,37 +118,14 @@ function Patientform() {
                                             <label>Profissão do pai</label>
                                             <input className="form-control" type="text" />
                                         </div>
-                                    </div>
-
-                                    <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Email <span className="text-danger">*</span></label>
-                                            <input className="form-control" type="email" ref={withMask('email')} />
+                                            <label>CPF do responsável</label>
+                                            <input className="form-control" type="text" ref={withMask('cpf')} />
                                         </div>
-                                    </div>
-
-                                    <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Senha</label>
-                                            <input className="form-control" type="password" />
+                                            <label>Código legado</label>
+                                            <input className="form-control" type="text" />
                                         </div>
-                                    </div>
-
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label>Confirmar senha</label>
-                                            <input className="form-control" type="password" />
-                                        </div>
-                                    </div>
-
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label>Data de Nascimento</label>
-                                            <input type="date" className="form-control" />
-                                        </div>
-                                    </div>
-
-                                    <div className="col-sm-6">
                                         <div className="form-group gender-select">
                                             <label className="gen-label">Sexo:</label>
                                             <div className="form-check-inline">
@@ -141,34 +145,75 @@ function Patientform() {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="col-sm-12">
+                                        <hr />
+                                        <h2>Contato</h2>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label>Celular</label>
+                                            <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Telefone 1</label>
+                                            <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')} />
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label>Email</label>
+                                            <input className="form-control" type="email" required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Telefone 2</label>
+                                            <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')} />
+                                        </div>
+                                    </div>
 
                                     <div className="col-sm-12">
-                                        <div className="form-group">
-                                            <label>Endereço</label>
-                                            <input type="text" className="form-control" />
-                                        </div>
+                                        <hr />
+                                        <h2>Endereço</h2>
                                     </div>
 
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Telefone</label>
+                                            <label>CEP</label>
+                                            <input className="form-control" type="text" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Cidade</label>
+                                            <input className="form-control" type="text" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Logradouro</label>
+                                            <input className="form-control" type="text" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Complemento</label>
                                             <input className="form-control" type="text" />
                                         </div>
                                     </div>
-
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Avatar</label>
-                                            <div className="profile-upload">
-                                                <div className="upload-img">
-                                                    <img alt="" src="assets/img/user.jpg" />
-                                                </div>
-                                                <div className="upload-input">
-                                                    <input type="file" accept="image/png, image/jpeg" className="form-control" />
-                                                </div>
-                                            </div>
+                                            <label>Estado</label>
+                                            <input className="form-control" type="email" required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Número</label>
+                                            <input className="form-control" type="text"  />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Bairro</label>
+                                            <input className="form-control" type="text"  />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Referência </label>
+                                            <input className="form-control" type="text"  />
                                         </div>
                                     </div>
+                                </div>
+                                <div className="col-sm-12">
+                                    <hr />
                                 </div>
 
                                 <div className="form-group">
@@ -204,12 +249,19 @@ function Patientform() {
                                     <label>Observação</label>
                                     <textarea className="form-control" rows="3"></textarea>
                                 </div>
-
-                                <div className="form-check-inline">
-                                    <label className="form-check-label">
-                                        <input type="checkbox" name="rn" className="form-check-input" /> RN na Guia do convênio
-                                    </label>
+                                <div className="form-group">
+                                    <label>Documentos</label>
+                                    <div className="profile-upload">
+                                        <div className="upload-img">
+                                            <img alt="" src="assets/img/user.jpg" />
+                                        </div>
+                                        <div className="upload-input">
+                                            <input type="file" accept="image/png, image/jpeg" className="form-control" />
+                                        </div>
+                                    </div>
                                 </div>
+
+
 
                                 <div className="m-t-20 text-center">
                                     <button className="btn btn-primary submit-btn">Criar Paciente</button>
