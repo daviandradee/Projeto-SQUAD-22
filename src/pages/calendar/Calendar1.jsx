@@ -34,6 +34,10 @@ function Calendar() {
                   }}
                 eventContent={renderEventContent}
                 dateClick={handleDateClick}
+                events={[
+                  { title: 'Consulta', date: '2025-08-13' },
+                  { title: 'event 2', date: '2019-04-02' }
+                ]}
               />
             </div>
         </div>    
