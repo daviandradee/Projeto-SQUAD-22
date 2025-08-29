@@ -6,7 +6,7 @@ function Navbar(){
                 <div className="header-left">
                     <a href="index-2.html" className="logo">
                         <img src="public/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
-                        <span>MedConnect</span>
+                        <span>MediConnect</span>
                     </a>
                 </div>
                 <a id="mobile_btn" className="mobile_btn float-left" href="#sidebar">

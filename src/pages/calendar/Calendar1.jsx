@@ -32,8 +32,7 @@ function Calendar() {
                     center: 'title',
                     end: 'dayGridMonth,timeGridWeek,timeGridDay' 
                   }}
-                eventContent={renderEventContent}
-                dateClick={handleDateClick}
+                
               />
             </div>
         </div>    
