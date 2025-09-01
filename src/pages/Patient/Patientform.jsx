@@ -19,7 +19,7 @@ function Patientform() {
         nome_mae: null,
         profissao_mae: null,
         nome_responsavel:null,
-        codigo_legado: null,
+        codigo_legado: null,  
         rn: "false",
         sexo: null,
         celular: null,

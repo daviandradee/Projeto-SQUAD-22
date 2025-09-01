@@ -1,44 +1,46 @@
 import { Link } from "react-router-dom";
 import "../../assets/css/index.css"
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 
 function PatientList() {
   // Estado da busca
   const [search, setSearch] = useState("");
+  const [patients, setPatients] = useState([]);
+  var requestOptions = {
+   method: 'GET',
+   redirect: 'follow'
+  };
+  useEffect(() => {
+  fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+  .then(response => response.json())
+  .then(result => {
+    console.log("API result:", result);
+
+    // Se "data" for um array, usa direto.
+    // Se for objeto, transforma em array com [ ]
+    if (Array.isArray(result.data)) {
+      setPatients(result.data);
+    } else if (result.data) {
+      setPatients([result.data]);
+    } else {
+      setPatients([]); // caso venha null ou vazio
+    }
+  })
+  .catch(error => console.log("error", error));
+  }, [])
+  
+
+  
 
   // Aqui futuramente você pode substituir pelos pacientes vindos do backend
-  const patients = [
-    {
-      id: 1,
-      nome: "João Silva",
-      rg: "12345678",
-      nascimento: "10/05/1990",
-      telefone: "(11) 99999-9999",
-      email: "joao@email.com",
-    },
-    {
-      id: 2,
-      nome: "Maria Oliveira",
-      rg: "87654321",
-      nascimento: "22/08/1985",
-      telefone: "(11) 98888-8888",
-      email: "maria@email.com",
-    },
-    {
-      id: 3,
-      nome: "Carlos Souza",
-      rg: "45678912",
-      nascimento: "03/12/1975",
-      telefone: "(11) 97777-7777",
-      email: "carlos@email.com",
-    },
-  ];
+  
 
   // Filtra pacientes de acordo com o texto digitado
   const filteredPatients = patients.filter(
     (p) =>
       p.nome.toLowerCase().includes(search.toLowerCase()) ||
-      p.rg.toLowerCase().includes(search.toLowerCase()) ||
+      p.cpf.toLowerCase().includes(search.toLowerCase()) ||
       p.email.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -75,7 +77,7 @@ function PatientList() {
                   <thead>
                     <tr>
                       <th>Nome</th>
-                      <th>RG</th>
+                      <th>Cpf</th>
                       <th>Data de Nascimento</th>
                       <th>Telefone</th>
                       <th>Email</th>
@@ -87,8 +89,8 @@ function PatientList() {
                       filteredPatients.map((p) => (
                         <tr key={p.id}>
                           <td>{p.nome}</td>
-                          <td>{p.rg}</td>
-                          <td>{p.nascimento}</td>
+                          <td>{p.cpf}</td>
+                          <td>{p.data_nascimento}</td>
                           <td>{p.telefone}</td>
                           <td>{p.email}</td>
                           <td className="text-right">
