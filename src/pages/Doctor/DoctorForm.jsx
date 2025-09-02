@@ -2,6 +2,7 @@ import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import { useState } from "react";
 import supabase from "../../Supabase"
+import { Link } from "react-router-dom";
 
 function DoctorForm() {
 
@@ -17,13 +18,17 @@ function DoctorForm() {
     telefone: "",
     sexo: "",
     endereco: "",
-    pais: "",
+    numero: "",
     cidade: "",
     estado: "",
     cep: "",
     biografia: "",
     status: "inativo",
     especialidade: "",
+    bairro:"",
+    referencia:"",
+    logradouro:"",
+    complemento:""
   });
 
   const handleChange = (e) => {
@@ -34,9 +39,8 @@ function DoctorForm() {
     }));
   }
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(doctorData);
 
+    console.log(doctorData);
     const { data, error } = await supabase
       .from("Doctor")
       .insert([doctorData])
@@ -61,12 +65,16 @@ function DoctorForm() {
           ...prev,
           cidade: data.localidade || '',
           estado: data.estado || '',
+          logradouro: data.logradouro || "",
+          bairro: data.bairro || '',
         }));
       })
   }
   const setValuesFromCep = (data) => {
     document.getElementById('cidade').value = data.localidade || '';
     document.getElementById('estado').value = data.uf || '';
+    document.getElementById('logradouro').value= data.logradouro || '';
+    document.getElementById('bairro').value= data.bairro || '';
   }
   return (
     <div className="main-wrapper">
@@ -229,24 +237,66 @@ function DoctorForm() {
                     </div>
                   </div>
                   <div className="col-sm-12">
+                    <hr />
+                    <h2>Endereço</h2>
+                  </div>
+                  <div className="col-sm-12">
                     <div className="row">
-                      <div className="col-sm-12">
+                      <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Endereço</label>
+                          <label>CEP</label>
                           <input type="text" className="form-control "
-                            name="endereco"
-                            value={doctorData.endereco}
+                            id="cep"
+                            name="cep"
+                            value={doctorData.cep}
+                            onChange={handleChange}
+                            onBlur={buscarCep}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-sm-6 col-md-6 col-lg-3">
+                        <div className="form-group">
+                          <label>Bairro</label>
+                          <input type="text" className="form-control "
+                            id="bairro"
+                            name="bairro"
+                            value={doctorData.bairro}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>País</label>
+                          <label>Referência</label>
                           <input type="text" className="form-control "
-                            id="pais"
-                            name="pais"
-                            value={doctorData.pais}
+                            id="referencia"
+                            name="referencia"
+                            Referência
+                            value={doctorData.referencia}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-sm-6 col-md-6 col-lg-3">
+                        <div className="form-group">
+                          <label>Logradouro</label>
+                          <input type="text" className="form-control "
+                            id="logradouro"
+                            name="logradouro"
+                            Referência
+                            value={doctorData.logradouro}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-sm-6 col-md-6 col-lg-3">
+                        <div className="form-group">
+                          <label>Complemento</label>
+                          <input type="text" className="form-control "
+                            id="complemento"
+                            name="complemento"
+                            Referência
+                            value={doctorData.complemento}
                             onChange={handleChange}
                           />
                         </div>
@@ -276,13 +326,12 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>CEP</label>
+                          <label>Número</label>
                           <input type="text" className="form-control"
-                            id="cep"
-                            name="cep"
-                            value={doctorData.cep}
+                            id="numero"
+                            name="numero"
+                            value={doctorData.numero}
                             onChange={handleChange}
-                            onBlur={buscarCep}
                           />
                         </div>
                       </div>
@@ -333,9 +382,9 @@ function DoctorForm() {
                       className="form-check-input"
                       type="radio"
                       name="status"
-                      id="doctor_active"
+                      id="status"
                       value="ativo"
-                      checked={doctorData.status === "Ativo"}
+                      checked={doctorData.status === "ativo"}
                       onChange={handleChange}
                     />
                     <label
@@ -350,9 +399,9 @@ function DoctorForm() {
                       className="form-check-input"
                       type="radio"
                       name="status"
-                      id="doctor_inactive"
+                      id="status"
                       value="inativo"
-                      checked={doctorData.status === "Inativo"}
+                      checked={doctorData.status === "inativo"}
                       onChange={handleChange}
                     />
                     <label
@@ -364,10 +413,11 @@ function DoctorForm() {
                   </div>
                 </div>
                 <div className="m-t-20 text-center">
-                  <button className="btn btn-primary submit-btn"
+                 <Link to="/doctorlist"><button 
+                  className="btn btn-primary submit-btn"
                     onClick={handleSubmit}>
                     Cadastrar Doutor
-                  </button>
+                  </button></Link>
                 </div>
               </form>
             </div>
