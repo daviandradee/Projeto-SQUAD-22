@@ -5,7 +5,7 @@ function Navbar(){
         <div className="header">
                 <div className="header-left">
                     <a href="index-2.html" className="logo">
-                        <img src="public/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
+                        <img src="public/img/logoof.png" width="35" height="35" alt="" />{" "}
                         <span>MediConnect</span>
                     </a>
                 </div>

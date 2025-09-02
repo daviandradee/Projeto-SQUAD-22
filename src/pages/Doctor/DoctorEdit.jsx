@@ -3,56 +3,48 @@ import { withMask } from "use-mask-input";
 import { useState } from "react";
 import supabase from "../../Supabase"
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-function DoctorForm() {
+function EditDoctor() {
+    const [doctors, setdoctors] = useState([]);
 
-  const [doctorData, setdoctorData] = useState({
-    nome: "",
-    sobrenome: "",
-    cpf: "",
-    crm: "",
-    senha: "",
-    confirmarsenha: "",
-    email: "",
-    data_nascimento: "",
-    telefone: "",
-    sexo: "",
-    endereco: "",
-    numero: "",
-    cidade: "",
-    estado: "",
-    cep: "",
-    biografia: "",
-    status: "inativo",
-    especialidade: "",
-    bairro:"",
-    referencia:"",
-    logradouro:"",
-    complemento:""
-  });
+    const {id} = useParams()
+    useEffect(() => {
+    const fetchDoctors = async () => {
+      const {data, error} = await supabase
+        .from('Doctor')
+        .select('*')
+        .eq ('id', id)
+        .single()
+      if(error){
+        console.error("Erro ao buscar pacientes:", error);
+      }else{
+        setdoctors(data);
+      }
+    };
+    fetchDoctors();
+  } , []);
 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setdoctorData((prev) => ({
+    setdoctors((prev) => ({
       ...prev,
       [name]: value
     }));
   }
-  const handleSubmit = async (e) => {
-
-    console.log(doctorData);
+  const handleEdit = async (e) => {
     const { data, error } = await supabase
       .from("Doctor")
-      .insert([doctorData])
-    if (error) {
-      console.log("Erro ao inserir paciente:", error);
-    } else {
-      console.log("Paciente inserido com sucesso:", data);
-    }
+      .update([doctors])
+      .eq ('id', id)
+      .single()
+    
   };
 
   const buscarCep = (e) => {
-    const cep = doctorData.cep.replace(/\D/g, '');
+    const cep = doctors.cep.replace(/\D/g, '');
     console.log(cep);
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(response => response.json())
@@ -61,7 +53,7 @@ function DoctorForm() {
         // salvando os valores para depois colocar nos inputs
         setValuesFromCep(data)
         // estou salvando os valoeres no patientData
-        setdoctorData((prev) => ({
+        setdoctors((prev) => ({
           ...prev,
           cidade: data.localidade || '',
           estado: data.estado || '',
@@ -83,7 +75,7 @@ function DoctorForm() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Cadastrar Médico</h4>
+              <h4 className="page-title">Editar Médico</h4>
             </div>
           </div>
           <div className="row">
@@ -97,7 +89,7 @@ function DoctorForm() {
                       </label>
                       <input className="form-control" type="text"
                         name="nome"
-                        value={doctorData.nome}
+                        value={doctors.nome}
                         onChange={handleChange}
                       />
                     </div>
@@ -107,7 +99,7 @@ function DoctorForm() {
                       <label>Sobrenome</label>
                       <input className="form-control" type="text"
                         name="sobrenome"
-                        value={doctorData.sobrenome}
+                        value={doctors.sobrenome}
                         onChange={handleChange}
                       />
                     </div>
@@ -117,7 +109,7 @@ function DoctorForm() {
                       <label>CPF <span className="text-danger">*</span></label>
                       <input className="form-control" type="text" ref={withMask('cpf')}
                         name="cpf"
-                        value={doctorData.cpf}
+                        value={doctors.cpf}
                         onChange={handleChange}
 
                       />
@@ -128,7 +120,7 @@ function DoctorForm() {
                       <label>CRM<span className="text-danger">*</span></label>
                       <input className="form-control" type="text"
                         name="crm"
-                        value={doctorData.crm}
+                        value={doctors.crm}
                         onChange={handleChange}
                       />
                     </div>
@@ -139,7 +131,7 @@ function DoctorForm() {
                       name="especialidade"
                       id="especialidade"
                       className="form-control"
-                      value={doctorData.especialidade}
+                      value={doctors.especialidade}
                       onChange={handleChange}
                     >
                       <option value="">Selecionar</option>
@@ -157,7 +149,7 @@ function DoctorForm() {
                       <label>Senha <span className="text-danger">*</span></label>
                       <input className="form-control" type="password"
                         name="senha"
-                        value={doctorData.senha}
+                        value={doctors.senha}
                         onChange={handleChange} />
                     </div>
                   </div>
@@ -167,7 +159,7 @@ function DoctorForm() {
                       <label>Email</label>
                       <input className="form-control" type="email" ref={withMask('email')}
                         name="email"
-                        value={doctorData.email}
+                        value={doctors.email}
                         onChange={handleChange}
                       />
                     </div>
@@ -177,7 +169,7 @@ function DoctorForm() {
                       <label>Confirmar Senha</label>
                       <input className="form-control" type="password"
                         name="confirmarSenha"
-                        value={doctorData.confirmarSenha}
+                        value={doctors.confirmarSenha}
                         onChange={handleChange}
                       />
                     </div>
@@ -188,7 +180,7 @@ function DoctorForm() {
                       <div className="">
                         <input type="date" className="form-control"
                           name="data_nascimento"
-                          value={doctorData.data_nascimento}
+                          value={doctors.data_nascimento}
                           onChange={handleChange}
                         />
                       </div>
@@ -199,7 +191,7 @@ function DoctorForm() {
                       <label>Telefone </label>
                       <input className="form-control" type="text" ref={withMask('+99 (99)99999-9999')}
                         name="telefone"
-                        value={doctorData.telefone}
+                        value={doctors.telefone}
                         onChange={handleChange}
                       />
                     </div>
@@ -211,7 +203,7 @@ function DoctorForm() {
                         <label className="form-check-label">
                           <input type="radio" name="sexo" className="form-check-input"
                             value={"Masculino"}
-                            checked={doctorData.sexo === "Masculino"}
+                            checked={doctors.sexo === "Masculino"}
                             onChange={handleChange}
                           />Masculino
                         </label>
@@ -220,7 +212,7 @@ function DoctorForm() {
                         <label className="form-check-label">
                           <input type="radio" name="sexo" className="form-check-input"
                             value={"Feminino"}
-                            checked={doctorData.sexo === "Feminino"}
+                            checked={doctors.sexo === "Feminino"}
                             onChange={handleChange}
                           />Feminino
                         </label>
@@ -229,7 +221,7 @@ function DoctorForm() {
                         <label className="form-check-label">
                           <input type="radio" name="sexo" className="form-check-input"
                             value={"Outro"}
-                            checked={doctorData.sexo === "Outro"}
+                            checked={doctors.sexo === "Outro"}
                             onChange={handleChange}
                           />Outro
                         </label>
@@ -248,7 +240,7 @@ function DoctorForm() {
                           <input type="text" className="form-control "
                             id="cep"
                             name="cep"
-                            value={doctorData.cep}
+                            value={doctors.cep}
                             onChange={handleChange}
                             onBlur={buscarCep}
                           />
@@ -260,7 +252,7 @@ function DoctorForm() {
                           <input type="text" className="form-control "
                             id="bairro"
                             name="bairro"
-                            value={doctorData.bairro}
+                            value={doctors.bairro}
                             onChange={handleChange}
                           />
                         </div>
@@ -272,7 +264,7 @@ function DoctorForm() {
                             id="referencia"
                             name="referencia"
                             Referência
-                            value={doctorData.referencia}
+                            value={doctors.referencia}
                             onChange={handleChange}
                           />
                         </div>
@@ -284,7 +276,7 @@ function DoctorForm() {
                             id="logradouro"
                             name="logradouro"
                             Referência
-                            value={doctorData.logradouro}
+                            value={doctors.logradouro}
                             onChange={handleChange}
                           />
                         </div>
@@ -296,7 +288,7 @@ function DoctorForm() {
                             id="complemento"
                             name="complemento"
                             Referência
-                            value={doctorData.complemento}
+                            value={doctors.complemento}
                             onChange={handleChange}
                           />
                         </div>
@@ -307,7 +299,7 @@ function DoctorForm() {
                           <input type="text" className="form-control"
                             id="cidade"
                             name="cidade"
-                            value={doctorData.cidade}
+                            value={doctors.cidade}
                             onChange={handleChange}
 
                           />
@@ -319,7 +311,7 @@ function DoctorForm() {
                           <input type="text" className="form-control"
                             id="estado"
                             name="estado"
-                            value={doctorData.estado}
+                            value={doctors.estado}
                             onChange={handleChange}
                           />
                         </div>
@@ -330,7 +322,7 @@ function DoctorForm() {
                           <input type="text" className="form-control"
                             id="numero"
                             name="numero"
-                            value={doctorData.numero}
+                            value={doctors.numero}
                             onChange={handleChange}
                           />
                         </div>
@@ -371,7 +363,7 @@ function DoctorForm() {
                     rows="3"
                     cols="30"
                     name="biografia"
-                    value={doctorData.biografia}
+                    value={doctors.biografia}
                     onChange={handleChange}
                   ></textarea>
                 </div>
@@ -384,7 +376,7 @@ function DoctorForm() {
                       name="status"
                       id="status"
                       value="ativo"
-                      checked={doctorData.status === "ativo"}
+                      checked={doctors.status === "ativo"}
                       onChange={handleChange}
                     />
                     <label
@@ -401,7 +393,7 @@ function DoctorForm() {
                       name="status"
                       id="status"
                       value="inativo"
-                      checked={doctorData.status === "inativo"}
+                      checked={doctors.status === "inativo"}
                       onChange={handleChange}
                     />
                     <label
@@ -415,8 +407,8 @@ function DoctorForm() {
                 <div className="m-t-20 text-center">
                  <Link to="/doctorlist"><button 
                   className="btn btn-primary submit-btn"
-                    onClick={handleSubmit}>
-                    Cadastrar Médico
+                    onClick={handleEdit}>
+                    Editar
                   </button></Link>
                 </div>
               </form>
@@ -427,4 +419,4 @@ function DoctorForm() {
     </div>
   );
 }
-export default DoctorForm
+export default EditDoctor

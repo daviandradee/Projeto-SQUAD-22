@@ -32,15 +32,14 @@ function Doctors() {
       <div className="content">
         <div className="row">
           <div className="col-sm-4 col-3">
-            <h4 className="page-title">Doutores</h4>
+            <h4 className="page-title">Médicos</h4>
           </div>
           <div className="col-sm-8 col-9 text-right m-b-20">
             <Link
               to="/doctorform"
               className="btn btn-primary btn-rounded float-right"
-              onClick={console.log(doctors)}
             >
-              <i className="fa fa-plus"></i> Adicionar Doutor
+              <i className="fa fa-plus"></i> Adicionar Médico
             </Link>
           </div>
         </div>
@@ -84,8 +83,8 @@ function Doctors() {
                     >
                       {/* Edit */}
                       <Link
-                        className="dropdown-item"
-                        to={`/doctorform/${doctor.id}`}
+                        className="dropdown-item edit"
+                        to={`/editdoctor/${doctor.id}`}
                         style={{
                           display: "flex",
                           alignItems: "center",

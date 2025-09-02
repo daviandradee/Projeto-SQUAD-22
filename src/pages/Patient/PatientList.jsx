@@ -122,7 +122,7 @@ function PatientList() {
                                   {/* Edit */}
                                   <Link
                                     className="dropdown-item"
-                                    to={`/patients/edit/${p.id}`}
+                                    to={`/editpatient/${p.id}`}
                                     onClick={(e) => e.stopPropagation()} // evita scroll/pulo
                                     style={{
                                       display: "flex",

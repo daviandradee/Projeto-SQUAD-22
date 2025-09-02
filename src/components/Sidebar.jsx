@@ -17,7 +17,7 @@ function Sidebar() {
 
                             <li>
                                 <Link to="/doctorlist">
-                                    <i className="fa fa-user-md" /> <span>Doutores</span>
+                                    <i className="fa fa-user-md" /> <span>Médicos</span>
                                 </Link>
                             </li>
 

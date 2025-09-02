@@ -13,6 +13,8 @@ import DoctorForm from "./pages/Doctor/DoctorForm.jsx";
 import Doctorschedule from "./pages/Schedule/DoctorSchedule.jsx";
 import AddSchedule from "./pages/Schedule/AddSchedule.jsx";
 import Calendar from "./pages/calendar/Calendar1.jsx";
+import EditDoctor from "./pages/Doctor/DoctorEdit.jsx";
+import PatientEdit from "./pages/Patient/PatientEdit.jsx";
 
 // Médico
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
@@ -34,6 +36,8 @@ const router = createBrowserRouter([
       { path: "/addschedule", element: <AddSchedule /> },
       { path: "/calendar", element: <Calendar /> },
       { path: "/profiledoctor/:id", element: <DoctorProfile />},
+      { path: "/editdoctor/:id", element: <EditDoctor />},
+      { path: "/editpatient/:id", element: <PatientEdit />}
     ],
   },
 
