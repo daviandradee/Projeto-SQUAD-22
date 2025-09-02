@@ -1,8 +1,24 @@
 import "../../assets/css/index.css"
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom"
+import supabase from "../../Supabase"
 
 
 function Doctors() {
+    const [doctors, setDoctors] = useState([]);
+    useEffect(() => {
+    const fetchDoctors = async () => {
+      const {data, error} = await supabase
+        .from('Doctor')
+        .select('*');
+      if(error){
+        console.error("Erro ao buscar pacientes:", error);
+      }else{
+        setDoctors(data);
+      }
+    };
+    fetchDoctors();
+  } , []);
     return (
         <div className="page-wrapper">
             <div className="content">
@@ -11,7 +27,8 @@ function Doctors() {
                         <h4 className="page-title">Doutores</h4>
                     </div>
                     <div className="col-sm-8 col-9 text-right m-b-20">
-                        <Link to= "/doctorform" className="btn btn-primary btn-rounded float-right">
+                        <Link to= "/doctorform" className="btn btn-primary btn-rounded float-right"
+                        onClick={console.log(doctors)}>
                             <i className="fa fa-plus">
                                 </i> Adicionar Doutor
                         </Link>
@@ -20,7 +37,8 @@ function Doctors() {
 
                 <div className="row doctor-grid">
                     {/* Exemplo de um card de doutor */}
-                    <div className="col-md-4 col-sm-4 col-lg-3">
+                    {doctors.map((doctors) => (
+                    <div key={doctors.id} className="col-md-4 col-sm-4 col-lg-3">
                         <div className="profile-widget">
                             <div className="doctor-img">
                                 <a className="avatar" href="profile.html">
@@ -51,14 +69,15 @@ function Doctors() {
                                 </div>
                             </div>
                             <h4 className="doctor-name text-ellipsis">
-                                <a href="profile.html">Cristina Gomes</a>
+                                <a href="profile.html">{doctors.nome} {doctors.sobrenome}</a>
                             </h4>
-                            <div className="doc-prof">Ginecologista</div>
+                            <div className="doc-prof">{doctors.especialidade}</div>
                             <div className="user-country">
-                                <i className="fa fa-map-marker"></i> Rio de Janeiro
+                                <i className="fa fa-map-marker"></i> {doctors.cidade}
                             </div>
                         </div>
                     </div>
+                 ))}
                     {/* ... repete os outros cards dos doutores ... */}
                 </div>
             </div>

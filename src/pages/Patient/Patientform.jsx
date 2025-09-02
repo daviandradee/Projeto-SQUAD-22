@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
+import { Link } from "react-router-dom";
 import { data } from "react-router-dom";
 function Patientform() {
     const [patientData, setpatientData] = useState({
@@ -77,7 +78,6 @@ function Patientform() {
 
 // enviando para o supabase
     const handleSubmit = async (e) => {
-        e.preventDefault();
         console.log(patientData);
 
         const{data, error} = await supabase
@@ -504,12 +504,12 @@ function Patientform() {
 
 
                                 <div className="m-t-20 text-center">
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary submit-btn"
-                                        
-                                        
-                                    >Criar Paciente</button>
+                                        <Link to="/patientlist">
+                                            <button
+                                            className="btn btn-primary submit-btn"
+                                            onClick={handleSubmit}
+                                            >Criar Paciente</button>
+                                        </Link>
                                 </div>
                             </form>
                         </div>
