@@ -1,41 +1,29 @@
 import { Link } from "react-router-dom";
 import "../../assets/css/index.css"
 import { useState, useEffect } from "react";
+import supabase from "../../Supabase"
 
 
 function PatientList() {
   // Estado da busca
   const [search, setSearch] = useState("");
+  // use state para guardar os pacientes
   const [patients, setPatients] = useState([]);
-  var requestOptions = {
-   method: 'GET',
-   redirect: 'follow'
-  };
+  // aqui vamos buscar os pacientes no supabase
   useEffect(() => {
-  fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-  .then(response => response.json())
-  .then(result => {
-    console.log("API result:", result);
-
-    // Se "data" for um array, usa direto.
-    // Se for objeto, transforma em array com [ ]
-    if (Array.isArray(result.data)) {
-      setPatients(result.data);
-    } else if (result.data) {
-      setPatients([result.data]);
-    } else {
-      setPatients([]); // caso venha null ou vazio
-    }
-  })
-  .catch(error => console.log("error", error));
-  }, [])
+    const fetchPatients = async () => {
+      const {data, error} = await supabase
+        .from('Patient')
+        .select('*');
+      if(error){
+        console.error("Erro ao buscar pacientes:", error);
+      }else{
+        setPatients(data);
+      }
+    };
+    fetchPatients();
+  } , []);
   
-
-  
-
-  // Aqui futuramente você pode substituir pelos pacientes vindos do backend
-  
-
   // Filtra pacientes de acordo com o texto digitado
   const filteredPatients = patients.filter(
     (p) =>
@@ -91,7 +79,7 @@ function PatientList() {
                           <td>{p.nome}</td>
                           <td>{p.cpf}</td>
                           <td>{p.data_nascimento}</td>
-                          <td>{p.telefone}</td>
+                          <td>{p.celular}</td>
                           <td>{p.email}</td>
                           <td className="text-right">
                             <div className="dropdown dropdown-action">
