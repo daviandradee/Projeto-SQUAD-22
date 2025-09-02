@@ -18,6 +18,7 @@ import Calendar from "./pages/calendar/Calendar1.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
+import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 
 const router = createBrowserRouter([
   // Rotas do Admin
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: "/doctorschedule", element: <Doctorschedule /> },
       { path: "/addschedule", element: <AddSchedule /> },
       { path: "/calendar", element: <Calendar /> },
+      { path: "/profiledoctor/:id", element: <DoctorProfile />},
     ],
   },
 

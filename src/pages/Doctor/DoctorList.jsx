@@ -41,9 +41,9 @@ function Doctors() {
                     <div key={doctors.id} className="col-md-4 col-sm-4 col-lg-3">
                         <div className="profile-widget">
                             <div className="doctor-img">
-                                <a className="avatar" href="profile.html">
+                                <Link to={`/profiledoctor/${doctors.id}`}><a className="avatar" href="profile.html">
                                     <img alt="" src="public/img/doctor-thumb-03.jpg" />
-                                </a>
+                                </a></Link>
                             </div>
                             <div className="dropdown profile-action">
                                 <a
