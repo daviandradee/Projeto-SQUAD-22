@@ -2,39 +2,40 @@ import { useState } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
+import { data } from "react-router-dom";
 function Patientform() {
     const [patientData, setpatientData] = useState({
-        nome: null,
-        nome_social: null,
-        cpf: null,
-        rg: null,
-        outros_documentos: null,
-        numero_documento: null,
-        estado_civil: null,
-        raça: null,
+        nome: "",
+        nome_social: "",
+        cpf: "",
+        rg: "",
+        outros_documentos: "",
+        numero_documento: "",
+        estado_civil: "",
+        raça: "",
         data_nascimento: null,
-        profissao: null,
-        nome_pai: null,
-        profissao_pai: null,
-        nome_mae: null,
-        profissao_mae: null,
-        nome_responsavel:null,
-        codigo_legado: null,  
+        profissao: "",
+        nome_pai: "",
+        profissao_pai: "",
+        nome_mae: "",
+        profissao_mae: "",
+        nome_responsavel:"",
+        codigo_legado: "",  
         rn: "false",
-        sexo: null,
-        celular: null,
-        email: null,
-        telefone1: null,
-        telefone2: null,
-        cep: null,
-        estado: null,
-        logradouro: null,
-        bairro: null,
-        numero: null,
-        complemento: null,
-        referencia: null,
+        sexo: "",
+        celular: "",
+        email: "",
+        telefone1: "",
+        telefone2: "",
+        cep: "",
+        estado: "",
+        logradouro: "",
+        bairro: "",
+        numero: "",
+        complemento: "",
+        referencia: "",
         status: "inativo",
-        observaçao: null
+        observaçao: ""
     })
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
@@ -46,7 +47,35 @@ function Patientform() {
             [name]: value
         }));
     };
+    // aqui esta sentando os valores nos inputs 
+    const setValuesFromCep = (data) => {
+        document.getElementById('logradouro').value = data.logradouro || '';
+        document.getElementById('bairro').value = data.bairro || '';
+        document.getElementById('cidade').value = data.localidade || '';
+        document.getElementById('estado').value = data.uf || '';
+    }
+    const buscarCep  = (e) => {
+        const cep = patientData.cep.replace(/\D/g, '');
+        console.log(cep);
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(response => response.json())
+            .then(data => {
+            console.log(data)
+            // salvando os valores para depois colocar nos inputs
+            setValuesFromCep(data)
+            // estou salvando os valoeres no patientData
+            setpatientData((prev) => ({
+                ...prev,
+                cidade: data.localidade || '',
+                logradouro: data.logradouro || '',
+                bairro: data.bairro || '',
+                estado: data.estado || ''   
+            }));
+            })
+    } 
+    
 
+// enviando para o supabase
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(patientData);
@@ -54,13 +83,11 @@ function Patientform() {
         const{data, error} = await supabase
         .from("Patient")
         .insert([patientData])
-        .select()
         if(error){
             console.log("Erro ao inserir paciente:", error);
         }else{
             console.log("Paciente inserido com sucesso:", data);
         }
-        e.target.reset(patientData)
     };
 
     return (
@@ -237,6 +264,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Nome do pai</label>
                                             <input className="form-control" type="text"
+
                                                 name="nome_pai"
                                                 value={patientData.nome_pai}
                                                 onChange={handleChange} />
@@ -348,11 +376,13 @@ function Patientform() {
                                                 name="cep"
                                                 value={patientData.cep}
                                                 onChange={handleChange}
+                                                onBlur={buscarCep}
                                             />
                                         </div>
                                         <div className="form-group">
                                             <label>Cidade</label>
                                             <input className="form-control" type="text"
+                                                id="cidade"
                                                 name="cidade"
                                                 value={patientData.cidade}
                                                 onChange={handleChange}
@@ -361,6 +391,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Logradouro</label>
                                             <input className="form-control" type="text"
+                                                id="logradouro"
                                                 name="logradouro"
                                                 value={patientData.logradouro}
                                                 onChange={handleChange}
@@ -369,6 +400,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Complemento</label>
                                             <input className="form-control" type="text"
+                                                id="complemento"
                                                 name="complemento"
                                                 value={patientData.complemento}
                                                 onChange={handleChange}
@@ -379,6 +411,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Estado</label>
                                             <input className="form-control" type="text" 
+                                                id="estado"
                                                 name="estado"
                                                 value={patientData.estado}
                                                 onChange={handleChange}
@@ -395,6 +428,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Bairro</label>
                                             <input className="form-control" type="text"
+                                                id="bairro"
                                                 name="bairro"
                                                 value={patientData.bairro}
                                                 onChange={handleChange}
