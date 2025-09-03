@@ -2,8 +2,7 @@ import { useState } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
-import { Link } from "react-router-dom";
-import { data } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 function Patientform() {
     const [patientData, setpatientData] = useState({
         nome: "",
@@ -75,18 +74,47 @@ function Patientform() {
             })
     } 
     
-
-// enviando para o supabase
+    const navigate = useNavigate();
+    // enviando para o supabase
     const handleSubmit = async (e) => {
-        console.log(patientData);
+        e.preventDefault();
 
-        const{data, error} = await supabase
-        .from("Patient")
-        .insert([patientData])
-        if(error){
+        // Campos obrigatórios
+        const requiredFields = [
+            "nome",
+            "cpf",
+            "data_nascimento",
+            "sexo",
+            "celular",
+            "cep",
+            "logradouro",
+            "numero",
+            "bairro",
+            "estado",
+            "status",
+            "email"
+        ];
+
+        const missingFields = requiredFields.filter(
+            (field) => !patientData[field] || patientData[field].toString().trim() === ""
+        );
+
+        if (missingFields.length > 0) {
+            alert("Por favor, preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("Patient")
+            .insert([patientData]);
+
+        if (error) {
             console.log("Erro ao inserir paciente:", error);
-        }else{
+            alert("Erro ao cadastrar paciente.");
+        } else {
             console.log("Paciente inserido com sucesso:", data);
+            alert("Paciente cadastrado com sucesso!");
+            navigate("/patientlist");
         }
     };
 
@@ -225,7 +253,7 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>CPF</label>
+                                            <label>CPF</label><span className="text-danger">*</span>
                                             <input className="form-control" type="text" ref={withMask('cpf')}
                                                 name="cpf"
                                                 value={patientData.cpf}
@@ -254,7 +282,7 @@ function Patientform() {
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label>Data de Nascimento</label>
+                                            <label>Data de Nascimento</label><span className="text-danger">*</span>
                                             <input type="date" className="form-control"
                                                 name="data_nascimento"
                                                 value={patientData.data_nascimento}
@@ -294,7 +322,7 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group gender-select">
-                                            <label className="gen-label">Sexo:</label>
+                                            <label className="gen-label">Sexo:<span className="text-danger">*</span></label>
                                             <div className="form-check-inline">
                                                 <label className="form-check-label">
                                                     <input type="radio" name="sexo" className="form-check-input"
@@ -330,7 +358,7 @@ function Patientform() {
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Celular</label>
+                                            <label>Celular</label><span className="text-danger">*</span>
                                             <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
                                                 name="celular"
                                                 value={patientData.celular}
@@ -347,7 +375,7 @@ function Patientform() {
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Email</label>
+                                            <label>Email</label><span className="text-danger">*</span>
                                             <input className="form-control" type="email" 
                                                 name="email"
                                                 value={patientData.email}
@@ -371,7 +399,7 @@ function Patientform() {
 
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>CEP</label>
+                                            <label>CEP</label><span className="text-danger">*</span>
                                             <input className="form-control" type="text"
                                                 name="cep"
                                                 value={patientData.cep}
@@ -380,7 +408,7 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Cidade</label>
+                                            <label>Cidade</label><span className="text-danger">*</span>
                                             <input className="form-control" type="text"
                                                 id="cidade"
                                                 name="cidade"
@@ -389,7 +417,7 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Logradouro</label>
+                                            <label>Logradouro<span className="text-danger">*</span></label>
                                             <input className="form-control" type="text"
                                                 id="logradouro"
                                                 name="logradouro"
@@ -409,7 +437,7 @@ function Patientform() {
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Estado</label>
+                                            <label>Estado<span className="text-danger">*</span></label>
                                             <input className="form-control" type="text" 
                                                 id="estado"
                                                 name="estado"
@@ -418,7 +446,7 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Número</label>
+                                            <label>Número<span className="text-danger">*</span></label>
                                             <input className="form-control" type="text"
                                                 name="numero"
                                                 value={patientData.numero}
@@ -449,7 +477,7 @@ function Patientform() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label className="display-block">Status</label>
+                                    <label className="display-block" >Status<span className="text-danger">*</span></label>
                                     <div className="form-check form-check-inline">
                                         <input
                                             className="form-check-input"
@@ -504,12 +532,12 @@ function Patientform() {
 
 
                                 <div className="m-t-20 text-center">
-                                        <Link to="/patientlist">
+                                        
                                             <button
                                             className="btn btn-primary submit-btn"
-                                            onClick={handleSubmit}
+                                            type="submit"
                                             >Criar Paciente</button>
-                                        </Link>
+                                        
                                 </div>
                             </form>
                         </div>

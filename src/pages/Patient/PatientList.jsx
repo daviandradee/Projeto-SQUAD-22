@@ -77,6 +77,7 @@ function PatientList() {
                       <th>Data de Nascimento</th>
                       <th>Telefone</th>
                       <th>Email</th>
+                      <th>Status</th>
                       <th className="text-right">Ações</th>
                     </tr>
                   </thead>
@@ -89,6 +90,7 @@ function PatientList() {
                           <td>{p.data_nascimento}</td>
                           <td>{p.celular}</td>
                           <td>{p.email}</td>
+                          <td>{p.status}</td>
                           <td className="text-right">
                             <div className="dropdown dropdown-action" style={{ position: "relative" }}>
                               <button

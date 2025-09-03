@@ -3,6 +3,7 @@ import { withMask } from "use-mask-input";
 import { useState } from "react";
 import supabase from "../../Supabase"
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function DoctorForm() {
 
@@ -38,16 +39,34 @@ function DoctorForm() {
       [name]: value
     }));
   }
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
 
-    console.log(doctorData);
+
+    const requiredFields = ["nome","cpf","crm","senha","confirmarsenha","data_nascimento","sexo","cep","logradouro","numero","bairro","cidade","estado"];
+    const missing = requiredFields.filter(f => !doctorData[f] || doctorData[f].toString().trim() === "");
+    if (missing.length > 0) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    // Verificar se senha e confirmarSenha são iguais
+    if (doctorData.senha !== doctorData.confirmarsenha) {
+      alert("Senha e Confirmar Senha não coincidem.");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("Doctor")
-      .insert([doctorData])
+      .insert([doctorData]);
+
     if (error) {
-      console.log("Erro ao inserir paciente:", error);
+      console.error("Erro ao cadastrar doutor:", error);
+      alert(`Erro ao cadastrar doutor: ${error.message}`);
     } else {
-      console.log("Paciente inserido com sucesso:", data);
+      alert("Doutor cadastrado com sucesso!");
+      navigate("/doctorlist");
     }
   };
 
@@ -97,6 +116,7 @@ function DoctorForm() {
                       </label>
                       <input className="form-control" type="text"
                         name="nome"
+                  
                         value={doctorData.nome}
                         onChange={handleChange}
                       />
@@ -176,8 +196,8 @@ function DoctorForm() {
                     <div className="form-group">
                       <label>Confirmar Senha</label>
                       <input className="form-control" type="password"
-                        name="confirmarSenha"
-                        value={doctorData.confirmarSenha}
+                        name="confirmarsenha"
+                        value={doctorData.confirmarsenha}
                         onChange={handleChange}
                       />
                     </div>

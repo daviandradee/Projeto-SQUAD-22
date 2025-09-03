@@ -9,7 +9,9 @@ function Doctors() {
 
   useEffect(() => {
     const fetchDoctors = async () => {
-      const { data, error } = await supabase.from("Doctor").select("*");
+      const { data, error } = await supabase
+      .from("Doctor")
+      .select("*");
       if (error) {
         console.error("Erro ao buscar pacientes:", error);
       } else {
@@ -81,6 +83,14 @@ function Doctors() {
                         border: "1px solid #ddd",
                       }}
                     >
+                      {/* Ver Detalhes */}
+                      <Link
+                        className="dropdown-item-custom"
+                        to={`/profiledoctor/${doctor.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <i className="fa fa-eye"></i> Ver Detalhes
+                      </Link>
                       {/* Edit */}
                       <Link
                         className="dropdown-item edit"

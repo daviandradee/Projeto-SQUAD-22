@@ -45,7 +45,7 @@ function DoctorProfile() {
                   <div className="profile-img-wrap">
                     <div className="profile-img">
                       <a href="#">
-                        <img className="avatar" src="assets/img/doctor-03.jpg" alt="doctor" />
+                        <img className="avatar" src="assets/img/doctor-03.jpg"  />
                       </a>
                     </div>
                   </div>
