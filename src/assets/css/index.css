@@ -20,4 +20,58 @@
 /* Estilos próprios */
 @import './style.css'; 
 
+.dropdown-menu dropdown-menu-right show {
+  min-width: 120px;
+  padding: 5px 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  position: absolute;
+  right: 0;
+  z-index: 100;
+}
+.dropdown-item-custom {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-weight: 500;
+  color: #007bff;
+  text-decoration: none;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-item-custom:hover {
+  background-color: #f0f0f0;
+}
+.dropdown-item-delete {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-weight: 500;
+  color: #dc3545;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
 
+.dropdown-item-delete:hover {
+  background-color: #f8d7da;
+}
+
+
+.dropdown-item-custom i,
+.dropdown-item-delete i {
+  margin-right: 5px;
+}
+
+
+.action-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
