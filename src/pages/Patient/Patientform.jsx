@@ -2,8 +2,8 @@ import { useState } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
-import { Link } from "react-router-dom";
-import { data } from "react-router-dom";
+import { navigate } from "react-router-dom";
+
 function Patientform() {
     const [patientData, setpatientData] = useState({
         nome: "",
@@ -83,11 +83,8 @@ function Patientform() {
         const{data, error} = await supabase
         .from("Patient")
         .insert([patientData])
-        if(error){
-            console.log("Erro ao inserir paciente:", error);
-        }else{
-            console.log("Paciente inserido com sucesso:", data);
-        }
+        navigate("/patientlist")
+        
     };
 
     return (
@@ -103,7 +100,7 @@ function Patientform() {
 
                     <div className="row">
                         <div className="col-lg-8 offset-lg-2">
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit} >
                                 <div className="row">
                                     <div className="col-sm-6">
                                         <div className="form-group">
@@ -227,6 +224,7 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>CPF</label>
                                             <input className="form-control" type="text" ref={withMask('cpf')}
+                                                required
                                                 name="cpf"
                                                 value={patientData.cpf}
                                                 onChange={handleChange}
@@ -504,12 +502,11 @@ function Patientform() {
 
 
                                 <div className="m-t-20 text-center">
-                                        <Link to="/patientlist">
+                                        
                                             <button
                                             className="btn btn-primary submit-btn"
-                                            onClick={handleSubmit}
+                                            type="submit"
                                             >Criar Paciente</button>
-                                        </Link>
                                 </div>
                             </form>
                         </div>
