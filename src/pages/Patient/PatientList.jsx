@@ -109,56 +109,20 @@ function PatientList() {
                               {openDropdown === p.id && (
                                 <div
                                   className="dropdown-menu dropdown-menu-right show"
-                                  style={{
-                                    minWidth: "120px",
-                                    padding: "5px 0",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                                    backgroundColor: "#fff",
-                                    border: "1px solid #ddd",
-                                    position: "absolute",
-                                    right: 0,
-                                    zIndex: 100,
-                                  }}
                                 >
                                   {/* Edit */}
                                   <Link
-                                    className="dropdown-item"
+                                    className="dropdown-item-custom"
                                     to={`/editpatient/${p.id}`}
                                     onClick={(e) => e.stopPropagation()} // evita scroll/pulo
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      padding: "8px 12px",
-                                      color: "#007bff",
-                                      fontWeight: 500,
-                                      textDecoration: "none",
-                                      transition: "background 0.2s",
-                                    }}
-                                    onMouseEnter={(e) => (e.target.style.background = "#f0f0f0")}
-                                    onMouseLeave={(e) => (e.target.style.background = "transparent")}
                                   >
                                     <i className="fa fa-pencil m-r-5"></i> Editar
                                   </Link>
 
                                   {/* Delete */}
                                   <button
-                                    className="dropdown-item"
+                                    className="dropdown-item-custom dropdown-item-delete"
                                     onClick={() => handleDelete(p.id)}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      padding: "8px 12px",
-                                      color: "#dc3545",
-                                      fontWeight: 500,
-                                      width: "100%",
-                                      border: "none",
-                                      background: "none",
-                                      cursor: "pointer",
-                                      transition: "background 0.2s",
-                                    }}
-                                    onMouseEnter={(e) => (e.target.style.background = "#f8d7da")}
-                                    onMouseLeave={(e) => (e.target.style.background = "transparent")}
                                   >
                                     <i className="fa fa-trash-o m-r-5"></i> Excluir
                                   </button>
