@@ -1,0 +1,23 @@
+/* Bootstrap */
+@import './bootstrap-datetimepicker.min.css';
+@import './bootstrap.min.css';
+
+/* DataTables */
+@import './dataTables.bootstrap4.min.css';
+
+/* Font Awesome */
+@import './font-awesome.min.css';
+
+/* FullCalendar */
+@import './fullcalendar.min.css';
+
+/* Select2 */
+@import './select2.min.css';
+
+/* Tags Input */
+@import './tagsinput.css';
+
+/* Estilos próprios */
+@import './style.css'; 
+
+
