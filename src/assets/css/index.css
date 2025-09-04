@@ -20,8 +20,10 @@
 /* Estilos próprios */
 @import './style.css'; 
 
-.dropdown-menu dropdown-menu-right show {
+.dropdown-menu.dropdown-menu-right.show {
   min-width: 120px;
+  max-width: 220px; /* <- adiciona um limite */
+  width: max-content; /* <- faz caber só o necessário */
   padding: 5px 0;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -31,6 +33,7 @@
   right: 0;
   z-index: 100;
 }
+
 .dropdown-item-custom {
   display: flex;
   align-items: center;
