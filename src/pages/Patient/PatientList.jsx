@@ -3,12 +3,30 @@ import "../../assets/css/index.css";
 import { useState, useEffect } from "react";
 import supabase from "../../Supabase";
 
+
 function PatientList() {
   const [search, setSearch] = useState("");
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null); // Controla qual dropdown está aberto
 
-  // Busca pacientes do Supabase
+   var requestOptions = {
+   method: 'GET',
+   redirect: 'follow'
+  };
+  useEffect(() => {
+    
+
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      console.log("API result:", result);
+        setPatients(result.data);
+    })
+    .catch(error => console.log("error", error));
+    }, [])
+
+
+ /* // Busca pacientes do Supabase
   useEffect(() => {
     const fetchPatients = async () => {
       const { data, error } = await supabase.from("Patient").select("*");
@@ -20,19 +38,19 @@ function PatientList() {
     };
     fetchPatients();
   }, []);
-
+  /*
   // Função para deletar paciente
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("Tem certeza que deseja deletar este paciente?");
-    if (!confirm) return;
+  //const handleDelete = async (id) => {
+    //const confirm = window.confirm("Tem certeza que deseja deletar este paciente?");
+    //if (!confirm) return;
 
-    const { error } = await supabase.from("Patient").delete().eq("id", id);
-    if (error) {
-      alert("Erro ao deletar paciente: " + error.message);
-    } else {
+    //const { error } = await supabase.from("Patient").delete().eq("id", id);
+    //if (error) {
+      //alert("Erro ao deletar paciente: " + error.message);
+    /} else {
       setPatients(patients.filter((p) => p.id !== id));
     }
-  };
+  };*/
 
   // Filtra pacientes de acordo com a busca
   const filteredPatients = patients.filter(
@@ -94,7 +112,7 @@ function PatientList() {
                           <td>{p.nome}</td>
                           <td>{mascararCPF(p.cpf)}</td>
                           <td>{p.data_nascimento}</td>
-                          <td>{p.celular}</td>
+                          <td>{p.telefone}</td>
                           <td>{p.email}</td>
                           <td>{p.status}</td>
                           <td className="text-right">
