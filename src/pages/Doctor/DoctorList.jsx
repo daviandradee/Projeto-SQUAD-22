@@ -51,11 +51,11 @@ function Doctors() {
             <div key={doctor.id} className="col-md-4 col-sm-4 col-lg-3">
               <div className="profile-widget">
                 <div className="doctor-img">
-                  <Link to={`/profiledoctor/${doctor.id}`}>
+                  
                     <div className="avatar">
                       <img alt="" src="public/img/doctor-thumb-03.jpg" />
                     </div>
-                  </Link>
+
                 </div>
 
                 {/* Dropdown estilizado */}

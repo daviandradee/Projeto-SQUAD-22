@@ -116,7 +116,6 @@ function DoctorForm() {
                       </label>
                       <input className="form-control" type="text"
                         name="nome"
-                  
                         value={doctorData.nome}
                         onChange={handleChange}
                       />

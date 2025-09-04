@@ -1,3 +1,4 @@
+import "../../assets/css/index.css";
 import supabase from "../../Supabase";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -28,13 +29,9 @@ function DoctorProfile() {
         <div className="content">
           <div className="row">
             <div className="col-sm-7 col-6">
-              <h4 className="page-title">My Profile</h4>
+              <h4 className="page-title">Perfil Médico</h4>
             </div>
-            <div className="col-sm-5 col-6 text-right m-b-30">
-              <a  className="btn btn-primary btn-rounded">
-                <i className="fa fa-plus"></i> Edit Profile
-              </a>
-            </div>
+            
           </div>
 
           {/* Profile Header */}
@@ -45,7 +42,8 @@ function DoctorProfile() {
                   <div className="profile-img-wrap">
                     <div className="profile-img">
                       <a href="#">
-                        <img className="avatar" src="assets/img/doctor-03.jpg"  />
+                     
+                        <img className="avatar" src="public/img/doctor-thumb-03.jpg" />
                       </a>
                     </div>
                   </div>
@@ -54,11 +52,8 @@ function DoctorProfile() {
                       <div className="col-md-5">
                         <div className="profile-info-left"> 
                           <h3 className="user-name m-t-0 mb-0">{doctorData.nome} {doctorData.sobrenome}</h3>
-                          <small className="text-muted">{doctorData.especialidade}</small>
+                          <a className="text">{doctorData.especialidade}</a> 
                           <div className="staff-id"></div>
-                          <div className="staff-msg">
-                            <a href="chat.html" className="btn btn-primary">Send Message</a>
-                          </div>
                         </div>
                       </div>
                       <div className="col-md-7">
@@ -97,13 +92,7 @@ function DoctorProfile() {
           <div className="profile-tabs">
             <ul className="nav nav-tabs nav-tabs-bottom">
               <li className="nav-item">
-                <a className="nav-link active" href="#about-cont" data-toggle="tab">About</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#bottom-tab2" data-toggle="tab">Profile</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#bottom-tab3" data-toggle="tab">Messages</a>
+                <a className="nav-link active" href="#about-cont" data-toggle="tab">Sobre</a>
               </li>
             </ul>
 
@@ -124,28 +113,10 @@ function DoctorProfile() {
                       </div>
                     </div>
 
-                    <div className="card-box mb-0">
-                      <h3 className="card-title">Experience</h3>
-                      <div className="experience-box">
-                        <ul className="experience-list">
-                          <li>
-                            <div className="experience-user"><div className="before-circle"></div></div>
-                            <div className="experience-content">
-                              <div className="timeline-content">
-                                <a href="#/" className="name">Consultant Gynecologist</a>
-                                <span className="time">Jan 2014 - Present</span>
-                              </div>
-                            </div>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
 
                   </div>
                 </div>
               </div>
-              <div className="tab-pane" id="bottom-tab2">Tab content 2</div>
-              <div className="tab-pane" id="bottom-tab3">Tab content 3</div>
             </div>
           </div>
         </div>
