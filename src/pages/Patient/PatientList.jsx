@@ -41,6 +41,12 @@ function PatientList() {
       p.cpf.toLowerCase().includes(search.toLowerCase()) ||
       p.email.toLowerCase().includes(search.toLowerCase())
   );
+  const mascararCPF = (cpf) => {
+
+  const inicio = cpf.slice(0, 3);
+  const fim = cpf.slice(-2);
+  return `${inicio}.***.***-${fim}`;
+};
 
   return (
     <div className="main-wrapper">
@@ -86,7 +92,7 @@ function PatientList() {
                       filteredPatients.map((p) => (
                         <tr key={p.id}>
                           <td>{p.nome}</td>
-                          <td>{p.cpf}</td>
+                          <td>{mascararCPF(p.cpf)}</td>
                           <td>{p.data_nascimento}</td>
                           <td>{p.celular}</td>
                           <td>{p.email}</td>
