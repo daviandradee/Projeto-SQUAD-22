@@ -110,6 +110,13 @@ function PatientList() {
                                 <div
                                   className="dropdown-menu dropdown-menu-right show"
                                 >
+                                  <Link
+                                    className="dropdown-item-custom"
+                                    
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <i className="fa fa-eye"></i> Ver Detalhes
+                                  </Link>
                                   {/* Edit */}
                                   <Link
                                     className="dropdown-item-custom"
