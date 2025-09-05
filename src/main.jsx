@@ -1,11 +1,15 @@
+// src/main.jsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./assets/css/index.css";
-import App from "./App.jsx";
-import DoctorApp from "./pages/DoctorApp/DoctorApp.jsx"; // layout do Médico
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// Admin
+import "./assets/css/index.css";
+
+// Layouts
+import App from "./App.jsx";           // Layout Admin
+import DoctorApp from "./pages/DoctorApp/DoctorApp.jsx"; // Layout Médico
+
+// Páginas Admin
 import Patientform from "./pages/Patient/Patientform.jsx";
 import PatientList from "./pages/Patient/PatientList.jsx";
 import Doctorlist from "./pages/Doctor/DoctorList.jsx";
@@ -15,47 +19,49 @@ import AddSchedule from "./pages/Schedule/AddSchedule.jsx";
 import Calendar from "./pages/calendar/Calendar1.jsx";
 import EditDoctor from "./pages/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/Patient/PatientEdit.jsx";
-
-// Médico
-import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
-import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
-import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 
+// Páginas Médico
+import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
+import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
+import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
+
+// Criando o router com todas as rotas
 const router = createBrowserRouter([
-  // Rotas do Admin
+  // Rotas Admin
   {
     path: "/",
     element: <App />,
     children: [
-      { path: "/patient", element: <Patientform /> },
-      { path: "/patientlist", element: <PatientList /> },
-      { path: "/doctorlist", element: <Doctorlist /> },
-      { path: "/doctorform", element: <DoctorForm /> },
-      { path: "/doctorschedule", element: <Doctorschedule /> },
-      { path: "/addschedule", element: <AddSchedule /> },
-      { path: "/calendar", element: <Calendar /> },
-      { path: "/profiledoctor/:id", element: <DoctorProfile />},
-      { path: "/editdoctor/:id", element: <EditDoctor />},
-      { path: "/editpatient/:id", element: <PatientEdit />}
+      // Rota inicial do Admin: apenas mostra layout com Navbar e Sidebar
+      { path: "patient", element: <Patientform /> },
+      { path: "patientlist", element: <PatientList /> },
+      { path: "doctorlist", element: <Doctorlist /> },
+      { path: "doctorform", element: <DoctorForm /> },
+      { path: "doctorschedule", element: <Doctorschedule /> },
+      { path: "addschedule", element: <AddSchedule /> },
+      { path: "calendar", element: <Calendar /> },
+      { path: "profiledoctor/:id", element: <DoctorProfile /> },
+      { path: "editdoctor/:id", element: <EditDoctor /> },
+      { path: "editpatient/:id", element: <PatientEdit /> },
     ],
   },
-
-  // Rotas do Médico
+  // Rotas Médico
   {
     path: "/doctor",
     element: <DoctorApp />,
     children: [
-      { path: "dashboard", element: <DoctorDashboard /> }, // 👈 Dashboard com gráficos/dados
-      { path: "calendar", element: <DoctorCalendar /> },   // 👈 Calendário centralizado
-      { path: "patients", element: <DoctorPatientList /> } // 👈 Lista de pacientes com laudo/receita
+      { index: true, element: <DoctorDashboard /> }, // Rota inicial médico
+      { path: "dashboard", element: <DoctorDashboard /> },
+      { path: "calendar", element: <DoctorCalendar /> },
+      { path: "patients", element: <DoctorPatientList /> },
     ],
   },
 ]);
 
+// Renderizando a aplicação
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>
 );
-

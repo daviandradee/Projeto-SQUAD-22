@@ -20,6 +20,41 @@
 /* Estilos próprios */
 @import './style.css'; 
 
+.event-card {
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9em;
+  margin: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+.event-card .event-type {
+  font-size: 0.75em;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
+.event-card .event-time {
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.event-card .event-title {
+  flex-grow: 1;
+  margin-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+
 .dropdown-menu dropdown-menu-right show {
   min-width: 120px;
   padding: 5px 0;
