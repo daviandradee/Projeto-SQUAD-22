@@ -1,4 +1,4 @@
-import "../../assets/css/index.css";
+import "../../assets/css/index.css"; 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../Supabase";
@@ -10,8 +10,8 @@ function Doctors() {
   useEffect(() => {
     const fetchDoctors = async () => {
       const { data, error } = await supabase
-      .from("Doctor")
-      .select("*");
+        .from("Doctor")
+        .select("*");
       if (error) {
         console.error("Erro ao buscar pacientes:", error);
       } else {
@@ -51,29 +51,28 @@ function Doctors() {
             <div key={doctor.id} className="col-md-4 col-sm-4 col-lg-3">
               <div className="profile-widget">
                 <div className="doctor-img">
-                  
-                    <div className="avatar">
-                      <img alt="" src="public/img/doctor-thumb-03.jpg" />
-                    </div>
-
+                  <div className="avatar">
+                    <img alt="" src="public/img/doctor-thumb-03.jpg" />
+                  </div>
                 </div>
 
                 {/* Dropdown estilizado */}
                 <div className="dropdown profile-action">
-                  <a
-                    href="#"
+                  <button
+                    type="button"
                     className="action-icon"
                     onClick={(e) => {
-                      e.preventDefault();
+                      e.stopPropagation();
                       setOpenDropdown(openDropdown === doctor.id ? null : doctor.id);
                     }}
                   >
                     <i className="fa fa-ellipsis-v"></i>
-                  </a>
+                  </button>
 
                   {openDropdown === doctor.id && (
                     <div
                       className="dropdown-menu dropdown-menu-right show"
+                      style={{ position: "absolute", zIndex: 1000 }}
                     >
                       {/* Ver Detalhes */}
                       <Link

@@ -1,52 +1,134 @@
+// PatientList.jsx
 import { Link } from "react-router-dom";
 import "../../assets/css/index.css";
-import { useState, useEffect } from "react";
-import supabase from "../../Supabase";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
+import supabase from "../../Supabase"; // se for usar supabase para delete, senão pode remover
+
+// Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
+function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
+  const menuRef = useRef(null);
+  const [stylePos, setStylePos] = useState({
+    position: "absolute",
+    top: 0,
+    left: 0,
+    visibility: "hidden",
+    zIndex: 1000,
+  });
+
+  // Posiciona o menu após renderar (medir tamanho do menu)
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    if (!anchorEl || !menuRef.current) return;
+
+    const anchorRect = anchorEl.getBoundingClientRect();
+    const menuRect = menuRef.current.getBoundingClientRect();
+    const scrollY = window.scrollY || window.pageYOffset;
+    const scrollX = window.scrollX || window.pageXOffset;
+
+    // tenta alinhar à direita do botão (como dropdown-menu-right)
+    let left = anchorRect.right + scrollX - menuRect.width;
+    let top = anchorRect.bottom + scrollY;
+
+    // evita sair da esquerda da tela
+    if (left < 0) left = scrollX + 4;
+    // se extrapolar bottom, abre para cima
+    if (top + menuRect.height > window.innerHeight + scrollY) {
+      top = anchorRect.top + scrollY - menuRect.height;
+    }
+    setStylePos({
+      position: "absolute",
+      top: `${Math.round(top)}px`,
+      left: `${Math.round(left)}px`,
+      visibility: "visible",
+      zIndex: 1000,
+    });
+  }, [isOpen, anchorEl, children]);
+
+  // fecha ao clicar fora / ao rolar
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleDocClick(e) {
+      const menu = menuRef.current;
+      if (menu && !menu.contains(e.target) && anchorEl && !anchorEl.contains(e.target)) {
+        onClose();
+      }
+    }
+    function handleScroll() {
+      onClose();
+    }
+    document.addEventListener("mousedown", handleDocClick);
+    // captura scroll em qualquer elemento (true)
+    document.addEventListener("scroll", handleScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", handleDocClick);
+      document.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isOpen, onClose, anchorEl]);
+
+  if (!isOpen) return null;
+  return createPortal(
+    <div
+      ref={menuRef}
+      className={className} // mantém as classes que você já usa no CSS
+      style={stylePos}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {children}
+    </div>,
+    document.body
+  );
+}
 
 function PatientList() {
   const [search, setSearch] = useState("");
   const [patients, setPatients] = useState([]);
-  const [openDropdown, setOpenDropdown] = useState(null); // Controla qual dropdown está aberto
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const anchorRefs = useRef({}); // guarda referência do botão de cada linha
 
-  // Busca pacientes do Supabase
-  useEffect(() => {
-    const fetchPatients = async () => {
-      const { data, error } = await supabase.from("Patient").select("*");
-      if (error) {
-        console.error("Erro ao buscar pacientes:", error);
-      } else {
-        setPatients(data);
-      }
-    };
-    fetchPatients();
-  }, []);
-
-  // Função para deletar paciente
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("Tem certeza que deseja deletar este paciente?");
-    if (!confirm) return;
-
-    const { error } = await supabase.from("Patient").delete().eq("id", id);
-    if (error) {
-      alert("Erro ao deletar paciente: " + error.message);
-    } else {
-      setPatients(patients.filter((p) => p.id !== id));
-    }
+  var requestOptions = {
+    method: "GET",
+    redirect: "follow",
   };
 
-  // Filtra pacientes de acordo com a busca
-  const filteredPatients = patients.filter(
-    (p) =>
-      p.nome.toLowerCase().includes(search.toLowerCase()) ||
-      p.cpf.toLowerCase().includes(search.toLowerCase()) ||
-      p.email.toLowerCase().includes(search.toLowerCase())
-  );
-  const mascararCPF = (cpf) => {
+  useEffect(() => {
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("API result:", result);
+        setPatients(result.data || []);
+      })
+      .catch((error) => console.log("error", error));
+  }, []);
 
-  const inicio = cpf.slice(0, 3);
-  const fim = cpf.slice(-2);
-  return `${inicio}.***.***-${fim}`;
-};
+  // Exemplo simples de delete local (confirmação + remove do state)
+  const handleDelete = async (id) => {
+    const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
+    if (!confirmDel) return;
+
+    // Se quiser apagar no supabase, faça a chamada aqui.
+    // const { error } = await supabase.from("Patient").delete().eq("id", id);
+    // if (error) { console.error(error); return; }
+
+    setPatients((prev) => prev.filter((p) => p.id !== id));
+    setOpenDropdown(null);
+  };
+
+  const filteredPatients = patients.filter((p) => {
+    if (!p) return false;
+    const nome = (p.nome || "").toLowerCase();
+    const cpf = (p.cpf || "").toLowerCase();
+    const email = (p.email || "").toLowerCase();
+    const q = search.toLowerCase();
+    return nome.includes(q) || cpf.includes(q) || email.includes(q);
+  });
+
+  const mascararCPF = (cpf = "") => {
+    if (cpf.length < 5) return cpf;
+    const inicio = cpf.slice(0, 3);
+    const fim = cpf.slice(-2);
+    return `${inicio}.***.***-${fim}`;
+  };
 
   return (
     <div className="main-wrapper">
@@ -94,60 +176,66 @@ function PatientList() {
                           <td>{p.nome}</td>
                           <td>{mascararCPF(p.cpf)}</td>
                           <td>{p.data_nascimento}</td>
-                          <td>{p.celular}</td>
+                          <td>{p.telefone}</td>
                           <td>{p.email}</td>
                           <td>{p.status}</td>
                           <td className="text-right">
-                            <div className="dropdown dropdown-action" style={{ position: "relative" }}>
+                            <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
                               <button
+                                type="button"
+                                ref={(el) => (anchorRefs.current[p.id] = el)}
                                 className="action-icon"
-                                onClick={() => setOpenDropdown(openDropdown === p.id ? null : p.id)}
-                                style={{
-                                  background: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  fontSize: "18px",
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdown(openDropdown === p.id ? null : p.id);
                                 }}
+                                
                               >
                                 <i className="fa fa-ellipsis-v"></i>
                               </button>
 
-                              {openDropdown === p.id && (
-                                <div
-                                  className="dropdown-menu dropdown-menu-right show"
+                              <DropdownPortal
+                                anchorEl={anchorRefs.current[p.id]}
+                                isOpen={openDropdown === p.id}
+                                onClose={() => setOpenDropdown(null)}
+                                className="dropdown-menu dropdown-menu-right show"
+                              >
+                                <Link
+                                  className="dropdown-item-custom"
+                                  to={`/profilepatient/${p.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdown(null);
+                                  }}
                                 >
-                                  <Link
-                                    className="dropdown-item-custom"
-                                    
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <i className="fa fa-eye"></i> Ver Detalhes
-                                  </Link>
-                                  {/* Edit */}
-                                  <Link
-                                    className="dropdown-item-custom"
-                                    to={`/editpatient/${p.id}`}
-                                    onClick={(e) => e.stopPropagation()} // evita scroll/pulo
-                                  >
-                                    <i className="fa fa-pencil m-r-5"></i> Editar
-                                  </Link>
+                                  <i className="fa fa-eye"></i> Ver Detalhes
+                                </Link>
 
-                                  {/* Delete */}
-                                  <button
-                                    className="dropdown-item-custom dropdown-item-delete"
-                                    onClick={() => handleDelete(p.id)}
-                                  >
-                                    <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                  </button>
-                                </div>
-                              )}
+                                <Link
+                                  className="dropdown-item-custom"
+                                  to={`/editpatient/${p.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdown(null);
+                                  }}
+                                >
+                                  <i className="fa fa-pencil m-r-5"></i> Editar
+                                </Link>
+
+                                <button
+                                  className="dropdown-item-custom dropdown-item-delete"
+                                  onClick={() => handleDelete(p.id)}
+                                >
+                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
+                                </button>
+                              </DropdownPortal>
                             </div>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="text-center text-muted">
+                        <td colSpan="7" className="text-center text-muted">
                           Nenhum paciente encontrado
                         </td>
                       </tr>
@@ -164,3 +252,4 @@ function PatientList() {
 }
 
 export default PatientList;
+;

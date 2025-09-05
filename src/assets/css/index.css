@@ -20,6 +20,7 @@
 /* Estilos próprios */
 @import './style.css'; 
 
+/* Estilos para cards de eventos */
 .event-card {
   padding: 6px 10px;
   border-radius: 8px;
@@ -53,10 +54,11 @@
   white-space: nowrap;
 }
 
-
-
-.dropdown-menu dropdown-menu-right show {
+/* Estilos para dropdown menus */
+.dropdown-menu.dropdown-menu-right.show {
   min-width: 120px;
+  max-width: 220px;
+  width: max-content;
   padding: 5px 0;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -66,6 +68,7 @@
   right: 0;
   z-index: 100;
 }
+
 .dropdown-item-custom {
   display: flex;
   align-items: center;
@@ -77,9 +80,11 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .dropdown-item-custom:hover {
   background-color: #f0f0f0;
 }
+
 .dropdown-item-delete {
   display: flex;
   align-items: center;
@@ -97,12 +102,10 @@
   background-color: #f8d7da;
 }
 
-
 .dropdown-item-custom i,
 .dropdown-item-delete i {
   margin-right: 5px;
 }
-
 
 .action-icon {
   background: transparent;
