@@ -86,6 +86,7 @@ function PatientList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({}); // guarda referência do botão de cada linha
 
+
   var requestOptions = {
     method: "GET",
     redirect: "follow",
@@ -101,10 +102,21 @@ function PatientList() {
       .catch((error) => console.log("error", error));
   }, []);
 
+
   // Exemplo simples de delete local (confirmação + remove do state)
   const handleDelete = async (id) => {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
     if (!confirmDel) return;
+
+    const requestOptions = {
+   method: 'DELETE',
+   redirect: 'follow'
+};
+
+fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+   .then(response => response.text())
+   .then(result => console.log(result))
+   .catch(error => console.log('error', error));
 
     // Se quiser apagar no supabase, faça a chamada aqui.
     // const { error } = await supabase.from("Patient").delete().eq("id", id);
