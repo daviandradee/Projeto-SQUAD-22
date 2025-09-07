@@ -34,7 +34,7 @@ function Doctors() {
       <div className="content">
         <div className="row">
           <div className="col-sm-4 col-3">
-            <h4 className="page-title">Médicos</h4>
+            <h4 className="page-title">Lista de Médicos</h4>
           </div>
           <div className="col-sm-8 col-9 text-right m-b-20">
             <Link

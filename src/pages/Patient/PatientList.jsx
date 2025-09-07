@@ -173,7 +173,7 @@ fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
                   <thead>
                     <tr>
                       <th>Nome</th>
-                      <th>Cpf</th>
+                      <th>CPF</th>
                       <th>Data de Nascimento</th>
                       <th>Telefone</th>
                       <th>Email</th>
