@@ -9,10 +9,7 @@ function App() {
     <div>
       <Navbar />
       <Sidebar />
-      <div style={{ marginLeft: "250px", padding: "20px" }}>
-        {/* Todas as páginas filhas renderizam aqui */}
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   )
 }
