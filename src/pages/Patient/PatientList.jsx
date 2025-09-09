@@ -106,6 +106,16 @@ function PatientList() {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
     if (!confirmDel) return;
 
+    const requestOptions = {
+      method: 'DELETE',
+      redirect: 'follow'
+    };
+
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+
     // Se quiser apagar no supabase, faça a chamada aqui.
     // const { error } = await supabase.from("Patient").delete().eq("id", id);
     // if (error) { console.error(error); return; }
@@ -189,7 +199,7 @@ function PatientList() {
                                   e.stopPropagation();
                                   setOpenDropdown(openDropdown === p.id ? null : p.id);
                                 }}
-                                
+
                               >
                                 <i className="fa fa-ellipsis-v"></i>
                               </button>
