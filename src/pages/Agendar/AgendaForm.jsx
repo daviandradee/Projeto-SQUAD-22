@@ -9,7 +9,7 @@ function AgendaForm() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Add Appointment</h4>
+              <h4 className="page-title">Adicionar consulta</h4>
             </div>
           </div>
 
@@ -19,7 +19,7 @@ function AgendaForm() {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Appointment ID</label>
+                      <label>ID da consulta</label>
                       <input
                         className="form-control"
                         type="text"
@@ -30,11 +30,36 @@ function AgendaForm() {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Patient Name</label>
+                      <label>Nome do paciente</label>
+                        <input type="text" className="form-control" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Especialidade</label>
                       <select className="select form-control">
-                        <option>Select</option>
-                        <option>Jennifer Robinson</option>
-                        <option>Terry Baker</option>
+                        <option>Selecione</option>
+                        <option>Cardiologia</option>
+                        <optio>Pediatria</optio>
+                        <option>Dermatologia</option>
+                        <option>Ginecologia</option>
+                        <option>Neurologia</option>
+                        <option>Psiquiatria</option>
+                         <option>Ortopedia</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Médico</label>
+                      <select className="select form-control">
+                        <option>Selecione</option>
+                        <option>Davi Andrade</option>
+                        <option>Caio Pereira</option>
+                        <option>Paulo Lucas</option>
                       </select>
                     </div>
                   </div>
@@ -43,35 +68,7 @@ function AgendaForm() {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Department</label>
-                      <select className="select form-control">
-                        <option>Select</option>
-                        <option>Dentists</option>
-                        <option>Neurology</option>
-                        <option>Opthalmology</option>
-                        <option>Orthopedics</option>
-                        <option>Cancer Department</option>
-                        <option>ENT Department</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Doctor</label>
-                      <select className="select form-control">
-                        <option>Select</option>
-                        <option>Cristina Groves</option>
-                        <option>Marie Wells</option>
-                        <option>Henry Daniels</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Date</label>
+                      <label>Data</label>
                       <div className="cal-icon">
                         <input type="text" className="form-control" />
                       </div>
@@ -79,8 +76,8 @@ function AgendaForm() {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Time</label>
-                      <div className="time-icon">
+                      <label>Horas</label>
+                     < div className="time-icon">
                         <input type="text" className="form-control" />
                       </div>
                     </div>
@@ -90,25 +87,25 @@ function AgendaForm() {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Patient Email</label>
+                      <label>Email do paciente</label>
                       <input className="form-control" type="email" />
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Patient Phone Number</label>
+                      <label>Número de telefone do paciente</label>
                       <input className="form-control" type="text" />
                     </div>
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Message</label>
+                  <label>Observação</label>
                   <textarea cols="30" rows="4" className="form-control"></textarea>
                 </div>
 
                 <div className="form-group">
-                  <label className="display-block">Appointment Status</label>
+                  <label className="display-block">Status da consulta</label>
                   <div className="form-check form-check-inline">
                     <input
                       className="form-check-input"
@@ -122,7 +119,7 @@ function AgendaForm() {
                       className="form-check-label"
                       htmlFor="product_active"
                     >
-                      Active
+                      Ativo
                     </label>
                   </div>
                   <div className="form-check form-check-inline">
@@ -137,7 +134,7 @@ function AgendaForm() {
                       className="form-check-label"
                       htmlFor="product_inactive"
                     >
-                      Inactive
+                      Inativo
                     </label>
                   </div>
                 </div>
@@ -146,7 +143,7 @@ function AgendaForm() {
                   <Link to="/agendalist"><button 
                   className="btn btn-primary submit-btn"
                   type="button">
-                    Create Appointment
+                    Criar consulta"
                   </button></Link>
 
                 </div>

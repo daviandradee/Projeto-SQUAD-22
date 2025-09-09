@@ -102,29 +102,29 @@ function Agendalist() {
                 <table className="table table-striped custom-table">
                   <thead>
                     <tr>
-                      <th>Appointment ID</th>
-                      <th>Patient Name</th>
-                      <th>Age</th>
-                      <th>Doctor Name</th>
-                      <th>Department</th>
-                      <th>Appointment Date</th>
-                      <th>Appointment Time</th>
+                      <th>ID da cosulta</th>
+                      <th>Nome do Paciente</th>
+                      <th>Idade</th>
+                      <th>Nome do médico</th>
+                      <th>Especialidade</th>
+                      <th>Data da consulta</th>
+                      <th>Hora da consulta</th>
                       <th>Status</th>
-                      <th className="text-right">Action</th>
+                      <th className="text-right">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>APT0001</td>
-                      <td>Denise Stevens</td>
-                      <td>35</td>
-                      <td>Henry Daniels</td>
-                      <td>Cardiology</td>
-                      <td>30 Dec 2018</td>
+                      <td>João Miguel</td>
+                      <td>18</td>
+                      <td>Davi Andrade</td>
+                      <td>Cardiologista</td>
+                      <td>25 Set 2025</td>
                       <td>10:00am - 11:00am</td>
                       <td>
-                        <span className="custom-badge status-red">
-                          Inactive
+                        <span className="custom-badge status-green">
+                          Ativo
                         </span>
                       </td>
                       <td className="text-right">
