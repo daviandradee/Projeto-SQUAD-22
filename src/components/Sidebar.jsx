@@ -40,6 +40,12 @@ function Sidebar() {
                             </li>
 
                             <li>
+                                <Link to="/agendalist">
+                                    <i className="fa fa-calendar-plus-o" /> <span>Consultas</span>
+                                </Link>
+                            </li>
+
+                            <li>
                                 <a href="departments.html">
                                     <i className="fa fa-hospital-o" /> <span>Departamentos</span>
                                 </a>

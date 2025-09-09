@@ -21,10 +21,17 @@ import EditDoctor from "./pages/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 
+
 // Páginas Médico
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
+import AgendaEdit from "./pages/Agendar/agendaedit.jsx";
+import Agendalist from "./pages/Agendar/agendalist.jsx";
+import AgendaForm from "./pages/Agendar/agendaform.jsx";
+
+
+
 
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
@@ -44,6 +51,9 @@ const router = createBrowserRouter([
       { path: "profiledoctor/:id", element: <DoctorProfile /> },
       { path: "editdoctor/:id", element: <EditDoctor /> },
       { path: "editpatient/:id", element: <PatientEdit /> },
+      { path: "agendaform", element: <AgendaForm />},
+      { path: "agendaedit", element: <AgendaEdit />},
+      { path: "agendalist", element: <Agendalist />}
     ],
   },
   // Rotas Médico
