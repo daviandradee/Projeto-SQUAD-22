@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 function Patientform() {
     const [patientData, setpatientData] = useState({
         nome: "",
@@ -19,8 +19,8 @@ function Patientform() {
         profissao_pai: "",
         nome_mae: "",
         profissao_mae: "",
-        nome_responsavel:"",
-        codigo_legado: "",  
+        nome_responsavel: "",
+        codigo_legado: "",
         rn: "false",
         sexo: "",
         celular: "",
@@ -54,26 +54,26 @@ function Patientform() {
         document.getElementById('cidade').value = data.localidade || '';
         document.getElementById('estado').value = data.uf || '';
     }
-    const buscarCep  = (e) => {
+    const buscarCep = (e) => {
         const cep = patientData.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
-            console.log(data)
-            // salvando os valores para depois colocar nos inputs
-            setValuesFromCep(data)
-            // estou salvando os valoeres no patientData
-            setpatientData((prev) => ({
-                ...prev,
-                cidade: data.localidade || '',
-                logradouro: data.logradouro || '',
-                bairro: data.bairro || '',
-                estado: data.estado || ''   
-            }));
+                console.log(data)
+                // salvando os valores para depois colocar nos inputs
+                setValuesFromCep(data)
+                // estou salvando os valoeres no patientData
+                setpatientData((prev) => ({
+                    ...prev,
+                    cidade: data.localidade || '',
+                    logradouro: data.logradouro || '',
+                    bairro: data.bairro || '',
+                    estado: data.estado || ''
+                }));
             })
-    } 
-    
+    }
+
     const navigate = useNavigate();
     // enviando para o supabase
     const handleSubmit = async (e) => {
@@ -103,19 +103,36 @@ function Patientform() {
             alert("Por favor, preencha todos os campos obrigatórios.");
             return;
         }
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer <token>");
+        myHeaders.append("Content-Type", "application/json");
+        const raw = JSON.stringify(patientData)
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
 
-        const { data, error } = await supabase
-            .from("Patient")
-            .insert([patientData]);
-
-        if (error) {
+        fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+            .then(response => response.text())
+            .then(result => {
+                setpatientData(result)
+                console.log(result)
+                alert("paciente cadastrado")
+                navigate("/patientlist")
+            })
+            .catch(error => console.log('error', error));
+        /*console.log(patientData);
+        const{data, error} = await supabase
+        .from("Patient")
+        .insert([patientData])
+        .select()
+        if(error){
             console.log("Erro ao inserir paciente:", error);
-            alert("Erro ao cadastrar paciente.");
-        } else {
+        }else{
             console.log("Paciente inserido com sucesso:", data);
-            alert("Paciente cadastrado com sucesso!");
-            navigate("/patientlist");
-        }
+        }*/
     };
 
     return (
@@ -150,7 +167,7 @@ function Patientform() {
                                             <label>
                                                 Nome completo<span className="text-danger">*</span>
                                             </label>
-                                            <input className="form-control" type="text" 
+                                            <input className="form-control" type="text"
                                                 required
                                                 name="nome"
                                                 value={patientData.nome}
@@ -376,7 +393,7 @@ function Patientform() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Email</label><span className="text-danger">*</span>
-                                            <input className="form-control" type="email" 
+                                            <input className="form-control" type="email"
                                                 name="email"
                                                 value={patientData.email}
                                                 onChange={handleChange}
@@ -438,7 +455,7 @@ function Patientform() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Estado<span className="text-danger">*</span></label>
-                                            <input className="form-control" type="text" 
+                                            <input className="form-control" type="text"
                                                 id="estado"
                                                 name="estado"
                                                 value={patientData.estado}
@@ -532,12 +549,12 @@ function Patientform() {
 
 
                                 <div className="m-t-20 text-center">
-                                        
-                                            <button
-                                            className="btn btn-primary submit-btn"
-                                            type="submit"
-                                            >Criar Paciente</button>
-                                        
+
+                                    <button
+                                        className="btn btn-primary submit-btn"
+                                        type="submit"
+                                    >Criar Paciente</button>
+
                                 </div>
                             </form>
                         </div>

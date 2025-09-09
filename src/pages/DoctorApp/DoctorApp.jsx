@@ -55,21 +55,11 @@ function DoctorApp() {
 
               <li>
                 <NavLink
-                     to="/doctor/dashboard"
+                     to="/doctor/patients"
                      className={({ isActive }) => (isActive ? "active" : "")}
   >
-                     <i className="fa fa-bar-chart"></i>
-                     <span>Dashboard</span>
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="/doctor/patients"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  <i className="fa fa-users"></i>
-                  <span>Pacientes</span>
+                     <i className="fa fa-users"></i>
+                     <span>Pacientes</span>
                 </NavLink>
               </li>
 
@@ -80,6 +70,16 @@ function DoctorApp() {
                 >
                   <i className="fa fa-calendar"></i>
                   <span>Calendário</span>
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="/doctor/dashboard"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-bar-chart"></i>
+                  <span>Dashboard</span>
                 </NavLink>
               </li>
             </ul>

@@ -148,7 +148,8 @@ function Calendar1() {
     <div
       className="calendar-container"
       style={{
-        paddingTop: 80, // empurra o calendário p/ baixo
+        marginLeft: "250px", 
+        paddingTop: 60, // empurra o calendário p/ baixo
         display: "flex",
         justifyContent: "center"
       }}

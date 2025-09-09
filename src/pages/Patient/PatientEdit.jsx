@@ -6,24 +6,30 @@ import supabase from "../../Supabase"
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 function PatientEdit() {
-    const [patients, setpatients] = useState([])
+    const [patients, setpatients] = useState([""])
     const{id} = useParams()
     // carregando a lista e adicionando no usestate
     useEffect(() => {
-    const fetchPatients = async () => {
-      const { data, error } = await supabase
-      .from("Patient")
-      .select("*")
-      .eq ('id', id)
-      .single()
-      if (error) {
-        console.error("Erro ao buscar pacientes:", error);
-      } else {
-        setpatients(data);
-      }
-    };
-    fetchPatients();
-  }, []);
+        fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`)
+        .then((response) => response.json())
+        .then((result) => setpatients(result.data || {}))
+        .catch((error) => console.log("error", error));
+    }, [id]);
+    const handleEdit = async (e) => {
+        const requestOptions = {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patients),
+        redirect: "follow",
+        };
+        fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+            alert("Paciente editado com sucesso!");
+            // redireciona após editar
+        })
+        .catch((error) => console.log("error", error));
+  };
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
     // prev= pega o valor anterio
@@ -62,14 +68,6 @@ function PatientEdit() {
     }
     
 // aqui estou fazendo o update
-    const handleEdit = async (e) => {
-    const { data, error } = await supabase
-      .from("Patient")
-      .update([patients])
-      .eq ('id', id)
-      .single()
-    
-  };
 
     return (
         <div className="main-wrapper">

@@ -109,14 +109,14 @@ function PatientList() {
     if (!confirmDel) return;
 
     const requestOptions = {
-   method: 'DELETE',
-   redirect: 'follow'
-};
+      method: 'DELETE',
+      redirect: 'follow'
+    };
 
-fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
-   .then(response => response.text())
-   .then(result => console.log(result))
-   .catch(error => console.log('error', error));
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
 
     // Se quiser apagar no supabase, faça a chamada aqui.
     // const { error } = await supabase.from("Patient").delete().eq("id", id);
@@ -201,7 +201,7 @@ fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
                                   e.stopPropagation();
                                   setOpenDropdown(openDropdown === p.id ? null : p.id);
                                 }}
-                                
+
                               >
                                 <i className="fa fa-ellipsis-v"></i>
                               </button>
