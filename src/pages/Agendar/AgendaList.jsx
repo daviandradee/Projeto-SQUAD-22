@@ -131,11 +131,11 @@ function Agendalist() {
                         <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
                           <button
                             type="button"
-                            ref={(el) => (anchorRefs.current = el)}
+                            ref={(el) => (anchorRefs.current["menu"] = el)}
                             className="action-icon"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setOpenDropdown(openDropdown);
+                              setOpenDropdown(openDropdown === "menu" ? null : "menu");
                             }}
 
                           >
@@ -143,8 +143,8 @@ function Agendalist() {
                           </button>
 
                           <DropdownPortal
-                            anchorEl={anchorRefs.current}
-                            isOpen={openDropdown }
+                            anchorEl={anchorRefs.current["menu"]}
+                            isOpen={openDropdown === "menu"}
                             onClose={() => setOpenDropdown(null)}
                             className="dropdown-menu dropdown-menu-right show"
                           >
@@ -161,7 +161,7 @@ function Agendalist() {
 
                             <Link
                               className="dropdown-item-custom"
-                              to={`/editpatient`}
+                              to={`/agendaform`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);  
