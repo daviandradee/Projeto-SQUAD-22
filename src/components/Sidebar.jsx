@@ -1,5 +1,6 @@
 import '../assets/css/index.css'
 import { Link } from 'react-router-dom';
+
 function Sidebar() {
     return (
         <div>
@@ -21,14 +22,14 @@ function Sidebar() {
                                 </Link>
                             </li>
 
-                            <li className="">
-                                <Link to= "/patientlist">
+                            <li>
+                                <Link to="/patientlist">
                                     <i className="fa fa-wheelchair" /> <span>Pacientes</span>
                                 </Link>
                             </li>
 
-                            <li className="">
-                                <Link to= "/calendar">
+                            <li>
+                                <Link to="/calendar">
                                     <i className="fa fa-calendar" /> <span>Calendario</span>
                                 </Link>
                             </li>
@@ -45,11 +46,19 @@ function Sidebar() {
                                 </Link>
                             </li>
 
+                            {/* 🆕 Nova aba Laudo */}
+                            <li>
+                                <Link to="/laudolist">
+                                    <i className="fa fa-file-text" /> <span>Laudos</span>
+                                </Link>
+                            </li>
+
                             <li>
                                 <a href="departments.html">
                                     <i className="fa fa-hospital-o" /> <span>Departamentos</span>
                                 </a>
                             </li>
+
                             <li>
                                 <a href="settings.html">
                                     <i className="fa fa-cog" /> <span>Configurações</span>
@@ -62,4 +71,5 @@ function Sidebar() {
         </div>
     );
 }
-export default Sidebar
+export default Sidebar;
+
