@@ -45,7 +45,7 @@ function AgendaForm() {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Nome do paciente</label>
-                      <input type="text" className="form-control" />
+                        <input type="text" className="form-control" />
                     </div>
                   </div>
                 </div>
@@ -57,7 +57,7 @@ function AgendaForm() {
                       <select className="select form-control">
                         <option>Selecione</option>
                         <option>Cardiologia</option>
-                        <option>Pediatria</option>
+                        <optio>Pediatria</optio>
                         <option>Dermatologia</option>
                         <option>Ginecologia</option>
                         <option>Neurologia</option>
