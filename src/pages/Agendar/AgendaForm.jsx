@@ -1,15 +1,29 @@
+import { useState, useEffect } from "react";
+import { withMask } from "use-mask-input";
 import { Link } from "react-router-dom";
-import "../../assets/css/index.css"
-
+import "../../assets/css/index.css";
 
 function AgendaForm() {
+  const [minDate, setMinDate] = useState("");
+
+  useEffect(() => {
+    const getToday = () => {
+      const today = new Date();
+      const offset = today.getTimezoneOffset();
+      today.setMinutes(today.getMinutes() - offset);
+      return today.toISOString().split("T")[0];
+    };
+
+    setMinDate(getToday());
+  }, []);
+
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Adicionar consulta</h4>
+              <h4 className="page-title">Adicionar Consulta</h4>
             </div>
           </div>
 
@@ -31,7 +45,7 @@ function AgendaForm() {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Nome do paciente</label>
-                        <input type="text" className="form-control" />
+                      <input type="text" className="form-control" />
                     </div>
                   </div>
                 </div>
@@ -43,12 +57,12 @@ function AgendaForm() {
                       <select className="select form-control">
                         <option>Selecione</option>
                         <option>Cardiologia</option>
-                        <optio>Pediatria</optio>
+                        <option>Pediatria</option>
                         <option>Dermatologia</option>
                         <option>Ginecologia</option>
                         <option>Neurologia</option>
                         <option>Psiquiatria</option>
-                         <option>Ortopedia</option>
+                        <option>Ortopedia</option>
                       </select>
                     </div>
                   </div>
@@ -69,16 +83,20 @@ function AgendaForm() {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Data</label>
-                      <div className="cal-icon">
-                        <input type="text" className="form-control" />
+                      <div>
+                        <input
+                          type="date"
+                          className="form-control"
+                          min={minDate}
+                        />
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Horas</label>
-                     < div className="time-icon">
-                        <input type="text" className="form-control" />
+                      <div>
+                        <input type="time" className="form-control" />
                       </div>
                     </div>
                   </div>
@@ -94,7 +112,7 @@ function AgendaForm() {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Número de telefone do paciente</label>
-                      <input className="form-control" type="text" />
+                      <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}/>
                     </div>
                   </div>
                 </div>
@@ -140,12 +158,11 @@ function AgendaForm() {
                 </div>
 
                 <div className="m-t-20 text-center">
-                  <Link to="/agendalist"><button 
-                  className="btn btn-primary submit-btn"
-                  type="button">
-                    Criar consulta"
-                  </button></Link>
-
+                  <Link to="/agendalist">
+                    <button className="btn btn-primary submit-btn" type="button">
+                      Criar consulta
+                    </button>
+                  </Link>
                 </div>
               </form>
             </div>
