@@ -7,7 +7,7 @@ function AgendaEdit() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Editar Consulta</h4>
+              <h4 className="page-title">Edit Appointment</h4>
             </div>
           </div>
 
@@ -17,7 +17,7 @@ function AgendaEdit() {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>ID da consulta</label>
+                      <label>Appointment ID</label>
                       <input
                         className="form-control"
                         type="text"
@@ -28,7 +28,7 @@ function AgendaEdit() {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Nome do paciente</label>
+                      <label>Patient Name</label>
                       <select className="select form-control">
                         <option>Select</option>
                         <option>Jennifer Robinson</option>
