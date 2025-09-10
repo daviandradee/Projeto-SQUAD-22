@@ -1,13 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; 
 import "../../assets/css/index.css";
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
-import supabase from "../../Supabase"; 
-
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
-  const [stylePos, setStylePos] = React.useState({
+  const [stylePos, setStylePos] = useState({
     position: "absolute",
     top: 0,
     left: 0,
@@ -16,8 +14,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   });
 
   useLayoutEffect(() => {
-    if (!isOpen) return;
-    if (!anchorEl || !menuRef.current) return;
+    if (!isOpen || !anchorEl || !menuRef.current) return;
 
     const anchorRect = anchorEl.getBoundingClientRect();
     const menuRect = menuRef.current.getBoundingClientRect();
@@ -41,19 +38,20 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
     });
   }, [isOpen, anchorEl, children]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpen) return;
-    function handleDocClick(e) {
-      const menu = menuRef.current;
-      if (menu && !menu.contains(e.target) && anchorEl && !anchorEl.contains(e.target)) {
+
+    const handleDocClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target) &&
+          anchorEl && !anchorEl.contains(e.target)) {
         onClose();
       }
-    }
-    function handleScroll() {
-      onClose();
-    }
+    };
+    const handleScroll = () => onClose();
+
     document.addEventListener("mousedown", handleDocClick);
     document.addEventListener("scroll", handleScroll, true);
+
     return () => {
       document.removeEventListener("mousedown", handleDocClick);
       document.removeEventListener("scroll", handleScroll, true);
@@ -62,158 +60,172 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
   if (!isOpen) return null;
   return createPortal(
-    <div
-      ref={menuRef}
-      className={className}
-      style={stylePos}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div ref={menuRef} className={className} style={stylePos} onClick={(e) => e.stopPropagation()}>
       {children}
     </div>,
     document.body
   );
 }
 
-
 function LaudoList() {
   const [search, setSearch] = useState("");
-  const [laudos, setLaudos] = useState([]); 
+  const [period, setPeriod] = useState(""); // "", "today", "week", "month"
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [laudos, setLaudos] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
 
-  
   const handleDelete = (id) => {
-    const confirmDel = window.confirm("Tem certeza que deseja excluir este laudo?");
-    if (!confirmDel) return;
-
-    setLaudos((prev) => prev.filter((l) => l.id !== id));
+    if (!window.confirm("Tem certeza que deseja excluir este laudo?")) return;
+    setLaudos(prev => prev.filter(l => l.id !== id));
     setOpenDropdown(null);
   };
 
-  
-  const filteredLaudos = laudos.filter((l) => {
-    if (!l) return false;
-    const paciente = (l.paciente || "").toLowerCase();
-    const cpf = (l.cpf || "").toLowerCase();
-    const tipo = (l.tipo || "").toLowerCase();
-    const status = (l.status || "").toLowerCase();
+  const filteredLaudos = laudos.filter(l => {
     const q = search.toLowerCase();
-    return paciente.includes(q) || cpf.includes(q) || tipo.includes(q) || status.includes(q);
+    const textMatch =
+      (l.paciente || "").toLowerCase().includes(q) ||
+      (l.cpf || "").toLowerCase().includes(q) ||
+      (l.tipo || "").toLowerCase().includes(q) ||
+      (l.status || "").toLowerCase().includes(q) ||
+      (l.pedido || "").toString().toLowerCase().includes(q) ||
+      (l.prazo || "").toLowerCase().includes(q) ||
+      (l.executante || "").toLowerCase().includes(q) ||
+      (l.exame || "").toLowerCase().includes(q) ||
+      (l.data || "").toLowerCase().includes(q);
+
+    let dateMatch = true;
+    const today = new Date();
+    const laudoDate = new Date(l.data);
+
+    if (period === "today") {
+      dateMatch = laudoDate.toDateString() === today.toDateString();
+    } else if (period === "week") {
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
+    } else if (period === "month") {
+      dateMatch = laudoDate.getMonth() === today.getMonth() && laudoDate.getFullYear() === today.getFullYear();
+    }
+
+    if (startDate && endDate) {
+      dateMatch = dateMatch && l.data >= startDate && l.data <= endDate;
+    } else if (startDate) {
+      dateMatch = dateMatch && l.data >= startDate;
+    } else if (endDate) {
+      dateMatch = dateMatch && l.data <= endDate;
+    }
+
+    return textMatch && dateMatch;
   });
 
-  
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
-    const inicio = cpf.slice(0, 3);
-    const fim = cpf.slice(-2);
-    return `${inicio}.***.***-${fim}`;
+    return `${cpf.slice(0,3)}.***.***-${cpf.slice(-2)}`;
   };
 
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
         <div className="content">
-          <div className="row ">
-            <div className="col-sm-4 col-3">
-              <div className="col-sm4 input-group m-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Pesquisar laudo"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <h4 className="page-title">Lista de Laudos</h4>
+
+          {/* Linha de pesquisa e filtros */}
+          <div className="row align-items-center mb-2">
+            {/* Esquerda: pesquisa */}
+            <div className="col d-flex align-items-center">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Pesquisar laudo"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ minWidth: "200px" }}
+              />
             </div>
-            <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/laudo" className="btn btn-primary btn-rounded">
+
+            {/* Direita: filtros de data + botões */}
+            <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
+              
+              {/* Filtros de data primeiro */}
+              <div className="date-filter">
+                <label>De:</label>
+                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                <label>Até:</label>
+                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+              </div>
+
+              {/* Botões rápidos */}
+              <div className="quick-filter">
+                <button className={`btn-filter ${period==="today"?"active":""}`} onClick={()=>setPeriod("today")}>Hoje</button>
+                <button className={`btn-filter ${period==="week"?"active":""}`} onClick={()=>setPeriod("week")}>Semana</button>
+                <button className={`btn-filter ${period==="month"?"active":""}`} onClick={()=>setPeriod("month")}>Mês</button>
+              </div>
+
+              {/* Botão Adicionar Laudo */}
+              <Link to="/laudo" className="btn btn-primary btn-sm">
                 <i className="fa fa-plus"></i> Adicionar Laudo
               </Link>
             </div>
           </div>
 
+          {/* Tabela */}
           <div className="row">
-            <div className="col-md-12">
+            <div className="col-12">
               <div className="table-responsive">
                 <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
+                      <th>Pedido</th>
+                      <th>Data</th>
+                      <th>Prazo</th>
                       <th>Paciente</th>
                       <th>CPF</th>
                       <th>Tipo</th>
-                      <th>Data</th>
                       <th>Status</th>
+                      <th>Executante</th>
+                      <th>Exame</th>
                       <th className="text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredLaudos.length > 0 ? (
-                      filteredLaudos.map((l) => (
-                        <tr key={l.id}>
-                          <td>{l.paciente}</td>
-                          <td>{mascararCPF(l.cpf)}</td>
-                          <td>{l.tipo}</td>
-                          <td>{l.data}</td>
-                          <td>{l.status}</td>
-                          <td className="text-right">
-                            <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                              <button
-                                type="button"
-                                ref={(el) => (anchorRefs.current[l.id] = el)}
-                                className="action-icon"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenDropdown(openDropdown === l.id ? null : l.id);
-                                }}
-                              >
-                                <i className="fa fa-ellipsis-v"></i>
+                    {filteredLaudos.length>0 ? filteredLaudos.map(l=>(
+                      <tr key={l.id}>
+                        <td className="nowrap">{l.pedido}</td>
+                        <td className="nowrap">{l.data}</td>
+                        <td className="nowrap">{l.prazo}</td>
+                        <td>{l.paciente}</td>
+                        <td className="nowrap">{mascararCPF(l.cpf)}</td>
+                        <td>{l.tipo}</td>
+                        <td>{l.status}</td>
+                        <td>{l.executante}</td>
+                        <td className="ellipsis">{l.exame}</td>
+                        <td className="text-right">
+                          <div className="dropdown dropdown-action">
+                            <button type="button" ref={el=>anchorRefs.current[l.id]=el} className="action-icon"
+                              onClick={e=>{e.stopPropagation(); setOpenDropdown(openDropdown===l.id?null:l.id);}}>
+                              <i className="fa fa-ellipsis-v"></i>
+                            </button>
+                            <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown===l.id}
+                              onClose={()=>setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
+                              <Link className="dropdown-item-custom" to={`/profilelaudo/${l.id}`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
+                                <i className="fa fa-eye"></i> Ver Detalhes
+                              </Link>
+                              <Link className="dropdown-item-custom" to={`/editlaudo/${l.id}`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
+                                <i className="fa fa-pencil m-r-5"></i> Editar
+                              </Link>
+                              <button className="dropdown-item-custom dropdown-item-delete" onClick={()=>handleDelete(l.id)}>
+                                <i className="fa fa-trash-o m-r-5"></i> Excluir
                               </button>
-
-                              <DropdownPortal
-                                anchorEl={anchorRefs.current[l.id]}
-                                isOpen={openDropdown === l.id}
-                                onClose={() => setOpenDropdown(null)}
-                                className="dropdown-menu dropdown-menu-right show"
-                              >
-                                <Link
-                                  className="dropdown-item-custom"
-                                  to={`/profilelaudo/${l.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-eye"></i> Ver Detalhes
-                                </Link>
-
-                                <Link
-                                  className="dropdown-item-custom"
-                                  to={`/editlaudo/${l.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-pencil m-r-5"></i> Editar
-                                </Link>
-
-                                <button
-                                  className="dropdown-item-custom dropdown-item-delete"
-                                  onClick={() => handleDelete(l.id)}
-                                >
-                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                </button>
-                              </DropdownPortal>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="6" className="text-center text-muted">
-                          Nenhum laudo encontrado
+                            </DropdownPortal>
+                          </div>
                         </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
                       </tr>
                     )}
                   </tbody>
@@ -221,6 +233,7 @@ function LaudoList() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
