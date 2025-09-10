@@ -29,6 +29,7 @@ import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
 import AgendaEdit from "./pages/Agendar/agendaedit.jsx";
 import Agendalist from "./pages/Agendar/agendalist.jsx";
 import AgendaForm from "./pages/Agendar/agendaform.jsx";
+import LaudoList from "./pages/laudos/LaudosList.jsx"
 
 
 
@@ -53,7 +54,8 @@ const router = createBrowserRouter([
       { path: "editpatient/:id", element: <PatientEdit /> },
       { path: "agendaform", element: <AgendaForm />},
       { path: "agendaedit", element: <AgendaEdit />},
-      { path: "agendalist", element: <Agendalist />}
+      { path: "agendalist", element: <Agendalist />},
+      { path: "laudolist", element: <LaudoList /> },
     ],
   },
   // Rotas Médico
