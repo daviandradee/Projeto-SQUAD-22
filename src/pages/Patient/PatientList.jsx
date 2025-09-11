@@ -146,16 +146,15 @@ function PatientList() {
         <div className="content">
           <div className="row ">
             <div className="col-sm-4 col-3">
-              <div className="col-sm4 input-group m-3">
+                <h4 className="page-title">Lista de Pacientes</h4>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Pesquisar"
+                  placeholder="🔍  Buscar pacientes"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-              </div>
-              <h4 className="page-title">Lista de Pacientes</h4>
+                <br />
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
               <Link to="/patient" className="btn btn-primary btn-rounded">
@@ -210,7 +209,7 @@ function PatientList() {
                                 onClose={() => setOpenDropdown(null)}
                                 className="dropdown-menu dropdown-menu-right show"
                               >
-                                <Link
+                                {/*<Link
                                   className="dropdown-item-custom"
                                   to={`/profilepatient/${p.id}`}
                                   onClick={(e) => {
@@ -219,7 +218,7 @@ function PatientList() {
                                   }}
                                 >
                                   <i className="fa fa-eye"></i> Ver Detalhes
-                                </Link>
+                                </Link>*/}
 
                                 <Link
                                   className="dropdown-item-custom"

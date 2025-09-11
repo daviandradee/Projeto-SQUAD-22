@@ -42,7 +42,7 @@ function Sidebar() {
 
                             <li>
                                 <Link to="/agendalist">
-                                    <i className="fa fa-calendar-plus-o" /> <span>Consultas</span>
+                                    <i className="fa fa-stethoscope" /> <span>Consultas</span>
                                 </Link>
                             </li>
 
@@ -52,13 +52,6 @@ function Sidebar() {
                                     <i className="fa fa-file-text" /> <span>Laudos</span>
                                 </Link>
                             </li>
-
-                            <li>
-                                <a href="departments.html">
-                                    <i className="fa fa-hospital-o" /> <span>Departamentos</span>
-                                </a>
-                            </li>
-
                             <li>
                                 <a href="settings.html">
                                     <i className="fa fa-cog" /> <span>Configurações</span>

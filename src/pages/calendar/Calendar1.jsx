@@ -12,7 +12,7 @@ function Calendar1() {
   const [showPopup, setShowPopup] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [step, setStep] = useState(1);
-  const [newEvent, setNewEvent] = useState({ title: "", type: "", time: "" });
+  const [newEvent, setNewEvent] = useState({ title: "", time: "" });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -26,7 +26,7 @@ function Calendar1() {
   // Clicar em um dia -> abrir popup 3 etapas
   const handleDateClick = (arg) => {
     setSelectedDate(arg.dateStr);
-    setNewEvent({ title: "", type: "", time: "" });
+    setNewEvent({ title: "", time: "" });
     setStep(1);
     setEditingEvent(null);
     setShowPopup(true);
@@ -37,7 +37,6 @@ function Calendar1() {
     const eventToAdd = {
       id: Date.now(), // number
       title: newEvent.title,
-      type: newEvent.type,
       time: newEvent.time,
       date: selectedDate,
       color: colorsByType[newEvent.type] || "#4dabf7"
@@ -54,7 +53,6 @@ function Calendar1() {
           ? {
               ...ev,
               title: newEvent.title,
-              type: newEvent.type,
               time: newEvent.time,
               color: colorsByType[newEvent.type] || "#4dabf7"
             }
@@ -68,7 +66,7 @@ function Calendar1() {
 
   // Próxima etapa no popup
   const handleNextStep = () => {
-    if (step < 3) setStep(step + 1);
+    if (step < 2) setStep(step + 1);
     else editingEvent ? handleEditEvent() : handleAddEvent();
   };
 
@@ -95,7 +93,6 @@ function Calendar1() {
     setEditingEvent(selectedEvent);
     setNewEvent({
       title: selectedEvent.title,
-      type: selectedEvent.extendedProps.type,
       time: selectedEvent.extendedProps.time
     });
     setStep(1);
@@ -133,10 +130,6 @@ function Calendar1() {
       >
         <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
           {eventInfo.event.title}
-        </span>
-        <span>•</span>
-        <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
-          {eventInfo.event.extendedProps.type}
         </span>
         <span>•</span>
         <span>{eventInfo.event.extendedProps.time}</span>
@@ -236,46 +229,6 @@ function Calendar1() {
             )}
 
             {step === 2 && (
-              <>
-                <h3 style={{ marginBottom: 8 }}>Tipo da consulta</h3>
-                <select
-                  value={newEvent.type}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, type: e.target.value })
-                  }
-                  style={{
-                    width: "100%",
-                    marginBottom: 12,
-                    padding: 8,
-                    borderRadius: 6,
-                    border: "1px solid #ddd"
-                  }}
-                >
-                  <option value="">Selecione</option>
-                  <option value="Rotina">Rotina</option>
-                  <option value="Cardiologia">Cardiologia</option>
-                  <option value="Otorrino">Otorrino</option>
-                  <option value="Pediatria">Pediatria</option>
-                </select>
-                <button
-                  onClick={handleNextStep}
-                  disabled={!newEvent.type}
-                  style={{
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 6,
-                    border: "none",
-                    background: newEvent.type ? "#4dabf7" : "#c7dbf8",
-                    color: "#fff",
-                    cursor: newEvent.type ? "pointer" : "not-allowed"
-                  }}
-                >
-                  Próximo
-                </button>
-              </>
-            )}
-
-            {step === 3 && (
               <>
                 <h3 style={{ marginBottom: 8 }}>Horário</h3>
                 <input

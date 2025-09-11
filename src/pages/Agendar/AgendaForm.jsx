@@ -23,10 +23,11 @@ function AgendaForm() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Adicionar Consulta</h4>
+              <h1>Nova consulta</h1>
+              <hr />
+              <h3>Informações do paciente</h3>
             </div>
           </div>
-
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
               <form>
@@ -44,16 +45,68 @@ function AgendaForm() {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Nome do paciente</label>
+                      <label>Nome do paciente<span className="text-danger">*</span></label>
                       <input type="text" className="form-control" />
                     </div>
                   </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>RG</label>
+                      <input type="text" className="form-control" />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>CPF<span className="text-danger">*</span></label>
+                      <input type="text" className="form-control" />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Email do paciente</label>
+                      <input className="form-control" type="email" />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Número de telefone do paciente<span className="text-danger">*</span></label>
+                      <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')} />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Data de nascimento<span className="text-danger">*</span></label>
+                      <input className="form-control" type="date" />
+                    </div>
+                  </div>
+                  <div className="form-group gender-select col-md-6">
+                    <label className="gen-label">Sexo:<span className="text-danger">*</span></label>
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sexo" className="form-check-input"
+                        /> Masculino
+                      </label>
+                    </div>
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sexo" className="form-check-input"
+                        /> Feminino
+                      </label>
+                    </div>
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sexo" className="form-check-input"
+                        /> Outro
+                      </label>
+                    </div>
+                  </div>
                 </div>
-
+                <hr />
+                <h3>Informações do atendimento</h3>
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Especialidade</label>
+                      <label>Especialidade<span className="text-danger">*</span></label>
                       <select className="select form-control">
                         <option>Selecione</option>
                         <option>Cardiologia</option>
@@ -66,9 +119,10 @@ function AgendaForm() {
                       </select>
                     </div>
                   </div>
+
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Médico</label>
+                      <label>Médico<span className="text-danger">*</span></label>
                       <select className="select form-control">
                         <option>Selecione</option>
                         <option>Davi Andrade</option>
@@ -82,7 +136,7 @@ function AgendaForm() {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Data</label>
+                      <label>Data<span className="text-danger">*</span></label>
                       <div>
                         <input
                           type="date"
@@ -94,29 +148,13 @@ function AgendaForm() {
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
-                      <label>Horas</label>
+                      <label>Horas<span className="text-danger">*</span></label>
                       <div>
                         <input type="time" className="form-control" />
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Email do paciente</label>
-                      <input className="form-control" type="email" />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Número de telefone do paciente</label>
-                      <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}/>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="form-group">
                   <label>Observação</label>
                   <textarea cols="30" rows="4" className="form-control"></textarea>

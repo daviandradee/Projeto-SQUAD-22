@@ -139,7 +139,7 @@ function LaudoList() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Pesquisar laudo"
+                placeholder="🔍  Buscar laudo"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ minWidth: "200px" }}
