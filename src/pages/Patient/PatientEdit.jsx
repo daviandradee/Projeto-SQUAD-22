@@ -15,6 +15,15 @@ function PatientEdit() {
         .then((result) => setpatients(result.data || {}))
         .catch((error) => console.log("error", error));
     }, [id]);
+
+    const [preview, setPreview] = useState(null);
+
+    useEffect(() => {
+        if (patients.foto_url) {
+            setPreview('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr6OBNqnFlVKC6fAk-mzSuzmOKgjWMYq9y0g&s');
+        }
+    }, [patients.foto_url]);
+
     const handleEdit = async (e) => {
         const requestOptions = {
         method: "PUT",
@@ -89,10 +98,34 @@ function PatientEdit() {
                                             <label>Avatar</label>
                                             <div className="profile-upload">
                                                 <div className="upload-img">
-                                                    <img alt="" src="assets/img/user.jpg" />
+                                                    <img alt="" src={preview || "assets/img/user.jpg"} />
                                                 </div>
-                                                <div className="upload-input">
-                                                    <input type="file" accept="image/png, image/jpeg" className="form-control" />
+                                                <div className="row">
+                                                    <div className="col-md-9">
+                                                        <div className="upload-input">
+                                                            <input
+                                                                name="foto_url"
+                                                                onChange={(e) => {
+                                                                handleChange(e);
+                                                                setPreview(URL.createObjectURL(e.target.files[0]));
+                                                                }}
+                                                                type="file"
+                                                                accept="image/png, image/jpeg"
+                                                                className="form-control"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-3">
+                                                        <div
+                                                            className="btn btn-primary"
+                                                            onClick={() => {
+                                                                setpatients(prev => ({ ...prev, foto_url: "" }));
+                                                                document.getElementsByName('foto_url')[0].value = null; 
+                                                            }}  
+                                                            >
+                                                            Limpar
+                                                        </div>  
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
