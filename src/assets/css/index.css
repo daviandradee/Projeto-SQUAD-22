@@ -20,6 +20,8 @@
 /* Estilos próprios */
 @import './style.css'; 
 
+@import './tiptap.css';
+
 /* Estilos para cards de eventos */
 .event-card {
   padding: 6px 10px;

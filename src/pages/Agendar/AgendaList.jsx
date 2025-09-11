@@ -87,7 +87,7 @@ function Agendalist() {
         <div className="content">
           <div className="row">
             <div className="col-sm-4 col-3">
-              <h4 className="page-title">Appointments</h4>
+              <h4 className="page-title">Lista de consultas</h4>
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
               <Link to="/agendaform" className="btn btn-primary btn-rounded">
