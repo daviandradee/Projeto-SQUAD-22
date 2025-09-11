@@ -88,10 +88,17 @@ function Agendalist() {
           <div className="row">
             <div className="col-sm-4 col-3">
               <h4 className="page-title">Lista de consultas</h4>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍  Buscar consulta"
+                style={{ minWidth: "200px" }}
+              />
+              <br />
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
               <Link to="/agendaform" className="btn btn-primary btn-rounded">
-                <i className="fa fa-plus"></i> Adicionar Paciente
+                <i className="fa fa-plus"></i> Adicionar consulta
               </Link>
             </div>
           </div>
@@ -148,7 +155,7 @@ function Agendalist() {
                             onClose={() => setOpenDropdown(null)}
                             className="dropdown-menu dropdown-menu-right show"
                           >
-                            <Link
+                            {/*<Link
                               className="dropdown-item-custom"
                               to={`/profilepatient`}
                               onClick={(e) => {
@@ -157,11 +164,11 @@ function Agendalist() {
                               }}
                             >
                               <i className="fa fa-eye"></i> Ver Detalhes
-                            </Link>
+                            </Link>*/}
 
                             <Link
                               className="dropdown-item-custom"
-                              to={`/agendaform`}
+                              to={`/agendaedit`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);  
