@@ -115,3 +115,38 @@
   cursor: pointer;
   font-size: 18px;
 }
+.quick-filter {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-filter {
+  padding: 0.15rem 0.3rem;
+  font-size: 0.7rem;
+  min-width: 35px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.btn-filter.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.date-filter label {
+  font-size: 0.7rem;
+}
+
+.date-filter input[type="date"] {
+  padding: 0.15rem 0.25rem;
+  font-size: 0.7rem;
+  min-width: 80px;
+}

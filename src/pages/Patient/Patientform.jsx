@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
 import { useNavigate } from "react-router-dom";
+
 function Patientform() {
     const [patientData, setpatientData] = useState({
         nome: "",
@@ -21,6 +22,7 @@ function Patientform() {
         profissao_mae: "",
         nome_responsavel: "",
         codigo_legado: "",
+        foto_url: "",
         rn: "false",
         sexo: "",
         celular: "",
@@ -37,6 +39,11 @@ function Patientform() {
         status: "inativo",
         observaçao: ""
     })
+
+    useEffect(() => {
+            console.log("Estado atualizado:", patientData);
+    }, [patientData]); 
+    
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
     // prev= pega o valor anterior
@@ -157,8 +164,29 @@ function Patientform() {
                                                 <div className="upload-img">
                                                     <img alt="" src="assets/img/user.jpg" />
                                                 </div>
-                                                <div className="upload-input">
-                                                    <input type="file" accept="image/png, image/jpeg" className="form-control" />
+                                                <div className="row">
+                                                    <div className="col-md-9">
+                                                        <div className="upload-input">
+                                                            <input 
+                                                                name="foto_url" 
+                                                                type="file" 
+                                                                value={patientData.foto_url}
+                                                                accept="image/png, image/jpeg" 
+                                                                className="form-control"
+                                                                onChange={handleChange} />                                              
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-3">
+                                                        <div
+                                                            className="btn btn-primary"
+                                                            onClick={() => {
+                                                                setpatientData(prev => ({ ...prev, foto_url: "" }));
+                                                                if (fileRef.current) fileRef.current.value = null; 
+                                                            }}
+                                                            >
+                                                            Limpar
+                                                        </div>  
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
