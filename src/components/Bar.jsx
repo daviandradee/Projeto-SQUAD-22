@@ -71,7 +71,7 @@ function Bar({ comandos }) {
 				</div>
 				<div className="right">
 					<Link to="/laudolist"><button onClick={comandos.guardarContenido} className="btnGuardar">
-						<span>Guardar</span>
+						<span>Enviar laudo</span>
 					</button></Link>
 				</div>
 			</div>

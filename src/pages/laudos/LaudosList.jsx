@@ -131,6 +131,7 @@ function LaudoList() {
     <div className="main-wrapper">
       <div className="page-wrapper">
         <div className="content">
+          <h4 className="page-title">Laudos</h4>
 
           {/* Linha de pesquisa e filtros */}
           <div className="row align-items-center mb-2">
