@@ -131,7 +131,7 @@ function DoctorForm() {
                   </div>
                   <div className="col-sm-6">
                     <div className="form-group">
-                      <label>CPF <span className="text-danger">*</span></label>
+                      <label>CPF<span className="text-danger">*</span></label>
                       <input className="form-control" type="text" ref={withMask('cpf')}
                         name="cpf"
                         value={doctorData.cpf}
@@ -223,7 +223,7 @@ function DoctorForm() {
                   </div>
                   <div className="col-sm-6">
                     <div className="form-group gender-select">
-                      <label className="gen-label">Sexo:</label>
+                      <label className="gen-label">Sexo:<span className="text-danger">*</span></label>
                       <div className="form-check-inline">
                         <label className="form-check-label">
                           <input type="radio" name="sexo" className="form-check-input"
@@ -261,7 +261,7 @@ function DoctorForm() {
                     <div className="row">
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>CEP</label>
+                          <label>CEP<span className="text-danger">*</span></label>
                           <input type="text" className="form-control "
                             id="cep"
                             name="cep"
@@ -273,7 +273,7 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Bairro</label>
+                          <label>Bairro<span className="text-danger">*</span></label>
                           <input type="text" className="form-control "
                             id="bairro"
                             name="bairro"
@@ -296,7 +296,7 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Logradouro</label>
+                          <label>Logradouro<span className="text-danger">*</span></label>
                           <input type="text" className="form-control "
                             id="logradouro"
                             name="logradouro"
@@ -320,7 +320,7 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Cidade</label>
+                          <label>Cidade<span className="text-danger">*</span></label>
                           <input type="text" className="form-control"
                             id="cidade"
                             name="cidade"
@@ -332,7 +332,7 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Estado</label>
+                          <label>Estado<span className="text-danger">*</span></label>
                           <input type="text" className="form-control"
                             id="estado"
                             name="estado"
@@ -343,7 +343,7 @@ function DoctorForm() {
                       </div>
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
-                          <label>Número</label>
+                          <label>Número<span className="text-danger">*</span></label>
                           <input type="text" className="form-control"
                             id="numero"
                             name="numero"
