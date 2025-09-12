@@ -10,11 +10,11 @@ function Sidebar() {
                         <ul>
                             <li className="menu-title">Main</li>
 
-                            <li>
+                            {/*<li>
                                 <a href="index-2.html">
                                     <i className="fa fa-dashboard" /> <span>Dashboard</span>
                                 </a>
-                            </li>
+                            </li>*/}
 
                             <li>
                                 <Link to="/doctorlist">
@@ -52,11 +52,11 @@ function Sidebar() {
                                     <i className="fa fa-file-text" /> <span>Laudos</span>
                                 </Link>
                             </li>
-                            <li>
+                            {/*<li>
                                 <a href="settings.html">
                                     <i className="fa fa-cog" /> <span>Configurações</span>
                                 </a>
-                            </li>
+                            </li>*/}
                         </ul>
                     </div>
                 </div>

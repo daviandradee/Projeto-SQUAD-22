@@ -42,9 +42,8 @@ function DoctorForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-
-
-    const requiredFields = ["nome","cpf","crm","senha","confirmarsenha","data_nascimento","sexo","cep","logradouro","numero","bairro","cidade","estado"];
+    e.preventDefault();
+    const requiredFields = ["nome","cpf","crm","senha","confirmarsenha","data_nascimento","sexo","cep","logradouro","numero","bairro","cidade","estado","especialidade","email","telefone","data_nascimento"];
     const missing = requiredFields.filter(f => !doctorData[f] || doctorData[f].toString().trim() === "");
     if (missing.length > 0) {
       alert("Preencha todos os campos obrigatórios.");
@@ -56,7 +55,6 @@ function DoctorForm() {
       alert("Senha e Confirmar Senha não coincidem.");
       return;
     }
-
     const { data, error } = await supabase
       .from("Doctor")
       .insert([doctorData]);
@@ -107,7 +105,7 @@ function DoctorForm() {
           </div>
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-sm-6">
                     <div className="form-group">
@@ -153,7 +151,7 @@ function DoctorForm() {
                     </div>
                   </div>
                   <div className="col-sm-6">
-                    <label>Especialidade</label>
+                    <label>Especialidade<span className="text-danger">*</span></label>
                     <select
                       name="especialidade"
                       id="especialidade"
@@ -183,7 +181,7 @@ function DoctorForm() {
 
                   <div className="col-sm-6">
                     <div className="form-group">
-                      <label>Email</label>
+                      <label>Email<span className="text-danger">*</span></label>
                       <input className="form-control" type="email" ref={withMask('email')}
                         name="email"
                         value={doctorData.email}
@@ -193,7 +191,7 @@ function DoctorForm() {
                   </div>
                   <div className="col-sm-6">
                     <div className="form-group">
-                      <label>Confirmar Senha</label>
+                      <label>Confirmar Senha<span className="text-danger">*</span></label>
                       <input className="form-control" type="password"
                         name="confirmarsenha"
                         value={doctorData.confirmarsenha}
@@ -203,7 +201,7 @@ function DoctorForm() {
                   </div>
                   <div className="col-sm-6">
                     <div className="form-group">
-                      <label>Data de Nascimento</label>
+                      <label>Data de Nascimento<span className="text-danger">*</span></label>
                       <div className="">
                         <input type="date" className="form-control"
                           name="data_nascimento"
@@ -215,7 +213,7 @@ function DoctorForm() {
                   </div>
                   <div className="col-sm-6">
                     <div className="form-group">
-                      <label>Telefone </label>
+                      <label>Telefone<span className="text-danger">*</span></label>
                       <input className="form-control" type="text" ref={withMask('+99 (99)99999-9999')}
                         name="telefone"
                         value={doctorData.telefone}
@@ -432,11 +430,12 @@ function DoctorForm() {
                   </div>
                 </div>
                 <div className="m-t-20 text-center">
-                 <Link to="/doctorlist"><button 
+                 <button
                   className="btn btn-primary submit-btn"
-                    onClick={handleSubmit}>
+                  type="submit"
+                  >
                     Cadastrar Médico
-                  </button></Link>
+                  </button>
                 </div>
               </form>
             </div>

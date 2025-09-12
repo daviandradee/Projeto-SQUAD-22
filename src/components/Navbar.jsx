@@ -91,7 +91,7 @@ function Navbar() {
               <span className="status online"></span>
             </span>
             <span>{profileName}</span>
-            <i className="fa fa-angle-down ml-1"></i>
+            <i className=""></i>
           </a>
 
           <div className={`dropdown-menu${openProfile ? " show" : ""}`}>
