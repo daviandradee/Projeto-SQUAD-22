@@ -52,7 +52,7 @@ function Doctors() {
               <div className="profile-widget">
                 <div className="doctor-img">
                   <div className="avatar">
-                    <img alt="" src="public/img/doctor-thumb-03.jpg" />
+                    <img alt="" src="/img/doctor-thumb-03.jpg" />
                   </div>
                 </div>
 
