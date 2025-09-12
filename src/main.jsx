@@ -26,7 +26,7 @@ import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
-import AgendaList from "./pages/Agendar/agendaList.jsx";
+import AgendaList from "./pages/Agendar/AgendaList.jsx";
 import AgendaForm from "./pages/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
