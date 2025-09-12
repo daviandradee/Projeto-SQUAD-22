@@ -77,7 +77,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   );
 }
 
-function Agendalist() {
+function AgendaList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
 
@@ -228,4 +228,4 @@ function Agendalist() {
   );
 }
 
-export default Agendalist;
+export default AgendaList;
