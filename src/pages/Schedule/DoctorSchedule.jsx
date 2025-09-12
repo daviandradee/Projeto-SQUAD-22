@@ -40,7 +40,7 @@ function Doctorschedule() {
                         <img
                           width="28"
                           height="28"
-                          src="public/img/user.jpg"
+                          src="/img/user.jpg"
                           className="rounded-circle m-r-5"
                           alt="user"
                         />{" "}
