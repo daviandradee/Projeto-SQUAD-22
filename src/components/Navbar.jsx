@@ -41,7 +41,7 @@ function Navbar() {
       <div className="header-left">
         {/* Logo dinâmica */}
         <Link to={isDoctor ? "/doctor" : "/"} className="logo">
-          <img src="public/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
+          <img src="/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
           <span>MediConnect</span>
         </Link>
       </div>

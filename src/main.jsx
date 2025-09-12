@@ -16,7 +16,7 @@ import Doctorlist from "./pages/Doctor/DoctorList.jsx";
 import DoctorForm from "./pages/Doctor/DoctorForm.jsx";
 import Doctorschedule from "./pages/Schedule/DoctorSchedule.jsx";
 import AddSchedule from "./pages/Schedule/AddSchedule.jsx";
-import Calendar from "./pages/calendar/Calendar1.jsx";
+import Calendar from "./pages/calendar/Calendar.jsx";
 import EditDoctor from "./pages/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
@@ -26,7 +26,7 @@ import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
-import Agendalist from "./pages/Agendar/AgendaList.jsx";
+import AgendaList from "./pages/Agendar/agendaList.jsx";
 import AgendaForm from "./pages/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
@@ -55,7 +55,7 @@ const router = createBrowserRouter([
       { path: "editpatient/:id", element: <PatientEdit /> },
       { path: "agendaform", element: <AgendaForm />},
       { path: "agendaedit", element: <AgendaEdit />},
-      { path: "agendalist", element: <Agendalist />},
+      { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />}
     ],
