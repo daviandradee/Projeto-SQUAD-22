@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import "../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../Supabase"
@@ -38,7 +38,12 @@ function Patientform() {
         referencia: "",
         status: "inativo",
         observaçao: ""
+        
+        
     })
+
+    const [fotoFile, setFotoFile] = useState(null);
+    const fileRef = useRef(null);
 
     useEffect(() => {
             console.log("Estado atualizado:", patientData);
@@ -126,10 +131,27 @@ function Patientform() {
             .then(result => {
                 setpatientData(result)
                 console.log(result)
-                alert("paciente cadastrado")
-                navigate("/patientlist")
-            })
-            .catch(error => console.log('error', error));
+                 if (fotoFile && result?.id) {
+                     const formData = new FormData();
+                     formData.append("foto", fotoFile);
+
+                    fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${result.id}/foto`, {
+                         method: "POST",
+                         headers: {
+                             "Authorization": "Bearer <token>"
+                       },
+                       body: formData
+                    })
+                    .then(res => res.json())
+                    .then(uploadResult => { console.log("Foto enviada:", uploadResult);
+                                          console.log("Foto enviada com sucesso!");
+                 })
+                    .catch(error => console.error("Erro no upload da foto:", error));
+            }
+            alert("paciente cadastrado")
+            navigate("/patientlist")
+         })
+        .catch(error => console.log('error', error));
         /*console.log(patientData);
         const{data, error} = await supabase
         .from("Patient")
@@ -170,10 +192,10 @@ function Patientform() {
                                                             <input 
                                                                 name="foto_url" 
                                                                 type="file" 
-                                                                value={patientData.foto_url}
+                                                                ref={fileRef}
                                                                 accept="image/png, image/jpeg" 
                                                                 className="form-control"
-                                                                onChange={handleChange} />                                              
+                                                                onChange={(e) => setFotoFile(e.target.files[0])}  />                                              
                                                         </div>
                                                     </div>
                                                     <div className="col-md-3">
@@ -181,7 +203,16 @@ function Patientform() {
                                                             className="btn btn-primary"
                                                             onClick={() => {
                                                                 setpatientData(prev => ({ ...prev, foto_url: "" }));
-                                                                if (fileRef.current) fileRef.current.value = null; 
+                                                                if (fileRef.current) fileRef.current.value = null;
+                                                                fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${patientData.id}/foto`, {
+                                                                   method: "DELETE",
+                                                                   headers: {
+                                                                        "Authorization": "Bearer <token>",
+                                                                   }
+                                                                })
+                                                                .then(res => res.json())
+                                                                .then(result => console.log("Foto removida:", result))
+                                                                .catch(err => console.error("Erro ao remover a foto:", err)); 
                                                             }}
                                                             >
                                                             Limpar
