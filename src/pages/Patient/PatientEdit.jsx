@@ -118,10 +118,21 @@ function PatientEdit() {
                                                     <div className="col-md-3">
                                                         <div
                                                             className="btn btn-primary"
-                                                            onClick={() => {
+                                                            onClick={async () => {
+                                                                // Limpa no frontend
                                                                 setpatients(prev => ({ ...prev, foto_url: "" }));
-                                                                document.getElementsByName('foto_url')[0].value = null; 
-                                                            }}  
+                                                                setPreview(null); // Limpa o avatar exibido
+                                                                document.getElementsByName('foto_url')[0].value = null;
+
+                                                                // Limpa no backend
+                                                                try {
+                                                                    await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
+                                                                        method: "DELETE",
+                                                                    });
+                                                                } catch (error) {
+                                                                    console.log("Erro ao remover foto:", error);
+                                                                }
+                                                            }}
                                                             >
                                                             Limpar
                                                         </div>  
