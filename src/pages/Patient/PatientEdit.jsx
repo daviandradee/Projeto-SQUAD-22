@@ -119,12 +119,12 @@ function PatientEdit() {
                                                         <div
                                                             className="btn btn-primary"
                                                             onClick={async () => {
-                                                                // Limpa no frontend
+                                                                // Remove no Frontend
                                                                 setpatients(prev => ({ ...prev, foto_url: "" }));
-                                                                setPreview(null); // Limpa o avatar exibido
+                                                                setPreview(null); // Limpa a pré-visualização
                                                                 document.getElementsByName('foto_url')[0].value = null;
 
-                                                                // Limpa no backend
+                                                                // Remove na API
                                                                 try {
                                                                     await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
                                                                         method: "DELETE",
