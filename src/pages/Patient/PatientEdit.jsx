@@ -124,11 +124,17 @@ function PatientEdit() {
                                                                 setPreview(null); // Limpa a pré-visualização
                                                                 document.getElementsByName('foto_url')[0].value = null;
 
-                                                                // Remove na API
+                                                                // Remove na API e mostra resposta no console
                                                                 try {
-                                                                    await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
+                                                                    const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
                                                                         method: "DELETE",
                                                                     });
+                                                                    const data = await response.json();
+                                                                    console.log("Resposta da API ao remover foto:", data);
+
+                                                                    if (response.ok || response.status === 200) {
+                                                                        alert("Foto removida com sucesso!");
+                                                                    }
                                                                 } catch (error) {
                                                                     console.log("Erro ao remover foto:", error);
                                                                 }
