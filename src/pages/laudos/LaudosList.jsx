@@ -72,7 +72,56 @@ function LaudoList() {
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [laudos, setLaudos] = useState([]);
+  const [laudos, setLaudos] = useState([
+    {
+      id: 1,
+      pedido: 12345,
+      data: "2024-10-01",
+      prazo: "2024-10-05",
+      paciente: "Davi Andrade",
+      cpf: "12345678900",
+      tipo: "Radiologia",
+      status: "Pendente",
+      executante: "Dr. Silva",
+      exame: "Raio-X de Tórax"
+    },
+    {
+      id: 2,
+      pedido: 12346,
+      data: "2024-10-02",
+      prazo: "2024-10-06",
+      paciente: "Maria Souza",
+      cpf: "98765432100",
+      tipo: "Cardiologia",
+      status: "Concluído",
+      executante: "Dra. Lima",
+      exame: "Eletrocardiograma"
+    },
+    {
+      id: 3,
+      pedido: 12347,
+      data: "2024-10-03",
+      prazo: "2024-10-07",
+      paciente: "João Pereira",
+      cpf: "45678912300",
+      tipo: "Neurologia",
+      status: "Em Andamento",
+      executante: "Dr. Costa",
+      exame: "Ressonância Magnética"
+    },
+    {
+      id: 4,
+      pedido: 12348,
+      data: "2024-10-04",
+      prazo: "2024-10-08",
+      paciente: "Ana Oliveira",
+      cpf: "32165498700",
+      tipo: "Ortopedia",
+      status: "Pendente",
+      executante: "Dra. Fernandes",
+      exame: "Tomografia Computadorizada"
+    },
+  ]);                        
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
 
@@ -165,10 +214,7 @@ function LaudoList() {
                 <button className={`btn-filter ${period==="month"?"active":""}`} onClick={()=>setPeriod("month")}>Mês</button>
               </div>
 
-              {/* Botão Adicionar Laudo */}
-              <Link to="/laudo" className="btn btn-primary btn-sm">
-                <i className="fa fa-plus"></i> Adicionar Laudo
-              </Link>
+              
             </div>
           </div>
 
@@ -211,11 +257,8 @@ function LaudoList() {
                             </button>
                             <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown===l.id}
                               onClose={()=>setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
-                              <Link className="dropdown-item-custom" to={`/profilelaudo/${l.id}`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
-                                <i className="fa fa-eye"></i> Ver Detalhes
-                              </Link>
-                              <Link className="dropdown-item-custom" to={`/editlaudo/${l.id}`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
-                                <i className="fa fa-pencil m-r-5"></i> Editar
+                              <Link className="dropdown-item-custom" to={`/laudo`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
+                                <i className="fa fa-file-text"></i> Laudo
                               </Link>
                               <button className="dropdown-item-custom dropdown-item-delete" onClick={()=>handleDelete(l.id)}>
                                 <i className="fa fa-trash-o m-r-5"></i> Excluir
