@@ -76,7 +76,61 @@ function PatientEdit() {
         document.getElementById('estado').value = data.uf || '';
     }
     
-// aqui estou fazendo o update
+
+    const validarCpf = async (cpf) => {
+        const cpfLimpo = cpf.replace(/\D/g, "");
+        try {
+            const response = await fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/validar-cpf", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ cpf: cpfLimpo })
+            });
+            const data = await response.json();
+            if (data.valido === false) {
+                
+                alert("CPF inválido!");
+                return false;
+            } else if (data.valido === true) {
+                return true;
+            } else {
+                //alert("Não foi possível validar o CPF.");
+                return false;
+            }
+        } catch (error) {
+            alert("Erro ao validar CPF.");
+            return false;
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        const cpfValido = await validarCpf(patientData.cpf);
+
+        // Calcula idade a partir da data de nascimento
+        const hoje = new Date();
+        const nascimento = new Date(patientData.data_nascimento);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const m = hoje.getMonth() - nascimento.getMonth();
+        if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        let cpfRespValido = true;
+        if (idade < 18) {
+            cpfRespValido = await validarCpf(patientData.cpf_responsavel);
+        }
+
+        if (!cpfValido || !cpfRespValido) {
+            console.log("CPF inválido. Não enviando o formulário.");
+            // Não envia se algum CPF for inválido
+            return;
+        }
+        // aqui estou fazendo o update
+
+    };
 
     return (
         <div className="main-wrapper">
@@ -124,11 +178,17 @@ function PatientEdit() {
                                                                 setPreview(null); // Limpa a pré-visualização
                                                                 document.getElementsByName('foto_url')[0].value = null;
 
-                                                                // Remove na API
+                                                                // Remove na API e mostra resposta no console
                                                                 try {
-                                                                    await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
+                                                                    const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
                                                                         method: "DELETE",
                                                                     });
+                                                                    const data = await response.json();
+                                                                    console.log("Resposta da API ao remover foto:", data);
+
+                                                                    if (response.ok || response.status === 200) {
+                                                                        alert("Foto removida com sucesso!");
+                                                                    }
                                                                 } catch (error) {
                                                                     console.log("Erro ao remover foto:", error);
                                                                 }

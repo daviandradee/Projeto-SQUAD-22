@@ -91,21 +91,53 @@ function Patientform() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-       // Campos obrigatórios 
-    const requiredFields = [
-        "nome",
-        "cpf",
-        "data_nascimento",
-        "sexo",
-        "celular",
-        "cep",
-        "logradouro",
-        "numero",
-        "bairro",
-        "estado",
-        "status",
-        "email"
-    ];
+        //const cpfValido = await validarCpf(patientData.cpf);
+
+        /*
+        // Verifica se já existe paciente com o CPF
+        const cpfExiste = await verificarCpfExistente(patientData.cpf);
+        if (cpfExiste) {
+            alert("Já existe um paciente cadastrado com este CPF!");
+            return;
+        }
+        */
+
+        // Calcula idade a partir da data de nascimento
+        /*
+        const hoje = new Date();
+        const nascimento = new Date(patientData.data_nascimento);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const m = hoje.getMonth() - nascimento.getMonth();
+        if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        let cpfRespValido = true;
+        if (idade < 18) {
+            cpfRespValido = await validarCpf(patientData.cpf_responsavel);
+        }
+
+        if (!cpfValido || !cpfRespValido) {
+            console.log("CPF inválido. Não enviando o formulário.");
+            // Não envia se algum CPF for inválido
+            return;
+        }*/
+
+        // Campos obrigatórios
+        const requiredFields = [
+            "nome",
+            "cpf",
+            "data_nascimento",
+            "sexo",
+            "celular",
+            "cep",
+            "logradouro",
+            "numero",
+            "bairro",
+            "estado",
+            "status",
+            "email"
+        ];
 
     const missingFields = requiredFields.filter(
         (field) => !patientData[field] || patientData[field].toString().trim() === ""
@@ -182,7 +214,60 @@ function Patientform() {
             navigate("/patientlist")
         })
         .catch(error => console.log('error', error));
+        /*console.log(patientData);
+        const{data, error} = await supabase
+        .from("Patient")
+        .insert([patientData])
+        .select()
+        if(error){
+            console.log("Erro ao inserir paciente:", error);
+        }else{
+            console.log("Paciente inserido com sucesso:", data);
+        }*/
     };
+
+    const validarCpf = async (cpf) => {
+        const cpfLimpo = cpf.replace(/\D/g, "");
+        try {
+            const response = await fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/validar-cpf", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ cpf: cpfLimpo })
+            });
+            const data = await response.json();
+            if (data.valido === false) {
+                alert("CPF inválido!");
+                return false;
+            } else if (data.valido === true) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            alert("Erro ao validar CPF.");
+            return false;
+        }
+    };
+
+
+    const verificarCpfExistente = async (cpf) => {
+        const cpfLimpo = cpf.replace(/\D/g, "");
+        try {
+            const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes?cpf=${cpfLimpo}`);
+            const data = await response.json();
+            // Ajuste conforme o formato de resposta da sua API
+            if (data && data.data && data.data.length > 0) {
+                return true; // Já existe paciente com esse CPF
+            }
+            return false;
+        } catch (error) {
+            console.log("Erro ao verificar CPF existente.");
+            return false;
+        }
+    };
+
 
     return (
         <div className="main-wrapper">
@@ -222,18 +307,27 @@ function Patientform() {
                                                         <div
                                                             className="btn btn-primary"
                                                             onClick={async () => {
-                                                                // Remove no Frontend
-                                                                setpatients(prev => ({ ...prev, foto_url: "" }));
-                                                                setPreview(null); // Limpa a pré-visualização
-                                                                document.getElementsByName('foto_url')[0].value = null;
+                                                                // Remove no frontend
+                                                                setpatientData(prev => ({ ...prev, foto_url: "" }));
+                                                                setFotoFile(null); // Limpa no preview
+                                                                if (fileRef.current) fileRef.current.value = null;
 
-                                                                // Remove na API
-                                                                try {
-                                                                    await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}/foto`, {
-                                                                        method: "DELETE",
-                                                                    });
-                                                                } catch (error) {
-                                                                    console.log("Erro ao remover foto:", error);
+                                                                // Remove no backend e mostra resposta no console
+                                                                if (patientData.id) {
+                                                                    try {
+                                                                        const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${patientData.id}/foto`, {
+                                                                            method: "DELETE",
+                                                                        });
+                                                                        const data = await response.json();
+                                                                        console.log("Resposta da API ao remover foto:", data);
+                                                                        if (response.ok || response.status === 200) {
+                                                                            console.log("Foto removida com sucesso na API.");
+                                                                        }
+                                                                    } catch (error) {
+                                                                        console.log("Erro ao remover foto:", error);
+                                                                    }
+                                                                } else {
+                                                                    console.log("Ainda não existe paciente cadastrado para remover foto na API.");
                                                                 }
                                                             }}
                                                             >
