@@ -6,6 +6,7 @@ import supabase from "../../Supabase"
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 function PatientEdit() {
+    //testando
     const [patients, setpatients] = useState([""])
     const{id} = useParams()
     // carregando a lista e adicionando no usestate
