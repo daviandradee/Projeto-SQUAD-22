@@ -10,41 +10,53 @@ function Sidebar() {
                         <ul>
                             <li className="menu-title">Main</li>
 
+                            {/*<li>
+                                <a href="index-2.html">
+                                    <i className="fa fa-dashboard" /> <span>Dashboard</span>
+                                </a>
+                            </li>*/}
+
                             <li>
-                                <Link to="/app/doctorlist">
+                                <Link to="/doctorlist">
                                     <i className="fa fa-user-md" /> <span>Médicos</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/app/patientlist">
+                                <Link to="/patientlist">
                                     <i className="fa fa-wheelchair" /> <span>Pacientes</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/app/calendar">
-                                    <i className="fa fa-calendar" /> <span>Calendário</span>
+                                <Link to="/calendar">
+                                    <i className="fa fa-calendar" /> <span>Calendario</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/app/doctorschedule">
+                                <Link to="/doctorschedule">
                                     <i className="fa fa-calendar-check-o" /> <span>Agenda Médica</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/app/agendalist">
+                                <Link to="/agendalist">
                                     <i className="fa fa-stethoscope" /> <span>Consultas</span>
                                 </Link>
                             </li>
 
+                            {/* 🆕 Nova aba Laudo */}
                             <li>
-                                <Link to="/app/laudolist">
+                                <Link to="/laudolist">
                                     <i className="fa fa-file-text" /> <span>Laudos</span>
                                 </Link>
                             </li>
+                            {/*<li>
+                                <a href="settings.html">
+                                    <i className="fa fa-cog" /> <span>Configurações</span>
+                                </a>
+                            </li>*/}
                         </ul>
                     </div>
                 </div>
@@ -53,3 +65,4 @@ function Sidebar() {
     );
 }
 export default Sidebar;
+

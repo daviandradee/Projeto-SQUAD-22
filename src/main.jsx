@@ -32,8 +32,7 @@ import AgendaEdit from "./pages/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
 import Laudo from "./pages/laudos/Laudo.jsx";
 
-// 🔹 Importando Login
-import Login from "./pages/Login/Login.jsx"
+
 
 
 // Criando o router com todas as rotas
@@ -41,17 +40,9 @@ const router = createBrowserRouter([
   // Rotas Admin
   {
     path: "/",
-    element: <Login />
-
-  },
-  
-  
-  {
-    path: "/app",
     element: <App />,
     children: [
       // Rota inicial do Admin: apenas mostra layout com Navbar e Sidebar
-      {index : true, element : <PatientList/>},
       { path: "patient", element: <Patientform /> },
       { path: "patientlist", element: <PatientList /> },
       { path: "doctorlist", element: <Doctorlist /> },
@@ -62,11 +53,11 @@ const router = createBrowserRouter([
       { path: "profiledoctor/:id", element: <DoctorProfile /> },
       { path: "editdoctor/:id", element: <EditDoctor /> },
       { path: "editpatient/:id", element: <PatientEdit /> },
-      { path: "agendaform", element: <AgendaForm /> },
-      { path: "agendaedit", element: <AgendaEdit /> },
-      { path: "agendalist", element: <AgendaList /> },
+      { path: "agendaform", element: <AgendaForm />},
+      { path: "agendaedit", element: <AgendaEdit />},
+      { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
-      { path: "laudo", element: <Laudo /> }
+      { path: "laudo", element: <Laudo />}
     ],
   },
   // Rotas Médico
