@@ -91,6 +91,38 @@ function Patientform() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        //const cpfValido = await validarCpf(patientData.cpf);
+
+        /*
+        // Verifica se já existe paciente com o CPF
+        const cpfExiste = await verificarCpfExistente(patientData.cpf);
+        if (cpfExiste) {
+            alert("Já existe um paciente cadastrado com este CPF!");
+            return;
+        }
+        */
+
+        // Calcula idade a partir da data de nascimento
+        /*
+        const hoje = new Date();
+        const nascimento = new Date(patientData.data_nascimento);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const m = hoje.getMonth() - nascimento.getMonth();
+        if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        let cpfRespValido = true;
+        if (idade < 18) {
+            cpfRespValido = await validarCpf(patientData.cpf_responsavel);
+        }
+
+        if (!cpfValido || !cpfRespValido) {
+            console.log("CPF inválido. Não enviando o formulário.");
+            // Não envia se algum CPF for inválido
+            return;
+        }*/
+
         // Campos obrigatórios
         const requiredFields = [
             "nome",
@@ -163,6 +195,49 @@ function Patientform() {
             console.log("Paciente inserido com sucesso:", data);
         }*/
     };
+
+    const validarCpf = async (cpf) => {
+        const cpfLimpo = cpf.replace(/\D/g, "");
+        try {
+            const response = await fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/validar-cpf", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ cpf: cpfLimpo })
+            });
+            const data = await response.json();
+            if (data.valido === false) {
+                alert("CPF inválido!");
+                return false;
+            } else if (data.valido === true) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            alert("Erro ao validar CPF.");
+            return false;
+        }
+    };
+
+
+    const verificarCpfExistente = async (cpf) => {
+        const cpfLimpo = cpf.replace(/\D/g, "");
+        try {
+            const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes?cpf=${cpfLimpo}`);
+            const data = await response.json();
+            // Ajuste conforme o formato de resposta da sua API
+            if (data && data.data && data.data.length > 0) {
+                return true; // Já existe paciente com esse CPF
+            }
+            return false;
+        } catch (error) {
+            console.log("Erro ao verificar CPF existente.");
+            return false;
+        }
+    };
+
 
     return (
         <div className="main-wrapper">
