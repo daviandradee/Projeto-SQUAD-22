@@ -139,50 +139,80 @@ function Patientform() {
             "email"
         ];
 
-        const missingFields = requiredFields.filter(
-            (field) => !patientData[field] || patientData[field].toString().trim() === ""
-        );
+    const missingFields = requiredFields.filter(
+        (field) => !patientData[field] || patientData[field].toString().trim() === ""
+    );
 
-        if (missingFields.length > 0) {
-            alert("Por favor, preencha todos os campos obrigatórios.");
-            return;
-        }
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer <token>");
-        myHeaders.append("Content-Type", "application/json");
-        const raw = JSON.stringify(patientData)
-        var requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-        };
+    if (missingFields.length > 0) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+    }
 
-        fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-            .then(response => response.text())
-            .then(result => {
-                setpatientData(result)
-                console.log(result)
-                 if (fotoFile && result?.id) {
-                     const formData = new FormData();
-                     formData.append("foto", fotoFile);
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer <token>");
+    myHeaders.append("Content-Type", "application/json");
+    const raw = JSON.stringify(patientData);
 
-                    fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${result.id}/foto`, {
-                         method: "POST",
-                         headers: {
-                             "Authorization": "Bearer <token>"
-                       },
-                       body: formData
-                    })
-                    .then(res => res.json())
-                    .then(uploadResult => { console.log("Foto enviada:", uploadResult);
-                                          console.log("Foto enviada com sucesso!");
-                 })
-                    .catch(error => console.error("Erro no upload da foto:", error));
+    var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+        .then(response => response.json())
+        .then(async (result) => {
+            setpatientData(result)
+            console.log(result)
+
+            if (fotoFile && result?.id) {
+                const formData = new FormData();
+                formData.append("foto", fotoFile);
+
+                try {
+                    const res = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${result.id}/foto`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer <token>"
+                        },
+                        body: formData
+                    });
+                    const uploadResult = await res.json();
+                    console.log("Foto enviada com sucesso:", uploadResult);
+                } catch (error) {
+                    console.error("Erro no upload da foto:", error);
+                }
             }
+
+            if (patientData.documentoFile && result?.id) {
+                const formData = new FormData();
+                formData.append("anexo", patientData.documentoFile);
+
+                try {
+                    const resAnexo = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${result.id}/anexos`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer <token>"
+                        },
+                        body: formData
+                    });
+                    const novoAnexo = await resAnexo.json();
+                    console.log("Anexo enviado com sucesso:", novoAnexo);
+
+                    
+                    setpatientData((prev) => ({
+                        ...prev,
+                        anexos: [...(prev.anexos || []), novoAnexo]
+                    }));
+                } catch (error) {
+                    console.error("Erro no upload do anexo:", error);
+                }
+            }
+
             alert("paciente cadastrado")
             navigate("/patientlist")
-         })
+        })
         .catch(error => console.log('error', error));
         /*console.log(patientData);
         const{data, error} = await supabase
@@ -682,14 +712,65 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Documentos</label>
                                     <div className="profile-upload">
-                                        <div className="upload-img">
-                                            <img alt="" src="assets/img/user.jpg" />
-                                        </div>
+                                      <div className="upload-img">
+                                        <img alt="" src="assets/img/user.jpg" />
+                                    </div>
+                                    <div className="row">
+                                      <div className="col-md-9">
                                         <div className="upload-input">
-                                            <input type="file" accept="image/png, image/jpeg" className="form-control" />
+                                            <input
+                                              type="file"
+                                              accept="image/png, image/jpeg, application/pdf"
+                                              className="form-control"
+                                              onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                   setpatientData((prev) => ({ ...prev, documentoFile: file }));
+                                                }
+                                             }}
+                                            />
                                         </div>
                                     </div>
+                                    <div className="col-md-3">
+                                       {patientData.anexos?.length > 0 && (
+                                         <button
+                                           type="button"
+                                           className="btn btn-danger"
+                                           onClick={async () => {
+                                                // Remove o primeiro anexo (ou adapte para remover específico)
+                                                const anexoId = patientData.anexos[0].id;
+                                                try {
+                                                  await fetch(
+                                                     `https://mock.apidog.com/m1/1053378-0-default/pacientes/${patientData.id}/anexos/${anexoId}`,
+                                                     { method: "DELETE", headers: { Authorization: "Bearer <token>" } }
+                                                  );
+                                                  setpatientData((prev) => ({
+                                                    ...prev,
+                                                    anexos: prev.anexos.filter((a) => a.id !== anexoId)
+                                                  }));
+                                                  alert("Anexo removido com sucesso!");
+                                                } catch (err) {
+                                                  console.error("Erro ao remover anexo:", err);
+                                                }
+                                            }}
+                                        >
+                                          Remover
+                                        </button>
+                                       )}
+                                    </div>
+                                  </div>
+
+                                  {/* Lista anexos */}
+                                  {patientData.anexos?.length > 0 &&
+                                    patientData.anexos.map((anexo) => (
+                                      <div key={anexo.id} className="mt-2">
+                                        <a href={anexo.url} target="_blank" rel="noreferrer">
+                                           {anexo.nome || "Documento"}
+                                        </a>
+                                      </div>
+                                    ))}
                                 </div>
+                            </div>
 
 
 
