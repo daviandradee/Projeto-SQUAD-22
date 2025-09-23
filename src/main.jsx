@@ -1,4 +1,3 @@
-// src/main.jsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -6,9 +5,13 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./assets/css/index.css";
 
 // Layouts
-import App from "./App.jsx";           // Layout Admin
-import DoctorApp from "./pages/DoctorApp/DoctorApp.jsx"; // Layout Médico
+import App from "./App.jsx";
+import DoctorApp from "./pages/DoctorApp/DoctorApp.jsx";
 
+// Página de Login
+import Login from "./pages/Login/Login.jsx";
+
+import SecretariaDashboard from "./pages/Secretaria/SecretariaDashboard.jsx";
 // Páginas Admin
 import Patientform from "./pages/Patient/Patientform.jsx";
 import PatientList from "./pages/Patient/PatientList.jsx";
@@ -22,28 +25,42 @@ import PatientEdit from "./pages/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
 
 
+
 // Páginas Médico
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/Patient/DoctorPatientList.jsx";
 import ConsultaList from "./pages/DoctorApp/Consultas/ConsultaList.jsx";
+
+
 import AgendaList from "./pages/Agendar/AgendaList.jsx";
 import AgendaForm from "./pages/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Agendar/AgendaEdit.jsx";
-import LaudoList from "./pages/laudos/LaudosList.jsx"
+import LaudoList from "./pages/laudos/LaudosList.jsx";
 import Laudo from "./pages/laudos/Laudo.jsx";
 
+// Páginas Médico
+import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
+import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
+import DoctorPatientList from "./pages/DoctorApp/DoctorPatientList.jsx";
 
-
-
-// Criando o router com todas as rotas
+// Router
 const router = createBrowserRouter([
-  // Rotas Admin
+  // Primeira tela = Login
+  {
+    path: "/",
+    element: <Login />,
+  },
+
+  {
+    path: "/secretaria",
+    element: <SecretariaDashboard />,
+  },
+  
   {
     path: "/",
     element: <App />,
     children: [
-      // Rota inicial do Admin: apenas mostra layout com Navbar e Sidebar
       { path: "patient", element: <Patientform /> },
       { path: "patientlist", element: <PatientList /> },
       { path: "doctorlist", element: <Doctorlist /> },
@@ -54,19 +71,20 @@ const router = createBrowserRouter([
       { path: "profiledoctor/:id", element: <DoctorProfile /> },
       { path: "editdoctor/:id", element: <EditDoctor /> },
       { path: "editpatient/:id", element: <PatientEdit /> },
-      { path: "agendaform", element: <AgendaForm />},
-      { path: "agendaedit", element: <AgendaEdit />},
-      { path: "agendalist", element: <AgendaList />},
+      { path: "agendaform", element: <AgendaForm /> },
+      { path: "agendaedit", element: <AgendaEdit /> },
+      { path: "agendalist", element: <AgendaList /> },
       { path: "laudolist", element: <LaudoList /> },
-      { path: "laudo", element: <Laudo />}
+      { path: "laudo", element: <Laudo /> },
     ],
   },
+
   // Rotas Médico
   {
     path: "/doctor",
     element: <DoctorApp />,
     children: [
-      { index: true, element: <DoctorDashboard /> }, // Rota inicial médico
+      { index: true, element: <DoctorDashboard /> },
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
       { path: "patients", element: <DoctorPatientList /> },
@@ -75,7 +93,6 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Renderizando a aplicação
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
