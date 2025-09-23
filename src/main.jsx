@@ -11,6 +11,7 @@ import DoctorApp from "./pages/DoctorApp/DoctorApp.jsx";
 // Página de Login
 import Login from "./pages/Login/Login.jsx";
 
+import SecretariaDashboard from "./pages/Secretaria/SecretariaDashboard.jsx";
 // Páginas Admin
 import Patientform from "./pages/Patient/Patientform.jsx";
 import PatientList from "./pages/Patient/PatientList.jsx";
@@ -41,7 +42,11 @@ const router = createBrowserRouter([
     element: <Login />,
   },
 
-  // Rotas Admin
+  {
+    path: "/secretaria",
+    element: <SecretariaDashboard />,
+  },
+  
   {
     path: "/",
     element: <App />,
