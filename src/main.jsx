@@ -23,6 +23,16 @@ import Calendar from "./pages/calendar/Calendar.jsx";
 import EditDoctor from "./pages/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile.jsx";
+
+
+
+// Páginas Médico
+import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
+import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
+import DoctorPatientList from "./pages/DoctorApp/Patient/DoctorPatientList.jsx";
+import ConsultaList from "./pages/DoctorApp/Consultas/ConsultaList.jsx";
+
+
 import AgendaList from "./pages/Agendar/AgendaList.jsx";
 import AgendaForm from "./pages/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Agendar/AgendaEdit.jsx";
@@ -78,6 +88,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
       { path: "patients", element: <DoctorPatientList /> },
+      {path: "consultas", element: <ConsultaList /> }
     ],
   },
 ]);
