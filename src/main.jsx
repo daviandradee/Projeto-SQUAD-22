@@ -4,6 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./assets/css/index.css";
 
+//Login
+import Login from "./pages/Login/Login.jsx";
+
 // Layouts
 import App from "./pages/Layout/SecratariaGApp.jsx";           // Layout Admin
 import DoctorApp from "./pages/Layout/DoctorApp.jsx"; // Layout Médico
@@ -41,6 +44,12 @@ import Laudo from "./pages/laudos/Laudo.jsx";
 const router = createBrowserRouter([
    
   // Rotas Admin
+  { 
+path: "/",
+element: <Login />
+
+  },
+  
   {
     path: "/",
     element: <App />,
