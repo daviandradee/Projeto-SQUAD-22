@@ -52,6 +52,15 @@ function DoctorApp() {
                   <span>Consultas</span>
                 </NavLink>
               </li>
+              <li>
+                <NavLink
+                  to="/doctor/laudolist"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-file-text"></i>
+                  <span>Laudos</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
         </div>

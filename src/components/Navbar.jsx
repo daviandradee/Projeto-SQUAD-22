@@ -51,7 +51,7 @@ function Navbar() {
       </a>
 
       <ul className="nav user-menu float-right">
-        {/* 🔔 Notificações */}
+        {/* 
         <li className="nav-item dropdown d-none d-sm-block" ref={notifRef}>
           <a
             href="#!"
@@ -69,12 +69,12 @@ function Navbar() {
             <div className="topnav-dropdown-header">
               <span>Cadastrado</span>
             </div>
-            {/* Aqui você pode listar notificações reais */}
             <div className="topnav-dropdown-footer">
               <a href="#!">Mensagem</a>
             </div>
           </div>
         </li>
+        */}
 
         {/* 👤 Perfil */}
         <li className="nav-item dropdown has-arrow" ref={profileRef}>
