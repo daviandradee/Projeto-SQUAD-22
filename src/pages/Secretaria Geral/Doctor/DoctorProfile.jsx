@@ -1,5 +1,5 @@
-import "../../assets/css/index.css";
-import supabase from "../../Supabase";
+import "../../../assets/css/index.css"
+import supabase from "../../../Supabase";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";

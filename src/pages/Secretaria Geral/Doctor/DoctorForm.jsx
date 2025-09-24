@@ -1,7 +1,7 @@
-import "../../assets/css/index.css"
+import "../../../assets/css/index.css";
 import { withMask } from "use-mask-input";
 import { useState } from "react";
-import supabase from "../../Supabase"
+import supabase from "../../../Supabase";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { Outlet, NavLink } from "react-router-dom";
-import "../../assets/css/index.css";
-import Navbar from "../../components/Navbar";
+import './../../assets/css/index.css'
+import Navbar from './../../components/Navbar'
 
 function DoctorApp() {
   return (

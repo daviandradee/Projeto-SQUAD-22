@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { withMask } from "use-mask-input";
 import { Link } from "react-router-dom";
-import "../../assets/css/index.css";
+import "../../../assets/css/index.css";
 
-function AgendaForm() {
+function AgendaEdit() {
   const [minDate, setMinDate] = useState("");
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function AgendaForm() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h1>Nova consulta</h1>
+              <h1>Editar consulta</h1>
               <hr />
               <h3>Informações do paciente</h3>
             </div>
@@ -198,7 +198,7 @@ function AgendaForm() {
                 <div className="m-t-20 text-center">
                   <Link to="/agendalist">
                     <button className="btn btn-primary submit-btn" type="button">
-                      Criar consulta
+                      Salvar
                     </button>
                   </Link>
                 </div>
@@ -210,4 +210,4 @@ function AgendaForm() {
     </div>
   );
 }
-export default AgendaForm;
+export default AgendaEdit;

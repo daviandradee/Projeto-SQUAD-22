@@ -1,7 +1,7 @@
-import "../../assets/css/index.css"; 
+import "../../../assets/css/index.css";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import supabase from "../../Supabase";
+import supabase from "../../../Supabase";
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
