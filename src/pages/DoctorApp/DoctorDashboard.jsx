@@ -1,7 +1,33 @@
 import React from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
 function DoctorDashboard() {
+  const [patients, setPatients] =useState([]);
+  const [count, setCount] = useState(0);
+
+    var requestOptions = {
+    method: "GET",
+    redirect: "follow",
+  };
+
+  useEffect(() => {
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("API result:", result);
+        setPatients(result.data || []);
+        setCount(result.data.length);
+      })
+      .catch((error) => console.log("error", error));
+  }, []);
+  
+  
+
+  
+
+
   return (
+  
 
     <div className="content">
       <h1>Bem vindo, Dr.Davi</h1>
@@ -10,7 +36,7 @@ function DoctorDashboard() {
           <div className="dash-widget">
             <span className="dash-widget-bg2"><i className="fa fa-user-o"></i></span>
             <div className="dash-widget-info text-right">
-              <h3>1072</h3>
+              <h3>{count}</h3>
               <span className="widget-title2">Patients <i className="" aria-hidden="true"></i></span>
             </div>
           </div>
@@ -19,7 +45,7 @@ function DoctorDashboard() {
           <div className="dash-widget">
             <span className="dash-widget-bg1"><i className="fa fa-stethoscope" aria-hidden="true"></i></span>
             <div className="dash-widget-info text-right">
-              <h3>98</h3>
+              <h3>{count}</h3>
               <span className="widget-title1">Consultas <i className="" aria-hidden="true"></i></span>
             </div>
           </div>
@@ -37,99 +63,63 @@ function DoctorDashboard() {
           <div className="dash-widget">
             <span className="dash-widget-bg4"><i className="fa fa-heartbeat" aria-hidden="true"></i></span>
             <div className="dash-widget-info text-right">
-              <h3>618</h3>
+              <h3>{count}</h3>
               <span className="widget-title4">Pendentes <i className="" aria-hidden="true"></i></span>
             </div>
           </div>
         </div>
-
-      {/* eh a tabela de consulta do medico*/} 
-      <div className="col-12 col-md-6 col-lg-6 col-xl-6">
-        <div className="card">
-          <div className="card-header">
-            <h4 className="card-title d-inline-block">Proximas consultas</h4> <Link to="/doctor/consultas"><a href="appointments.html" className="btn btn-primary float-right">Ver todas</a></Link>
-          </div>
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-border table-striped custom-table mb-0">
-                  <thead>
-                    <tr>
+        
+        
+        <div className="col-12 col-md-6 col-lg-6 col-xl-6">
+						<Link to="/doctor/consultas"><div className="card">
+							<div className="card-header">
+								<h4 className="text-left">Consultas</h4> <Link className="btn btn-primary float-right" to="/doctor/consultas">Ver todos</Link>
+							</div>
+							<div className="card-block">
+								<div className="table-responsive">
+									<table className="table table-border table-striped custom-table mb-0">
+                    <thead>
+                    <tr >
                       <th>Nome</th>
                       <th>Horário</th>
                       <th className="text-center">Ação</th>
                     </tr>
                   </thead>
-                <tbody>
-                  <tr>
-                    <td >
-                      <a className="avatar" href="profile.html">B</a>
-                      <h2><a href="profile.html">Bernardo Galaviz <span>New York, USA</span></a></h2>
+										<tbody>
+                      {patients.length > 0 ? (
+                    patients.map((p) => (
+											<tr key={p.id}>
+												<td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+									
+												<td>{p.created_at}</td>
+												<td className="text-center">
+                      <Link className="btn btn-outline-primary take-btn">Detalhes</Link> 
                     </td>
-                   
-                    <td>
-
-                      <p>6:30 PM</p>
-                    </td>
-                    <td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td >
-                      <a className="avatar" href="profile.html">B</a>
-                      <h2><a href="profile.html">Bernardo Galaviz <span>New York, USA</span></a></h2>
-                    </td>
-                    
-                    <td>
-                      <p>7:00 PM</p>
-                    </td>
-                    <td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td >
-                      <a className="avatar" href="profile.html">B</a>
-                      <h2><a href="profile.html">Bernardo Galaviz <span>New York, USA</span></a></h2>
-                    </td>
-                    
-                    <td>
-
-                      <p>8:00 PM</p>
-                    </td>
-                    <td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td >
-                      <a className="avatar" href="profile.html">B</a>
-                      <h2><a href="profile.html">Bernardo Galaviz <span>New York, USA</span></a></h2>
-                    </td>
-                   
-                    <td>
-
-                      <p>9:00 PM</p>
-                    </td>
-                    <td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* eh os pacientes*/}
-      <div class="col-12 col-md-6 col-lg-6 col-xl-6">
-						<div class="card">
-							<div class="card-header">
-								<h4 class="card-title d-inline-block">Pacientes</h4> <Link to="/doctor/patients"><a href="patients.html" class="btn btn-primary float-right">Ver todos</a></Link>
+											</tr>
+                      ))
+                  ) : (
+                    <tr>
+                    <td colSpan="4">Nenhum paciente encontrado.</td>
+                    </tr>
+                  )}
+										</tbody>
+									</table>
+								</div>
 							</div>
-							<div class="card-block">
-								<div class="table-responsive">
-									<table class="table table-border table-striped custom-table mb-0">
+						</div></Link>
+					</div>
+      {/* eh os pacientes*/}
+      <div className="col-12 col-md-6 col-lg-6 col-xl-6">
+						<Link to="/doctor/patients"><div className="card">
+							<div className="card-header">
+								<h4 className="text-left">Pacientes</h4> <Link className="btn btn-primary float-right" to="/doctor/patients">Ver todos</Link>
+							</div>
+							<div className="card-block">
+								<div className="table-responsive">
+									<table className="table table-border table-striped custom-table mb-0">
                     <thead>
                     <tr>
                       <th>Nome</th>
@@ -139,58 +129,35 @@ function DoctorDashboard() {
                     </tr>
                   </thead>
 										<tbody>
-											<tr>
+                      {patients.length > 0 ? (
+                    patients.map((p) => (
+											<tr key={p.id}>
 												<td>
-													<img  class="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>John Doe</h2>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
 												</td>
-												<td>Johndoe21@gmail.com</td>
-												<td>+1-202-555-0125</td>
+												<td>{p.email}</td>
+												<td>{p.telefone}</td>
 												<td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
+                      <Link className="btn btn-outline-primary take-btn" >
+                        Detalhes
+                      </Link>
                     </td>
 											</tr>
-											<tr>
-												<td>
-													<img  class="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>Richard</h2>
-												</td>
-												<td>Richard123@yahoo.com</td>
-												<td>202-555-0127</td>
-												<td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-											</tr>
-											<tr>
-												<td>
-													<img  class="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>Villiam</h2>
-												</td>
-												<td>Richard123@yahoo.com</td>
-												<td>+1-202-555-0106</td>
-												<td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-											</tr>
-											<tr>
-												<td>
-													<img  class="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>Martin</h2>
-												</td>
-												<td>Richard123@yahoo.com</td>
-												<td>776-2323 89562015</td>
-												<td className="text-center">
-                      <a href="appointments.html" className="btn btn-outline-primary take-btn">Detalhes</a>
-                    </td>
-											</tr>
+                      ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">Nenhum paciente encontrado.</td>
+                    </tr>
+                  )}
 										</tbody>
 									</table>
 								</div>
 							</div>
-						</div>
+						</div></Link>
 					</div>
     </div>
-  </div>
+    </div>
   );
 }
 

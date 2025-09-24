@@ -220,7 +220,7 @@ function DoctorPatientList() {
 
                                 <Link
                                   className="dropdown-item-custom"
-                                  to={`/editpatient/${p.id}`}
+                                  
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenDropdown(null);

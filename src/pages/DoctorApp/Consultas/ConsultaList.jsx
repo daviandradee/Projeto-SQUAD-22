@@ -80,52 +80,100 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 function ConsultaList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const [consulta, setConsultas] = useState([]);
+  const [search, setSearch] = useState("");
+
+  var requestOptions = {
+    method: "GET",
+    redirect: "follow",
+  };
+
+  useEffect(() => {
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("API result:", result);
+        setConsultas(result.data || []);
+      })
+      .catch((error) => console.log("error", error));
+  }, []);
+  const handleDelete = async (id) => {
+    const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
+    if (!confirmDel) return;
+
+    const requestOptions = {
+      method: 'DELETE',
+      redirect: 'follow'
+    };
+
+    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+
+    // Se quiser apagar no supabase, faça a chamada aqui.
+    // const { error } = await supabase.from("Patient").delete().eq("id", id);
+    // if (error) { console.error(error); return; }
+
+    setConsultas((prev) => prev.filter((c) => c.id !== id));
+    setOpenDropdown(null);
+  };
+
+  const filteredConsultas = consulta.filter((c) => {
+    if (!c) return false;
+    const nome = (c.nome || "").toLowerCase();
+    const cpf = (c.cpf || "").toLowerCase();
+    const email = (c.email || "").toLowerCase();
+    const q = search.toLowerCase();
+    return nome.includes(q) || cpf.includes(q) || email.includes(q);
+  });
 
   return (
-        <div className="content">
-          <div className="row">
-            <div className="col-sm-4 col-3">
-              <h4 className="page-title">Lista de consultas</h4>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="🔍  Buscar consulta"
-                style={{ minWidth: "200px" }}
-              />
-              <br />
-            </div>
-            <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/agendaform" className="btn btn-primary btn-rounded">
-                <i className="fa fa-plus"></i> Adicionar consulta
-              </Link>
-            </div>
-          </div>
+    <div className="content">
+      <div className="row">
+        <div className="col-sm-4 col-3">
+          <h4 className="page-title">Lista de consultas</h4>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="🔍  Buscar consulta"
+            style={{ minWidth: "200px" }}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <br />
+        </div>
+        <div className="col-sm-8 col-9 text-right m-b-20">
+          <Link to="/agendaform" className="btn btn-primary btn-rounded">
+            <i className="fa fa-plus"></i> Adicionar consulta
+          </Link>
+        </div>
+      </div>
 
-          <div className="row">
-            <div className="col-md-12">
-              <div className="table-responsive">
-                <table className="table table-striped custom-table">
-                  <thead>
-                    <tr>
-                      <th>ID da cosulta</th>
-                      <th>Nome do Paciente</th>
-                      <th>Idade</th>
-                      <th>Nome do médico</th>
-                      <th>Especialidade</th>
-                      <th>Data da consulta</th>
-                      <th>Hora da consulta</th>
-                      <th>Status</th>
-                      <th className="text-right">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>APT0001</td>
-                      <td>João Miguel</td>
-                      <td>18</td>
+      <div className="row">
+        <div className="col-md-12">
+          <div className="table-responsive">
+            <table className="table table-striped custom-table">
+              <thead>
+                <tr>
+                  <th>Nome do Paciente</th>
+                  <th>Data de Nascimento</th>
+                  <th>Nome do médico</th>
+                  <th>Especialidade</th>
+                  <th>Data da consulta</th>
+                  <th>Hora da consulta</th>
+                  <th>Status</th>
+                  <th className="text-right">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredConsultas.length > 0 ? (
+                  filteredConsultas.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.nome}</td>
+                      <td>{c.data_nascimento}</td>
                       <td>Davi Andrade</td>
                       <td>Cardiologista</td>
-                      <td>25 Set 2025</td>
+                      <td>{c.created_at}</td>
                       <td>10:00am - 11:00am</td>
                       <td>
                         <span className="custom-badge status-green">
@@ -136,11 +184,11 @@ function ConsultaList() {
                         <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
                           <button
                             type="button"
-                            ref={(el) => (anchorRefs.current["menu"] = el)}
+                            ref={(el) => (anchorRefs.current[c.id] = el)}
                             className="action-icon"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setOpenDropdown(openDropdown === "menu" ? null : "menu");
+                              setOpenDropdown(openDropdown === c.id ? null : c.id);
                             }}
 
                           >
@@ -148,28 +196,28 @@ function ConsultaList() {
                           </button>
 
                           <DropdownPortal
-                            anchorEl={anchorRefs.current["menu"]}
-                            isOpen={openDropdown === "menu"}
+                            anchorEl={anchorRefs.current[c.id]}
+                            isOpen={openDropdown === c.id}
                             onClose={() => setOpenDropdown(null)}
                             className="dropdown-menu dropdown-menu-right show"
                           >
                             {/*<Link
-                              className="dropdown-item-custom"
-                              to={`/profilepatient`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
-                            >
-                              <i className="fa fa-eye"></i> Ver Detalhes
-                            </Link>*/}
+                                                        className="dropdown-item-custom"
+                                                        to={`/profilepatient/${p.id}`}
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          setOpenDropdown(null);
+                                                        }}
+                                                      >
+                                                        <i className="fa fa-eye"></i> Ver Detalhes
+                                                      </Link>*/}
 
                             <Link
                               className="dropdown-item-custom"
-                              to={`/agendaedit`}
+                              to={`/editpatient/${c.id}`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setOpenDropdown(null);  
+                                setOpenDropdown(null);
                               }}
                             >
                               <i className="fa fa-pencil m-r-5"></i> Editar
@@ -177,49 +225,28 @@ function ConsultaList() {
 
                             <button
                               className="dropdown-item-custom dropdown-item-delete"
-                              onClick={() => handleDelete()}
+                              onClick={() => handleDelete(c.id)}
                             >
                               <i className="fa fa-trash-o m-r-5"></i> Excluir
                             </button>
                           </DropdownPortal>
                         </div>
-
                       </td>
                     </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-        {/* Modal delete */}
-        <div
-          id="delete_appointment"
-          className="modal fade delete-modal"
-          role="dialog"
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-body text-center">
-                <img src="assets/img/sent.png" alt="" width="50" height="46" />
-                <h3>Are you sure want to delete this Appointment?</h3>
-                <div className="m-t-20">
-                  <a
-                    href="#"
-                    className="btn btn-white"
-                    data-dismiss="modal"
-                  >
-                    Close
-                  </a>
-                  <button type="submit" className="btn btn-danger">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center text-muted">
+                      Nenhum paciente encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-        </div>
+      </div>
+    </div>
   );
 }
 

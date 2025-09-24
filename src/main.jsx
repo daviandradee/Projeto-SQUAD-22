@@ -26,6 +26,8 @@ import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/Patient/DoctorPatientList.jsx";
 import ConsultaList from "./pages/DoctorApp/Consultas/ConsultaList.jsx";
+import LaudoListDoctor from "./pages/DoctorApp/Laudos/Laudo.jsx";
+import LaudoFormDoctor from "./pages/DoctorApp/Laudos/LaudoForm.jsx";
 import AgendaList from "./pages/Secretaria Geral/Agendar/AgendaList.jsx";
 import AgendaForm from "./pages/Secretaria Geral/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Secretaria Geral/Agendar/AgendaEdit.jsx";
@@ -70,7 +72,10 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
       { path: "patients", element: <DoctorPatientList /> },
-      {path: "consultas", element: <ConsultaList /> }
+      {path: "consultas", element: <ConsultaList /> },
+      {path: "laudolist", element: <LaudoListDoctor /> },
+      {path: "laudoform", element: <LaudoFormDoctor /> },
+
     ],
   },
 ]);
