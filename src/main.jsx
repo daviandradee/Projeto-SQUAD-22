@@ -34,7 +34,9 @@ import AdicionarConsulta from "./pages/SecretariaApp/Consultas/AdicionarConsulta
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
 import DoctorCalendar from "./pages/DoctorApp/DoctorCalendar.jsx";
 import DoctorPatientList from "./pages/DoctorApp/Patient/DoctorPatientList.jsx";
+import DoctorPatientForm from "./pages/DoctorApp/Patient/DoctorPatientForm.jsx";
 import ConsultaList from "./pages/DoctorApp/Consultas/ConsultaList.jsx";
+import DoctorConsultaForm from "./pages/DoctorApp/Consultas/DoctorConsultaForm.jsx";
 import LaudoListDoctor from "./pages/DoctorApp/Laudos/Laudo.jsx";
 import LaudoFormDoctor from "./pages/DoctorApp/Laudos/LaudoForm.jsx";
 import AgendaList from "./pages/AdminApp/Agendar/AgendaList.jsx";
@@ -131,11 +133,13 @@ element: <Login />
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
       { path: "patients", element: <DoctorPatientList /> },
+      { path: "patientform", element: <DoctorPatientForm /> },
       {path: "consultas", element: <ConsultaList /> },
+      { path: "DoctorConsultaForm", element: <DoctorConsultaForm/> },
       {path: "laudolist", element: <LaudoListDoctor /> },
       {path: "laudoform", element: <LaudoFormDoctor /> },
        { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
-      { path: "doctorprontuario/:id", element: <DoctorProntuario /> } // Nova rota para DoctorProntuario
+      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }// Nova rota para DoctorProntuario
     ],
   },
   // Rotas Paciente
