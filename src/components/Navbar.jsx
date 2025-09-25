@@ -53,11 +53,7 @@ function Navbar() {
     }
   }, [location.pathname]);
 
-  const goToOtherRole = () => {
-    if (isDoctor) navigate("/");
-    else navigate("/doctor");
-    setOpenProfile(false);
-  };
+
 
   // Novo handler para paciente
   const handlePacienteClick = () => {
