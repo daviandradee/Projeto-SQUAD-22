@@ -196,7 +196,7 @@ function AgendaEdit() {
                 </div>
 
                 <div className="m-t-20 text-center">
-                  <Link to="/agendalist">
+                  <Link to="/admin/agendalist">
                     <button className="btn btn-primary submit-btn" type="button">
                       Salvar
                     </button>

@@ -45,6 +45,8 @@ function Navbar() {
       setProfileName("Paciente");
     } else if (location.pathname.startsWith("/admin")) {
       setProfileName("Admin");
+      } else if (location.pathname.startsWith("/secretaria")) {
+      setProfileName("Secretária ");
     } else {
       // Rota de login ou outras rotas
       setProfileName("Admin");
@@ -126,6 +128,15 @@ function Navbar() {
                  navigate("/admin");
                }}>
                  Admin
+               </button>
+             )}
+              {profileName !== "Secretária " && (
+               <button className="dropdown-item" onClick={() => {
+                 setProfileName("Secretária ");
+                 setOpenProfile(false);
+                 navigate("/secretaria");
+               }}>
+                 Secretária
                </button>
              )}
           </div>
