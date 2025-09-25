@@ -4,7 +4,7 @@ import { withMask } from "use-mask-input";
 import supabase from "../../../Supabase";
 import { useNavigate } from "react-router-dom";
 
-function Patientform() {
+function PacienteForm() {
     const [patientData, setpatientData] = useState({
         nome: "",
         nome_social: "",
@@ -211,7 +211,7 @@ function Patientform() {
             }
 
             alert("paciente cadastrado")
-            navigate("/admin/patientlist")
+            navigate("/secretaria/pacientelista")
         })
         .catch(error => console.log('error', error));
         /*console.log(patientData);
@@ -268,10 +268,7 @@ function Patientform() {
         }
     };
 
-
     return (
-        <div className="main-wrapper">
-            <div className="page-wrapper">
                 <div className="content">
                     <div className="row">
                         <div className="col-lg-8 offset-lg-2">
@@ -786,9 +783,7 @@ function Patientform() {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
     );
 };
 
-export default Patientform;
+export default PacienteForm;

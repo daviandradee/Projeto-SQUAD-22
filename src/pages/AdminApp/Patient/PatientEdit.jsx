@@ -590,7 +590,7 @@ function PatientEdit() {
 
 
                                 <div className="m-t-20 text-center">
-                                        <Link to="/patientlist">
+                                        <Link to="/admin/patientlist">
                                             <button
                                             className="btn btn-primary submit-btn"
                                             onClick={handleEdit}

@@ -8,7 +8,7 @@ function Sidebar() {
                 <div className="sidebar-inner slimscroll">
                     <div id="sidebar-menu" className="sidebar-menu">
                         <ul>
-                            <li className="menu-title">Main</li>
+                            <li className="menu-title">Painel Administrador</li>
 
                             {/*<li>
                                 <a href="index-2.html">
