@@ -26,11 +26,21 @@ function DoctorApp() {
 
               <li>
                 <NavLink
-                     to="/doctor/patients"
-                     className={({ isActive }) => (isActive ? "active" : "")}
-  >
-                     <i className="fa fa-users"></i>
-                     <span>Pacientes</span>
+                  to="/doctor/patients"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-users"></i>
+                  <span>Pacientes</span>
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="/doctor/prontuariolist"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-file-medical"></i>
+                  <span>Prontuário</span>
                 </NavLink>
               </li>
 

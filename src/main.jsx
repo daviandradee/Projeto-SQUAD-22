@@ -37,6 +37,8 @@ import AgendaForm from "./pages/Secretaria Geral/Agendar/AgendaForm.jsx";
 import AgendaEdit from "./pages/Secretaria Geral/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
 import Laudo from "./pages/laudos/Laudo.jsx";
+import DoctorProntuarioList from "./pages/DoctorApp/DoctorProntuarioList.jsx";
+import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 
 // paginas do paciente
 import MeusExames from "./pages/Paciente/Exames.jsx";
@@ -89,7 +91,8 @@ element: <Login />
       {path: "consultas", element: <ConsultaList /> },
       {path: "laudolist", element: <LaudoListDoctor /> },
       {path: "laudoform", element: <LaudoFormDoctor /> },
-
+       { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
+      { path: "doctorprontuario/:id", element: <DoctorProntuario /> } // Nova rota para DoctorProntuario
     ],
   },
   // Rotas Paciente
