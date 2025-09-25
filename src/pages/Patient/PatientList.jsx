@@ -157,7 +157,7 @@ function PatientList() {
                 <br />
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/patient" className="btn btn-primary btn-rounded">
+              <Link to="/admin/patient" className="btn btn-primary btn-rounded">
                 <i className="fa fa-plus"></i> Adicionar Paciente
               </Link>
             </div>
@@ -222,7 +222,7 @@ function PatientList() {
 
                                 <Link
                                   className="dropdown-item-custom"
-                                  to={`/editpatient/${p.id}`}
+                                  to={`/admin/editpatient/${p.id}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenDropdown(null);

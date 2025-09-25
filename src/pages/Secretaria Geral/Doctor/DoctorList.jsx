@@ -38,7 +38,7 @@ function Doctors() {
           </div>
           <div className="col-sm-8 col-9 text-right m-b-20">
             <Link
-              to="/doctorform"
+              to="/admin/doctorform"
               className="btn btn-primary btn-rounded float-right"
             >
               <i className="fa fa-plus"></i> Adicionar Médico
@@ -77,7 +77,7 @@ function Doctors() {
                       {/* Ver Detalhes */}
                       <Link
                         className="dropdown-item-custom"
-                        to={`/profiledoctor/${doctor.id}`}
+                        to={`/admin/profiledoctor/${doctor.id}`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <i className="fa fa-eye"></i> Ver Detalhes
@@ -85,7 +85,7 @@ function Doctors() {
                       {/* Edit */}
                       <Link
                         className="dropdown-item-custom"
-                        to={`/editdoctor/${doctor.id}`}
+                        to={`/admin/editdoctor/${doctor.id}`}
                       >
                         <i className="fa fa-pencil m-r-5"></i> Editar
                       </Link>
@@ -102,7 +102,7 @@ function Doctors() {
                 </div>
 
                 <h4 className="doctor-name text-ellipsis">
-                  <Link to={`/profiledoctor/${doctor.id}`}>
+                  <Link to={`/admin/profiledoctor/${doctor.id}`}>
                     {doctor.nome} {doctor.sobrenome}
                   </Link>
                 </h4>

@@ -257,7 +257,7 @@ function LaudoList() {
                             </button>
                             <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown===l.id}
                               onClose={()=>setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
-                              <Link className="dropdown-item-custom" to={`/laudo`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
+                              <Link className="dropdown-item-custom" to={`/admin/laudo`} onClick={e=>{e.stopPropagation(); setOpenDropdown(null);}}>
                                 <i className="fa fa-file-text"></i> Laudo
                               </Link>
                               <button className="dropdown-item-custom dropdown-item-delete" onClick={()=>handleDelete(l.id)}>
