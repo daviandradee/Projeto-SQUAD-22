@@ -6,7 +6,7 @@ function DoctorProntuario() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Receber paciente via state da navegação ou buscar por ID
   const [paciente, setPaciente] = useState(location.state?.paciente || null);
   const [prontuario, setProntuario] = useState("");
@@ -18,11 +18,11 @@ function DoctorProntuario() {
   const [pressaoArterial, setPressaoArterial] = useState("");
   const [temperatura, setTemperatura] = useState("");
   const [observacoes, setObservacoes] = useState("");
-  
+
   // Estados para anexos
   const [anexos, setAnexos] = useState([]);
   const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
-  
+
   // Estados para o cronômetro
   const [atendimentoIniciado, setAtendimentoIniciado] = useState(false);
   const [atendimentoPausado, setAtendimentoPausado] = useState(false);
@@ -112,11 +112,11 @@ function DoctorProntuario() {
   // Histórico médico mockado específico para cada paciente
   const historicoPorPaciente = {
     1: [
-      { 
-        id: 1, 
-        data: "15/01/2024", 
+      {
+        id: 1,
+        data: "15/01/2024",
         tipo: "Consulta Inicial",
-        diagnostico: "Paciente em bom estado geral. Realizado check-up preventivo.", 
+        diagnostico: "Paciente em bom estado geral. Realizado check-up preventivo.",
         medico: "Dr. José Rodrigues",
         duracao: "45 minutos",
         retorno: "6 meses",
@@ -128,17 +128,15 @@ function DoctorProntuario() {
           temperatura: "36.5°C"
         },
         observacoes: "Paciente sem queixas. Exames dentro da normalidade.",
-        anexos: [
-          { id: 1, nome: "raio-x-torax.pdf", tipo: "pdf", tamanho: "2.4 MB" }
-        ]
+        anexos: [{ id: 1, nome: "raio-x-torax.pdf", tipo: "pdf", tamanho: "2.4 MB" }]
       }
     ],
     2: [
-      { 
-        id: 1, 
-        data: "20/02/2024", 
+      {
+        id: 1,
+        data: "20/02/2024",
         tipo: "Consulta de Rotina",
-        diagnostico: "Controle de pressão arterial.", 
+        diagnostico: "Controle de pressão arterial.",
         medico: "Dr. José Rodrigues",
         duracao: "30 minutos",
         retorno: "3 meses",
@@ -152,8 +150,28 @@ function DoctorProntuario() {
         observacoes: "Paciente com pressão controlada.",
         anexos: []
       }
-    ],
-    // Adicione históricos para os outros IDs...
+    ]
+    // Adicione históricos para os outros IDs se quiser
+  };
+
+  // Função utilitária: calcula idade a partir de data no formato "dd/mm/yyyy"
+  const calcularIdadeFromDDMMYYYY = (dataStr) => {
+    if (!dataStr) return null;
+    // aceita "dd/mm/yyyy" ou "dd-mm-yyyy"
+    const parts = dataStr.split(/[/\-]/);
+    if (parts.length < 3) return null;
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // zero-based
+    const year = parseInt(parts[2], 10);
+    if (Number.isNaN(day) || Number.isNaN(month) || Number.isNaN(year)) return null;
+    const hoje = new Date();
+    const nasc = new Date(year, month, day);
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+      idade--;
+    }
+    return idade >= 0 ? idade : null;
   };
 
   useEffect(() => {
@@ -162,42 +180,43 @@ function DoctorProntuario() {
       setPaciente(location.state.paciente);
       const historicoPaciente = historicoPorPaciente[location.state.paciente.id] || [];
       setHistorico(historicoPaciente);
-    } 
+    }
     // Se não, busca pelo ID na URL
     else if (id) {
-      const pacienteEncontrado = pacientesMock.find(p => p.id === parseInt(id));
-      setPaciente(pacienteEncontrado);
+      const pacienteEncontrado = pacientesMock.find((p) => p.id === parseInt(id));
+      setPaciente(pacienteEncontrado || null);
       const historicoPaciente = historicoPorPaciente[parseInt(id)] || [];
       setHistorico(historicoPaciente);
     }
+    // se nenhum dos dois, paciente permanece como estava (null)
   }, [id, location.state]);
 
   // Resto do código do cronômetro permanece igual...
   useEffect(() => {
     let intervalo = null;
-    
+
     if (cronometroAtivo && !atendimentoPausado && !atendimentoFinalizado) {
       intervalo = setInterval(() => {
-        setTempoDecorrido(tempo => tempo + 1);
+        setTempoDecorrido((tempo) => tempo + 1);
       }, 1000);
     } else {
       clearInterval(intervalo);
     }
-    
+
     return () => clearInterval(intervalo);
   }, [cronometroAtivo, atendimentoPausado, atendimentoFinalizado]);
 
   const formatarTempo = (segundos) => {
     const minutos = Math.floor(segundos / 60);
     const segs = segundos % 60;
-    return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+    return `${minutos.toString().padStart(2, "0")}:${segs.toString().padStart(2, "0")}`;
   };
 
   const formatarTempoExtenso = (segundos) => {
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
     const segs = segundos % 60;
-    
+
     if (horas > 0) {
       return `${horas}h ${minutos}m ${segs}s`;
     }
@@ -223,13 +242,17 @@ function DoctorProntuario() {
   };
 
   const finalizarAtendimento = () => {
+    if (!paciente) {
+      alert("Paciente não encontrado — não é possível finalizar.");
+      return;
+    }
     const confirmacao = window.confirm(
       `Tem certeza que deseja finalizar o atendimento?\n\n` +
-      `Paciente: ${paciente.nome}\n` +
-      `Duração: ${formatarTempoExtenso(tempoDecorrido)}\n\n` +
-      `Após finalizar, o tempo será salvo e não poderá ser alterado.`
+        `Paciente: ${paciente.nome}\n` +
+        `Duração: ${formatarTempoExtenso(tempoDecorrido)}\n\n` +
+        `Após finalizar, o tempo será salvo e não poderá ser alterado.`
     );
-    
+
     if (confirmacao) {
       setAtendimentoFinalizado(true);
       setCronometroAtivo(false);
@@ -240,14 +263,17 @@ function DoctorProntuario() {
 
   const calcularIMC = () => {
     if (peso && altura) {
-      const alturaMetros = parseInt(altura) / 100;
-      const imcCalculado = (parseFloat(peso) / (alturaMetros * alturaMetros)).toFixed(1);
-      setImc(imcCalculado);
+      const alturaMetros = parseInt(altura, 10) / 100;
+      if (alturaMetros > 0) {
+        const imcCalculado = (parseFloat(peso) / (alturaMetros * alturaMetros)).toFixed(1);
+        setImc(imcCalculado);
+      }
     }
   };
 
   useEffect(() => {
     calcularIMC();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [peso, altura]);
 
   const handleArquivoSelecionado = (event) => {
@@ -265,24 +291,26 @@ function DoctorProntuario() {
         tipo: arquivoSelecionado.type,
         tamanho: (arquivoSelecionado.size / 1024 / 1024).toFixed(1) + " MB",
         arquivo: arquivoSelecionado,
-        data: new Date().toLocaleString('pt-BR')
+        data: new Date().toLocaleString("pt-BR")
       };
-      
+
       setAnexos([...anexos, novoAnexo]);
       setArquivoSelecionado(null);
-      document.getElementById('fileInput').value = '';
+      const input = document.getElementById("fileInput");
+      if (input) input.value = "";
     }
   };
 
   const removerAnexo = (id) => {
-    setAnexos(anexos.filter(anexo => anexo.id !== id));
+    setAnexos(anexos.filter((anexo) => anexo.id !== id));
   };
 
   const handleSalvarProntuario = () => {
-    if (prontuario.trim()) {
-      const duracaoFormatada = atendimentoFinalizado ? formatarTempoExtenso(tempoDecorrido) : "Não registrado";
-      
-      const dadosAntropometricosText = `
+    if (!prontuario.trim()) return;
+
+    const duracaoFormatada = atendimentoFinalizado ? formatarTempoExtenso(tempoDecorrido) : "Não registrado";
+
+    const dadosAntropometricosText = `
 DADOS ANTROPOMÉTRICOS:
 - Peso: ${peso || "Não informado"}
 - Altura: ${altura || "Não informado"}
@@ -291,69 +319,72 @@ DADOS ANTROPOMÉTRICOS:
 - Temperatura: ${temperatura || "Não informada"}
 `;
 
-      const observacoesText = observacoes ? `\nOBSERVAÇÕES:\n${observacoes}` : "";
+    const observacoesText = observacoes ? `\nOBSERVAÇÕES:\n${observacoes}` : "";
 
-      const textoCompleto = `${dadosAntropometricosText}${observacoesText}\n\nDIAGNÓSTICO E CONDUTA:\n${prontuario}`;
-      
-      const novoRegistro = {
-        id: historico.length + 1,
-        data: new Date().toLocaleDateString('pt-BR'),
-        tipo: "Consulta de Rotina",
-        diagnostico: textoCompleto,
-        medico: "Dr. Médico Atual",
-        duracao: duracaoFormatada,
-        retorno: retorno,
-        dadosAntropometricos: {
-          peso: peso || "Não informado",
-          altura: altura || "Não informado",
-          imc: imc || "Não calculado",
-          pressaoArterial: pressaoArterial || "Não informada",
-          temperatura: temperatura || "Não informada"
-        },
-        observacoes: observacoes,
-        anexos: [...anexos]
-      };
-      
-      setHistorico([novoRegistro, ...historico]);
-      
-      // Limpar formulário
-      setProntuario("");
-      setPeso("");
-      setAltura("");
-      setImc("");
-      setPressaoArterial("");
-      setTemperatura("");
-      setObservacoes("");
-      setAnexos([]);
-      setAtendimentoIniciado(false);
-      setAtendimentoPausado(false);
-      setAtendimentoFinalizado(false);
-      setCronometroAtivo(false);
-      setTempoDecorrido(0);
-      
-      alert(`Prontuário salvo com sucesso! Duração da consulta: ${duracaoFormatada}`);
-    }
+    const textoCompleto = `${dadosAntropometricosText}${observacoesText}\n\nDIAGNÓSTICO E CONDUTA:\n${prontuario}`;
+
+    const novoRegistro = {
+      id: historico.length + 1,
+      data: new Date().toLocaleDateString("pt-BR"),
+      tipo: "Consulta de Rotina",
+      diagnostico: textoCompleto,
+      medico: "Dr. Médico Atual",
+      duracao: duracaoFormatada,
+      retorno: retorno,
+      dadosAntropometricos: {
+        peso: peso || "Não informado",
+        altura: altura || "Não informado",
+        imc: imc || "Não calculado",
+        pressaoArterial: pressaoArterial || "Não informada",
+        temperatura: temperatura || "Não informada"
+      },
+      observacoes: observacoes,
+      anexos: [...anexos]
+    };
+
+    setHistorico([novoRegistro, ...historico]);
+
+    // Limpar formulário
+    setProntuario("");
+    setPeso("");
+    setAltura("");
+    setImc("");
+    setPressaoArterial("");
+    setTemperatura("");
+    setObservacoes("");
+    setAnexos([]);
+    setAtendimentoIniciado(false);
+    setAtendimentoPausado(false);
+    setAtendimentoFinalizado(false);
+    setCronometroAtivo(false);
+    setTempoDecorrido(0);
+
+    alert(`Prontuário salvo com sucesso! Duração da consulta: ${duracaoFormatada}`);
   };
 
   const visualizarCadastro = () => {
     if (paciente) {
-      alert(`Cadastro Completo de ${paciente.nome}\n\nCPF: ${paciente.cpf}\nTelefone: ${paciente.telefone}\nEmail: ${paciente.email}\nEndereço: ${paciente.endereco}\nData Nasc.: ${paciente.data_nascimento}\nConvênio: ${paciente.convenio || "Não informado"}\nStatus: ${paciente.status}`);
+      alert(
+        `Cadastro Completo de ${paciente.nome}\n\nCPF: ${paciente.cpf}\nTelefone: ${paciente.telefone}\nEmail: ${paciente.email}\nEndereço: ${paciente.endereco}\nData Nasc.: ${paciente.data_nascimento || "N/A"}\nConvênio: ${paciente.convenio || "Não informado"}\nStatus: ${paciente.status || "N/A"}`
+      );
     }
   };
 
   const getIconePorTipo = (tipo) => {
-    if (tipo.includes('image')) return '🖼️';
-    if (tipo.includes('pdf')) return '📄';
-    if (tipo.includes('word')) return '📝';
-    return '📎';
+    if (!tipo) return "📎";
+    if (tipo.includes("image")) return "🖼️";
+    if (tipo.includes("pdf")) return "📄";
+    if (tipo.includes("word") || tipo.includes("officedocument")) return "📝";
+    return "📎";
   };
 
+  // se paciente não foi carregado, mostrar mensagem e botão de voltar
   if (!paciente) {
     return (
       <div className="main-content">
         <h2>Paciente não encontrado</h2>
-        <button 
-          onClick={() => navigate("/doctor/prontuariolist")}
+        <button
+          onClick={() => navigate(location.state?.from || "/doctor/prontuariolist")}
           className="btn btn-secondary"
         >
           Voltar para lista de pacientes
@@ -362,71 +393,70 @@ DADOS ANTROPOMÉTRICOS:
     );
   }
 
+  // Preparar valores de exibição (idade calculada quando necessário)
+  const idadeDisplay = paciente.idade || (() => {
+    const calc = calcularIdadeFromDDMMYYYY(paciente.data_nascimento);
+    return calc !== null ? `${calc} anos` : "N/A";
+  })();
+
+  const primeiraConsultaDisplay = paciente.primeiraConsulta || "N/A";
+  const convenioDisplay = paciente.convenio || "N/A";
+  const atendimentosDisplay = paciente.atendimentos ?? 0;
+  const faltasDisplay = paciente.faltas ?? 0;
+
   return (
     <div className="main-content">
       {/* Header com informações do paciente específico */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center">
-          <button 
-            onClick={() => navigate("/doctor/prontuariolist")}
+          <button
+            onClick={() => navigate(location.state?.from || "/doctor/prontuariolist")}
             className="btn btn-primary me-3"
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              fontSize: '18px',
-              fontWeight: 'bold'
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "18px",
+              fontWeight: "bold"
             }}
+            title="Voltar"
           >
             &lt;
           </button>
           <div>
             <h2 className="text-primary mb-0">Prontuário Médico</h2>
-            <small className="text-muted">Paciente ID: {paciente.id} • {paciente.nome}</small>
+            <small className="text-muted">
+              Paciente ID: {paciente.id} • {paciente.nome}
+            </small>
           </div>
         </div>
-        
+
         <div>
-          <button 
-            onClick={visualizarCadastro}
-            className="btn btn-outline-primary me-2"
-          >
+          <button onClick={visualizarCadastro} className="btn btn-outline-primary me-2">
             Visualizar Cadastro
           </button>
-          
+
           {/* Controle do atendimento */}
           {!atendimentoIniciado && !atendimentoFinalizado ? (
-            <button 
-              onClick={iniciarAtendimento}
-              className="btn btn-success"
-            >
-               Iniciar Atendimento
+            <button onClick={iniciarAtendimento} className="btn btn-success">
+              Iniciar Atendimento
             </button>
           ) : atendimentoPausado ? (
-            <button 
-              onClick={retomarAtendimento}
-              className="btn btn-warning me-2"
-            >
-               Retomar
+            <button onClick={retomarAtendimento} className="btn btn-warning me-2">
+              Retomar
             </button>
           ) : atendimentoIniciado ? (
-            <button 
-              onClick={pausarAtendimento}
-              className="btn btn-secondary me-2"
-            >
-               Pausar
+            <button onClick={pausarAtendimento} className="btn btn-secondary me-2">
+              Pausar
             </button>
           ) : null}
-          
+
           {(atendimentoIniciado || atendimentoPausado) && (
-            <button 
-              onClick={finalizarAtendimento}
-              className="btn btn-danger"
-            >
-               Finalizar
+            <button onClick={finalizarAtendimento} className="btn btn-danger">
+              Finalizar
             </button>
           )}
         </div>
@@ -434,24 +464,23 @@ DADOS ANTROPOMÉTRICOS:
 
       {/* Cronômetro */}
       {(atendimentoIniciado || atendimentoPausado || atendimentoFinalizado) && (
-        <div className={`alert d-flex justify-content-between align-items-center mb-4 ${
-          atendimentoFinalizado ? 'alert-success' : 
-          atendimentoPausado ? 'alert-warning' : 'alert-info'
-        }`}>
+        <div
+          className={`alert d-flex justify-content-between align-items-center mb-4 ${
+            atendimentoFinalizado ? "alert-success" : atendimentoPausado ? "alert-warning" : "alert-info"
+          }`}
+        >
           <div>
             <strong>
-              {atendimentoFinalizado ? '✅ Atendimento Finalizado' : 
-               atendimentoPausado ? '⏸️ Atendimento Pausado' : '▶️ Atendimento em Andamento'}
+              {atendimentoFinalizado ? "✅ Atendimento Finalizado" : atendimentoPausado ? "⏸️ Atendimento Pausado" : "▶️ Atendimento em Andamento"}
             </strong>
-            {atendimentoPausado && (
-              <small className="ms-2 text-muted">(Tempo pausado)</small>
-            )}
+            {atendimentoPausado && <small className="ms-2 text-muted">(Tempo pausado)</small>}
           </div>
           <div className="cronometro">
-            <span className={`badge fs-6 ${
-              atendimentoFinalizado ? 'bg-success' : 
-              atendimentoPausado ? 'bg-warning' : 'bg-primary'
-            }`}>
+            <span
+              className={`badge fs-6 ${
+                atendimentoFinalizado ? "bg-success" : atendimentoPausado ? "bg-warning" : "bg-primary"
+              }`}
+            >
               ⏱️ {formatarTempo(tempoDecorrido)}
               {atendimentoFinalizado && ` (${formatarTempoExtenso(tempoDecorrido)})`}
             </span>
@@ -463,11 +492,12 @@ DADOS ANTROPOMÉTRICOS:
       <div className="card mb-4">
         <div className="card-header bg-light d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Resumo do Paciente</h5>
-          <span className={`badge ${
-            paciente.status === 'ativo' ? 'bg-success' : 
-            paciente.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
-          }`}>
-            {paciente.status}
+          <span
+            className={`badge ${
+              paciente.status === "ativo" ? "bg-success" : paciente.status === "inativo" ? "bg-secondary" : "bg-warning"
+            }`}
+          >
+            {paciente.status || "N/A"}
           </span>
         </div>
         <div className="card-body">
@@ -475,7 +505,6 @@ DADOS ANTROPOMÉTRICOS:
             <h4 className="text-primary mb-2">{paciente.nome}</h4>
             <div className="d-flex justify-content-center gap-4">
               <span className="text-muted">ID: {paciente.id}</span>
-              <span className="text-muted">CPF: {paciente.cpf}</span>
             </div>
           </div>
 
@@ -483,31 +512,31 @@ DADOS ANTROPOMÉTRICOS:
             <div className="col-md-3 text-center border-end">
               <div className="mb-3">
                 <div className="text-muted small">IDADE</div>
-                <div className="h5 text-primary">{paciente.idade || "N/A"}</div>
-                <div className="text-muted small">Nasc: {paciente.data_nascimento}</div>
+                <div className="h5 text-primary">{idadeDisplay}</div>
+                <div className="text-muted small">Nasc: {paciente.data_nascimento || "N/A"}</div>
               </div>
             </div>
-            
+
             <div className="col-md-3 text-center border-end">
               <div className="mb-3">
                 <div className="text-muted small">PRIMEIRA CONSULTA</div>
-                <div className="h5 text-primary">{paciente.primeiraConsulta || "N/A"}</div>
-                <div className="text-muted small">Convênio: {paciente.convenio || "N/A"}</div>
+                <div className="h5 text-primary">{primeiraConsultaDisplay}</div>
+                <div className="text-muted small">Convênio: {convenioDisplay}</div>
               </div>
             </div>
-            
+
             <div className="col-md-3 text-center border-end">
               <div className="mb-3">
                 <div className="text-muted small">ATENDIMENTOS</div>
-                <div className="h5 text-success">{paciente.atendimentos || 0}</div>
+                <div className="h5 text-success">{atendimentosDisplay}</div>
                 <div className="text-muted small">realizados</div>
               </div>
             </div>
-            
+
             <div className="col-md-3 text-center">
               <div className="mb-3">
                 <div className="text-muted small">FALTAS</div>
-                <div className="h5 text-danger">{paciente.faltas || 0}</div>
+                <div className="h5 text-danger">{faltasDisplay}</div>
                 <div className="text-muted small">registradas</div>
               </div>
             </div>
@@ -526,27 +555,17 @@ DADOS ANTROPOMÉTRICOS:
             <div className="card-body text-center">
               {atendimentoFinalizado ? (
                 <div>
-                  <div className="display-6 text-success mb-2">
-                    {formatarTempo(tempoDecorrido)}
-                  </div>
+                  <div className="display-6 text-success mb-2">{formatarTempo(tempoDecorrido)}</div>
                   <small className="text-muted">Tempo final: {formatarTempoExtenso(tempoDecorrido)}</small>
                 </div>
               ) : atendimentoIniciado ? (
                 <div>
-                  <div className={`display-6 mb-2 ${
-                    atendimentoPausado ? 'text-warning' : 'text-primary'
-                  }`}>
-                    {formatarTempo(tempoDecorrido)}
-                  </div>
-                  <small className="text-muted">
-                    {atendimentoPausado ? 'Tempo pausado' : 'Tempo decorrido'}
-                  </small>
+                  <div className={`display-6 mb-2 ${atendimentoPausado ? "text-warning" : "text-primary"}`}>{formatarTempo(tempoDecorrido)}</div>
+                  <small className="text-muted">{atendimentoPausado ? "Tempo pausado" : "Tempo decorrido"}</small>
                 </div>
               ) : (
                 <div>
-                  <div className="display-6 text-muted mb-2">
-                    00:00
-                  </div>
+                  <div className="display-6 text-muted mb-2">00:00</div>
                   <small className="text-muted">Inicie o atendimento</small>
                 </div>
               )}
@@ -561,8 +580,8 @@ DADOS ANTROPOMÉTRICOS:
               <div className="row g-2">
                 <div className="col-6">
                   <label className="form-label small">Peso (kg)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={peso}
                     onChange={(e) => setPeso(e.target.value)}
                     className="form-control form-control-sm"
@@ -571,8 +590,8 @@ DADOS ANTROPOMÉTRICOS:
                 </div>
                 <div className="col-6">
                   <label className="form-label small">Altura (cm)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={altura}
                     onChange={(e) => setAltura(e.target.value)}
                     className="form-control form-control-sm"
@@ -581,18 +600,12 @@ DADOS ANTROPOMÉTRICOS:
                 </div>
                 <div className="col-12">
                   <label className="form-label small">IMC</label>
-                  <input 
-                    type="text" 
-                    value={imc}
-                    readOnly
-                    className="form-control form-control-sm bg-light"
-                    placeholder="Calculado automaticamente"
-                  />
+                  <input type="text" value={imc} readOnly className="form-control form-control-sm bg-light" placeholder="Calculado automaticamente" />
                 </div>
                 <div className="col-6">
                   <label className="form-label small">Pressão Arterial</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={pressaoArterial}
                     onChange={(e) => setPressaoArterial(e.target.value)}
                     className="form-control form-control-sm"
@@ -601,8 +614,8 @@ DADOS ANTROPOMÉTRICOS:
                 </div>
                 <div className="col-6">
                   <label className="form-label small">Temperatura</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={temperatura}
                     onChange={(e) => setTemperatura(e.target.value)}
                     className="form-control form-control-sm"
@@ -633,31 +646,33 @@ DADOS ANTROPOMÉTRICOS:
             <div className="card-body d-flex flex-column">
               <div className="mb-3 p-3 bg-light rounded">
                 <small className="text-muted">
-                  <strong>Dados incluídos automaticamente:</strong><br />
-                  • Peso: {peso || "Não informado"}<br />
-                  • Altura: {altura || "Não informado"}<br />
-                  • IMC: {imc || "Não calculado"}<br />
-                  • Pressão: {pressaoArterial || "Não informada"}<br />
-                  • Temperatura: {temperatura || "Não informada"}<br />
+                  <strong>Dados incluídos automaticamente:</strong>
+                  <br />
+                  • Peso: {peso || "Não informado"}
+                  <br />
+                  • Altura: {altura || "Não informado"}
+                  <br />
+                  • IMC: {imc || "Não calculado"}
+                  <br />
+                  • Pressão: {pressaoArterial || "Não informada"}
+                  <br />
+                  • Temperatura: {temperatura || "Não informada"}
+                  <br />
                   {observacoes && `• Observações: ${observacoes}`}
                 </small>
               </div>
-              
+
               <textarea
                 value={prontuario}
                 onChange={(e) => setProntuario(e.target.value)}
                 placeholder="Digite o diagnóstico, conduta e prescrição médica..."
                 rows="8"
                 className="form-control flex-grow-1"
-                style={{ minHeight: '200px' }}
+                style={{ minHeight: "200px" }}
               />
-              
+
               <div className="mt-3">
-                <button 
-                  onClick={handleSalvarProntuario}
-                  className="btn btn-primary w-100"
-                  disabled={!prontuario.trim()}
-                >
+                <button onClick={handleSalvarProntuario} className="btn btn-primary w-100" disabled={!prontuario.trim()}>
                   💾 Salvar Prontuário
                 </button>
               </div>
@@ -673,47 +688,35 @@ DADOS ANTROPOMÉTRICOS:
             </div>
             <div className="card-body">
               <div className="mb-3">
-                <input 
-                  type="file" 
-                  id="fileInput"
-                  onChange={handleArquivoSelecionado}
-                  className="form-control form-control-sm"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt"
-                />
+                <input type="file" id="fileInput" onChange={handleArquivoSelecionado} className="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt" />
                 <small className="text-muted">PDF, imagens, documentos (máx. 10MB)</small>
               </div>
-              
+
               {arquivoSelecionado && (
                 <div className="alert alert-info py-2 mb-3">
                   <small>
-                    <strong>Arquivo selecionado:</strong> {arquivoSelecionado.name} 
-                    ({(arquivoSelecionado.size / 1024 / 1024).toFixed(1)} MB)
+                    <strong>Arquivo selecionado:</strong> {arquivoSelecionado.name} ({(arquivoSelecionado.size / 1024 / 1024).toFixed(1)} MB)
                   </small>
-                  <button 
-                    onClick={adicionarAnexo}
-                    className="btn btn-sm btn-success ms-2"
-                  >
+                  <button onClick={adicionarAnexo} className="btn btn-sm btn-success ms-2">
                     Adicionar
                   </button>
                 </div>
               )}
-              
+
               {anexos.length > 0 && (
-                <div className="anexos-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                  {anexos.map(anexo => (
+                <div className="anexos-list" style={{ maxHeight: "200px", overflowY: "auto" }}>
+                  {anexos.map((anexo) => (
                     <div key={anexo.id} className="d-flex justify-content-between align-items-center border-bottom py-2">
                       <div className="flex-grow-1">
                         <div className="d-flex align-items-center">
                           <span className="me-2">{getIconePorTipo(anexo.tipo)}</span>
                           <small className="text-truncate">{anexo.nome}</small>
                         </div>
-                        <small className="text-muted">{anexo.tamanho} • {anexo.data}</small>
+                        <small className="text-muted">
+                          {anexo.tamanho} • {anexo.data}
+                        </small>
                       </div>
-                      <button 
-                        onClick={() => removerAnexo(anexo.id)}
-                        className="btn btn-sm btn-outline-danger"
-                        title="Remover anexo"
-                      >
+                      <button onClick={() => removerAnexo(anexo.id)} className="btn btn-sm btn-outline-danger" title="Remover anexo">
                         ×
                       </button>
                     </div>
@@ -728,11 +731,7 @@ DADOS ANTROPOMÉTRICOS:
               <h6 className="mb-0">📅 Retorno</h6>
             </div>
             <div className="card-body">
-              <select 
-                value={retorno}
-                onChange={(e) => setRetorno(e.target.value)}
-                className="form-select"
-              >
+              <select value={retorno} onChange={(e) => setRetorno(e.target.value)} className="form-select">
                 <option>1 mês</option>
                 <option>3 meses</option>
                 <option>6 meses</option>
@@ -751,27 +750,23 @@ DADOS ANTROPOMÉTRICOS:
             </div>
             <div className="card-body p-0">
               {historico.length === 0 ? (
-                <div className="p-3 text-center text-muted">
-                  Nenhum registro
-                </div>
+                <div className="p-3 text-center text-muted">Nenhum registro</div>
               ) : (
-                <div className="historico-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <div className="historico-list" style={{ maxHeight: "300px", overflowY: "auto" }}>
                   {historico.slice(0, 5).map((registro) => (
                     <div key={registro.id} className="border-bottom p-3">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <small className="text-primary">{registro.data}</small>
                         <span className="badge bg-light text-dark small">{registro.duracao}</span>
                       </div>
-                      <p className="small mb-2 text-truncate">{registro.diagnostico.split('\n')[0]}</p>
+                      <p className="small mb-2 text-truncate">{(registro.diagnostico || "").split("\n")[0]}</p>
                       <div className="d-flex justify-content-between align-items-center">
                         <small className="text-muted">{registro.tipo}</small>
                         <small className="text-muted">Ret: {registro.retorno}</small>
                       </div>
                       {registro.anexos && registro.anexos.length > 0 && (
                         <div className="mt-1">
-                          <small className="text-muted">
-                            📎 {registro.anexos.length} anexo(s)
-                          </small>
+                          <small className="text-muted">📎 {registro.anexos.length} anexo(s)</small>
                         </div>
                       )}
                     </div>
