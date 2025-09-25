@@ -39,8 +39,16 @@ function Navbar() {
 
   // Atualiza profileName ao navegar
   useEffect(() => {
-    if (location.pathname.startsWith("/doctor")) setProfileName("Médico");
-    else if (location.pathname.startsWith("/patientapp")) setProfileName("Paciente");
+    if (location.pathname.startsWith("/doctor")) {
+      setProfileName("Médico");
+    } else if (location.pathname.startsWith("/patientapp")) {
+      setProfileName("Paciente");
+    } else if (location.pathname.startsWith("/admin")) {
+      setProfileName("Admin");
+    } else {
+      // Rota de login ou outras rotas
+      setProfileName("Admin");
+    }
   }, [location.pathname]);
 
   const goToOtherRole = () => {
@@ -61,7 +69,7 @@ function Navbar() {
     <div className="header">
       <div className="header-left">
         {/* Logo dinâmica */}
-        <Link to={isDoctor ? "/doctor" : "/"} className="logo">
+        <Link to={isDoctor ? "/doctor" : "/admin"} className="logo">
           <img src="/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
           <span>MediConnect</span>
         </Link>
@@ -111,15 +119,15 @@ function Navbar() {
                 Médico
               </button>
             )}
-            {profileName !== "Admin" && (
-              <button className="dropdown-item" onClick={() => {
-                setProfileName("Admin");
-                setOpenProfile(false);
-                navigate("/");
-              }}>
-                Admin
-              </button>
-            )}
+             {profileName !== "Admin" && (
+               <button className="dropdown-item" onClick={() => {
+                 setProfileName("Admin");
+                 setOpenProfile(false);
+                 navigate("/admin");
+               }}>
+                 Admin
+               </button>
+             )}
           </div>
         </li>
       </ul>

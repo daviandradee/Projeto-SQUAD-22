@@ -405,7 +405,7 @@ function EditDoctor() {
                   </div>
                 </div>
                 <div className="m-t-20 text-center">
-                 <Link to="/doctorlist"><button 
+                 <Link to="/admin/doctorlist"><button 
                   className="btn btn-primary submit-btn"
                     onClick={handleEdit}>
                     Editar

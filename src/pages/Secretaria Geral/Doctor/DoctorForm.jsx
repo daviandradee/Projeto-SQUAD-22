@@ -64,7 +64,7 @@ function DoctorForm() {
       alert(`Erro ao cadastrar doutor: ${error.message}`);
     } else {
       alert("Doutor cadastrado com sucesso!");
-      navigate("/doctorlist");
+      navigate("/admin/doctorlist");
     }
   };
 

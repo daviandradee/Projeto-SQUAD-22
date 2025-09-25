@@ -17,38 +17,38 @@ function Sidebar() {
                             </li>*/}
 
                             <li>
-                                <Link to="/doctorlist">
+                                <Link to="/admin/doctorlist">
                                     <i className="fa fa-user-md" /> <span>Médicos</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/patientlist">
+                                <Link to="/admin/patientlist">
                                     <i className="fa fa-wheelchair" /> <span>Pacientes</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/calendar">
+                                <Link to="/admin/calendar">
                                     <i className="fa fa-calendar" /> <span>Calendario</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/doctorschedule">
+                                <Link to="/admin/doctorschedule">
                                     <i className="fa fa-calendar-check-o" /> <span>Agenda Médica</span>
                                 </Link>
                             </li>
 
                             <li>
-                                <Link to="/agendalist">
+                                <Link to="/admin/agendalist">
                                     <i className="fa fa-stethoscope" /> <span>Consultas</span>
                                 </Link>
                             </li>
 
                             {/* 🆕 Nova aba Laudo */}
                             <li>
-                                <Link to="/laudolist">
+                                <Link to="/admin/laudolist">
                                     <i className="fa fa-file-text" /> <span>Laudos</span>
                                 </Link>
                             </li>

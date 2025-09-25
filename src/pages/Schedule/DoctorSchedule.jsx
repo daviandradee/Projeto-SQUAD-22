@@ -12,7 +12,7 @@ function Doctorschedule() {
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
               <Link
-                to ="/addschedule"
+                to ="/admin/addschedule"
                 className="btn btn-primary btn-rounded float-right"
               >
                 <i className="fa fa-plus"></i> Adicionar agenda

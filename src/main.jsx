@@ -54,11 +54,12 @@ element: <Login />
 
   },
   
+  // Rotas Admin - todas com prefixo /admin/
   {
-    path: "/",
+    path: "/admin",
     element: <App />,
     children: [
-      // Rota inicial do Admin: apenas mostra layout com Navbar e Sidebar
+      { index: true, element: <Doctorlist /> }, // Rota inicial do admin
       { path: "patient", element: <Patientform /> },
       { path: "patientlist", element: <PatientList /> },
       { path: "doctorlist", element: <Doctorlist /> },

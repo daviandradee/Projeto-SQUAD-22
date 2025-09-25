@@ -97,7 +97,7 @@ function AgendaList() {
               <br />
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/agendaform" className="btn btn-primary btn-rounded">
+              <Link to="/admin/agendaform" className="btn btn-primary btn-rounded">
                 <i className="fa fa-plus"></i> Adicionar consulta
               </Link>
             </div>
@@ -168,7 +168,7 @@ function AgendaList() {
 
                             <Link
                               className="dropdown-item-custom"
-                              to={`/agendaedit`}
+                              to={`/admin/agendaedit`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);  
