@@ -8,21 +8,22 @@ import "./assets/css/index.css";
 import Login from "./pages/Login/Login.jsx";
 
 // Layouts
-import App from "./pages/Layout/SecratariaGApp.jsx";           // Layout Admin
+import App from "./pages/Layout/AdminApp.jsx";           // Layout Admin
 import DoctorApp from "./pages/Layout/DoctorApp.jsx"; 
 import PatientApp from "./pages/Layout/PatientApp.jsx";
 
 // Páginas Admin
-import Patientform from "./pages/Patient/Patientform.jsx";
-import PatientList from "./pages/Patient/PatientList.jsx";
-import Doctorlist from "./pages/Secretaria Geral/Doctor/DoctorList.jsx";
-import DoctorForm from "./pages/Secretaria Geral/Doctor/DoctorForm.jsx";
-import Doctorschedule from "./pages/Schedule/DoctorSchedule.jsx";
-import AddSchedule from "./pages/Schedule/AddSchedule.jsx";
-import Calendar from "./pages/Secretaria Geral/calendar/Calendar.jsx";
-import EditDoctor from "./pages/Secretaria Geral/Doctor/DoctorEdit.jsx";
-import PatientEdit from "./pages/Patient/PatientEdit.jsx";
-import DoctorProfile from "./pages/Secretaria Geral/Doctor/DoctorProfile.jsx";
+import Patientform from "./pages/AdminApp/Patient/Patientform.jsx";
+import PatientList from "./pages/AdminApp/Patient/PatientList.jsx";
+import Doctorlist from "./pages/AdminApp/Doctor/DoctorList.jsx";
+import DoctorForm from "./pages/AdminApp/Doctor/DoctorForm.jsx";
+import Doctorschedule from "./pages/AdminApp/Schedule/DoctorSchedule.jsx";
+import AddSchedule from "./pages/AdminApp/Schedule/AddSchedule.jsx";
+import Calendar from "./pages/AdminApp/calendar/Calendar.jsx";
+import EditDoctor from "./pages/AdminApp/Doctor/DoctorEdit.jsx";
+import PatientEdit from "./pages/AdminApp/Patient/PatientEdit.jsx";
+import DoctorProfile from "./pages/AdminApp/Doctor/DoctorProfile.jsx";
+
 
 
 // Páginas Médico
@@ -32,17 +33,17 @@ import DoctorPatientList from "./pages/DoctorApp/Patient/DoctorPatientList.jsx";
 import ConsultaList from "./pages/DoctorApp/Consultas/ConsultaList.jsx";
 import LaudoListDoctor from "./pages/DoctorApp/Laudos/Laudo.jsx";
 import LaudoFormDoctor from "./pages/DoctorApp/Laudos/LaudoForm.jsx";
-import AgendaList from "./pages/Secretaria Geral/Agendar/AgendaList.jsx";
-import AgendaForm from "./pages/Secretaria Geral/Agendar/AgendaForm.jsx";
-import AgendaEdit from "./pages/Secretaria Geral/Agendar/AgendaEdit.jsx";
+import AgendaList from "./pages/AdminApp/Agendar/AgendaList.jsx";
+import AgendaForm from "./pages/AdminApp/Agendar/AgendaForm.jsx";
+import AgendaEdit from "./pages/AdminApp/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
 import Laudo from "./pages/laudos/Laudo.jsx";
 import DoctorProntuarioList from "./pages/DoctorApp/DoctorProntuarioList.jsx";
 import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 
 // paginas do paciente
-import MeusExames from "./pages/Paciente/Exames.jsx";
-import MinhasConsultas from "./pages/Paciente/MinhasConsultas.jsx";
+import MeusExames from "./pages/PacienteApp/Exames.jsx";
+import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
 
 
 

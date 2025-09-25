@@ -1,4 +1,4 @@
-import "../../assets/css/index.css"
+import "../../../assets/css/index.css"
 import { Link } from "react-router-dom";
 
 function Doctorschedule() {

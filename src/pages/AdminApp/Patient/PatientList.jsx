@@ -1,9 +1,9 @@
 // PatientList.jsx
 import { Link } from "react-router-dom";
-import "../../assets/css/index.css";
+import "../../../assets/css/index.css"
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import supabase from "../../Supabase"; // se for usar supabase para delete, senão pode remover
+import supabase from "../../../Supabase";
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
