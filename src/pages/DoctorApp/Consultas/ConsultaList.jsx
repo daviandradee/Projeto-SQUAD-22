@@ -143,7 +143,7 @@ function ConsultaList() {
           <br />
         </div>
         <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/agendaform" className="btn btn-primary btn-rounded">
+          <Link to="/doctor/DoctorConsultaForm" className="btn btn-primary btn-rounded">
             <i className="fa fa-plus"></i> Adicionar consulta
           </Link>
         </div>
