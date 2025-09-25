@@ -9,7 +9,8 @@ import Login from "./pages/Login/Login.jsx";
 
 // Layouts
 import App from "./pages/Layout/SecratariaGApp.jsx";           // Layout Admin
-import DoctorApp from "./pages/Layout/DoctorApp.jsx"; // Layout Médico
+import DoctorApp from "./pages/Layout/DoctorApp.jsx"; 
+import PatientApp from "./pages/Layout/PatientApp.jsx";
 
 // Páginas Admin
 import Patientform from "./pages/Patient/Patientform.jsx";
@@ -37,6 +38,9 @@ import AgendaEdit from "./pages/Secretaria Geral/Agendar/AgendaEdit.jsx";
 import LaudoList from "./pages/laudos/LaudosList.jsx"
 import Laudo from "./pages/laudos/Laudo.jsx";
 
+// paginas do paciente
+import MeusExames from "./pages/Paciente/Exames.jsx";
+import MinhasConsultas from "./pages/Paciente/MinhasConsultas.jsx";
 
 
 
@@ -84,6 +88,19 @@ element: <Login />
       {path: "consultas", element: <ConsultaList /> },
       {path: "laudolist", element: <LaudoListDoctor /> },
       {path: "laudoform", element: <LaudoFormDoctor /> },
+
+    ],
+  },
+  // Rotas Paciente
+  {
+    path: "/patientapp",
+    element: <PatientApp />,
+    children: [
+      { index: true, element: <MeusExames/> }, 
+      {path: "meuexame", element: <MeusExames />},
+      {path: "minhasconsultas", element: <MinhasConsultas/>}
+      // Rota inicial médico
+      
 
     ],
   },

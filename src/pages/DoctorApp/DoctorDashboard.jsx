@@ -68,8 +68,6 @@ function DoctorDashboard() {
             </div>
           </div>
         </div>
-        
-        
         <div className="col-12 col-md-6 col-lg-6 col-xl-6">
 						<Link to="/doctor/consultas"><div className="card">
 							<div className="card-header">
