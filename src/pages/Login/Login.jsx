@@ -12,7 +12,7 @@ export default function Login() {
 
     // Aqui você pode validar o login com backend ou localStorage
     // Por enquanto, vamos apenas redirecionar para a página inicial do Admin
-    navigate("/DoctorList");
+    navigate("/doctorlist");
   };
 
   return (

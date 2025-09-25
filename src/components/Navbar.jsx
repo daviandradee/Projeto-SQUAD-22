@@ -1,7 +1,9 @@
-// src/components/Navbar.jsx
-import "../assets/css/index.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+// ...existing imports...
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import "../assets/css/index.css"
+import { Link } from "react-router-dom";
 
 function Navbar() {
   const location = useLocation();
@@ -13,8 +15,13 @@ function Navbar() {
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
+  // Troque profileName para estado controlado
+  const [profileName, setProfileName] = useState(
+    location.pathname.startsWith("/doctor") ? "Médico" : "Admin"
+  );
+
   const isDoctor = location.pathname.startsWith("/doctor");
-  const profileName = isDoctor ? "Médico" : "Admin";
+  const isPatient = location.pathname.startsWith("/patientapp");
 
   // Fecha dropdowns ao clicar fora
   useEffect(() => {
@@ -30,11 +37,25 @@ function Navbar() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Atualiza profileName ao navegar
+  useEffect(() => {
+    if (location.pathname.startsWith("/doctor")) setProfileName("Médico");
+    else if (location.pathname.startsWith("/patientapp")) setProfileName("Paciente");
+  }, [location.pathname]);
+
   const goToOtherRole = () => {
     if (isDoctor) navigate("/");
     else navigate("/doctor");
     setOpenProfile(false);
   };
+
+  // Novo handler para paciente
+  const handlePacienteClick = () => {
+    setProfileName("Paciente");
+    setOpenProfile(false);
+    navigate("/patientapp");
+  };
+
 
   return (
     <div className="header">
@@ -51,30 +72,7 @@ function Navbar() {
       </a>
 
       <ul className="nav user-menu float-right">
-        {/* 
-        <li className="nav-item dropdown d-none d-sm-block" ref={notifRef}>
-          <a
-            href="#!"
-            className="dropdown-toggle nav-link"
-            onClick={(e) => {
-              e.preventDefault();
-              setOpenNotif((v) => !v);
-              setOpenProfile(false);
-            }}
-          >
-            <i className="fa fa-bell-o"></i>
-            <span className="badge badge-pill bg-danger float-right">2</span>
-          </a>
-          <div className={`dropdown-menu notifications${openNotif ? " show" : ""}`}>
-            <div className="topnav-dropdown-header">
-              <span>Cadastrado</span>
-            </div>
-            <div className="topnav-dropdown-footer">
-              <a href="#!">Mensagem</a>
-            </div>
-          </div>
-        </li>
-        */}
+        {/* ...notificações... */}
 
         {/* 👤 Perfil */}
         <li className="nav-item dropdown has-arrow" ref={profileRef}>
@@ -95,17 +93,33 @@ function Navbar() {
           </a>
 
           <div className={`dropdown-menu${openProfile ? " show" : ""}`}>
-            {/* Opções padrão */}
-            <a className="dropdown-item" href="#!">
-              Paciente
-            </a>
-
-            <div className="dropdown-divider"></div>
-
-            {/* Troca de perfil */}
-            <button className="dropdown-item" onClick={goToOtherRole}>
-              {isDoctor ? "Admin" : "Médico"}
-            </button>
+            {profileName !== "Paciente" && (
+              <button className="dropdown-item" onClick={() => {
+                setProfileName("Paciente");
+                setOpenProfile(false);
+                navigate("/patientapp");
+              }}>
+                Paciente
+              </button>
+            )}
+            {profileName !== "Médico" && (
+              <button className="dropdown-item" onClick={() => {
+                setProfileName("Médico");
+                setOpenProfile(false);
+                navigate("/doctor");
+              }}>
+                Médico
+              </button>
+            )}
+            {profileName !== "Admin" && (
+              <button className="dropdown-item" onClick={() => {
+                setProfileName("Admin");
+                setOpenProfile(false);
+                navigate("/");
+              }}>
+                Admin
+              </button>
+            )}
           </div>
         </li>
       </ul>
@@ -114,4 +128,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
