@@ -68,6 +68,82 @@ function DoctorDashboard() {
             </div>
           </div>
         </div>
+        <div className="col-24 col-md-12 col-lg-12 col-xl-12">
+						<Link to="/doctor/consultas"><div className="card">
+							<div className="card-header">
+								<h4 className="text-left">Laudo</h4> <Link className="btn btn-primary float-right" to="/doctor/laudolist">Ver todos</Link>
+							</div>
+							<div className="card-block">
+								<div className="table-responsive">
+									<table className="table table-border table-striped custom-table mb-0">
+                    <thead>
+                    <tr >
+                      <th>Pedido</th>
+                      <th>Data</th>
+                      <th>Prazo</th>
+                      <th>Paciente</th>
+                      <th>CPF</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th>Executante</th>
+                      <th>Exame</th>
+                      <th className="text-center">Ação</th>
+                    </tr>
+                  </thead>
+										<tbody>
+                      {patients.length > 0 ? (
+                    patients.map((p) => (
+											<tr key={p.id}>
+												<td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.id}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.data_nascimento}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.nome}</h2>
+												</td>
+									
+												<td>{p.created_at}</td>
+												<td className="text-center">
+                      <Link className="btn btn-outline-primary take-btn">Detalhes</Link> 
+                    </td>
+											</tr>
+                      ))
+                  ) : (
+                    <tr>
+                    <td colSpan="4">Nenhum paciente encontrado.</td>
+                    </tr>
+                  )}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div></Link>
+					</div>
         <div className="col-12 col-md-6 col-lg-6 col-xl-6">
 						<Link to="/doctor/consultas"><div className="card">
 							<div className="card-header">
