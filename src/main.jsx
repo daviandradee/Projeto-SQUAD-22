@@ -42,6 +42,7 @@ import DoctorProntuarioList from "./pages/DoctorApp/DoctorProntuarioList.jsx";
 import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 
 // paginas do paciente
+import PatientDashboard from "./pages/PacienteApp/PatientDashboard.jsx";
 import MeusExames from "./pages/PacienteApp/Exames.jsx";
 import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
 
@@ -101,9 +102,10 @@ element: <Login />
     path: "/patientapp",
     element: <PatientApp />,
     children: [
-      { index: true, element: <MeusExames/> }, 
+      { index: true, element: <PatientDashboard/> }, 
+      {path: "dashboard", element: <PatientDashboard />},
       {path: "meuexame", element: <MeusExames />},
-      {path: "minhasconsultas", element: <MinhasConsultas/>}
+      {path: "minhasconsultas", element: <MinhasConsultas/>},
       // Rota inicial médico
       
 
