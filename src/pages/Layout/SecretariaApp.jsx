@@ -1,8 +1,8 @@
 import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
-import Navbar from './../../components/Navbar'
+import Navbar from '../../components/Navbar'
 
-function DoctorApp() {
+function SecretariaApp() {
   return (
     <div className="main-wrapper">
       <Navbar />
@@ -12,21 +12,30 @@ function DoctorApp() {
           <div id="sidebar-menu" className="sidebar-menu">
             <ul>
               <li className="menu-title">
-                <span>Painel do Médico</span>
+                <span>Painel da Secretária</span>
               </li>
               <li>
                 <NavLink
-                  to="/doctor/dashboard"
+                  to="/secretaria/secretariadashboard"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
                   <i className="fa fa-bar-chart"></i>
-                  <span>Dashboard</span>
+                  <span>DashBoard</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/secretaria/secretariaconsultalist"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-stethoscope"></i>
+                  <span>Consultas</span>
                 </NavLink>
               </li>
 
               <li>
                 <NavLink
-                  to="/doctor/patients"
+                  to="/secretaria/pacientelista"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
                   <i className="fa fa-users"></i>
@@ -36,39 +45,21 @@ function DoctorApp() {
 
               <li>
                 <NavLink
-                  to="/doctor/prontuariolist"
+                  to="/secretaria/medicoslista"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
-                  <i className="fa fa-heart"></i>
-                  <span>Prontuário</span>
+                  <i className="fa fa-user-md"></i>
+                  <span>Medicos</span>
                 </NavLink>
               </li>
 
               <li>
                 <NavLink
-                  to="/doctor/calendar"
+                  to="/secretaria/agendamedica"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
                   <i className="fa fa-calendar"></i>
-                  <span>Calendário</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/doctor/consultas"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  <i className="fa fa-stethoscope"></i>
-                  <span>Consultas</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/doctor/laudolist"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  <i className="fa fa-file-text"></i>
-                  <span>Laudos</span>
+                  <span>Agenda Médica</span>
                 </NavLink>
               </li>
             </ul>
@@ -86,4 +77,4 @@ function DoctorApp() {
   );
 }
 
-export default DoctorApp;
+export default SecretariaApp;

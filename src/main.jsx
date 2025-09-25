@@ -11,6 +11,7 @@ import Login from "./pages/Login/Login.jsx";
 import App from "./pages/Layout/AdminApp.jsx";           // Layout Admin
 import DoctorApp from "./pages/Layout/DoctorApp.jsx"; 
 import PatientApp from "./pages/Layout/PatientApp.jsx";
+import SecretariaApp from "./pages/Layout/SecretariaApp.jsx";
 
 // Páginas Admin
 import Patientform from "./pages/AdminApp/Patient/Patientform.jsx";
@@ -24,7 +25,10 @@ import EditDoctor from "./pages/AdminApp/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/AdminApp/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/AdminApp/Doctor/DoctorProfile.jsx";
 
+// paginas secretaria
 
+import SecretariaConsultaList from "./pages/SecretariaApp/Consultas/ConsultasList.jsx"
+import AdicionarConsulta from "./pages/SecretariaApp/Consultas/AdicionarConsulta.jsx";
 
 // Páginas Médico
 import DoctorDashboard from "./pages/DoctorApp/DoctorDashboard.jsx";
@@ -44,6 +48,22 @@ import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 // paginas do paciente
 import MeusExames from "./pages/PacienteApp/Exames.jsx";
 import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
+
+//
+
+import PacienteLista from "./pages/SecretariaApp/Pacientes/PacienteLista.jsx";
+import PacienteForm from "./pages/SecretariaApp/Pacientes/PacienteForm.jsx";
+import PacienteEditar from "./pages/SecretariaApp/Pacientes/PacienteEditar.jsx";
+import MedicosLista from "./pages/SecretariaApp/Medicos/MedicosLista.jsx";
+import MedicosForm from "./pages/SecretariaApp/Medicos/MedicosForm.jsx";
+import MedicosProfile from "./pages/SecretariaApp/Medicos/MedicosProfile.jsx";
+import MedicosEditar from "./pages/SecretariaApp/Medicos/MedicosEditar.jsx";
+import EditarConsultas from "./pages/SecretariaApp/Consultas/EditarConsultas.jsx";
+import AgendaMedica from "./pages/SecretariaApp/Agenda/Agendamedica.jsx";
+import AdicionarAgenda from "./pages/SecretariaApp/Agenda/AdicionarAgenda.jsx";
+import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
+
+
 
 
 
@@ -78,6 +98,27 @@ element: <Login />
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />}
+    ],
+  },
+   {
+    path: "/secretaria",
+    element: <SecretariaApp />,
+    children: [
+      { index: true, element: <ConsultaList/> },
+      { path: "secretariaconsultalist", element: <SecretariaConsultaList/>},
+      { path: "adicionarconsulta", element: <AdicionarConsulta/>},
+      { path: "editarconsulta/:id", element: <EditarConsultas/>},
+      { path: "pacientelista", element: <PacienteLista/>},
+      { path: "pacienteform", element: <PacienteForm/>},
+      { path: "pacienteeditar/:id", element: <PacienteEditar/>},
+      { path: "medicoslista", element: <MedicosLista/>},
+      { path: "medicosform", element: <MedicosForm/>},
+      { path: "medicoseditar/:id", element: <MedicosEditar/>},
+      { path: "agendamedica", element: <AgendaMedica/>},
+      { path: "adicionaragenda", element: <AdicionarAgenda/>},
+      { path: "secretariadashboard", element: <SecretariaDashboard/>},
+      { path: "medicosprofile/:id", element: <MedicosProfile/>}
+      // Rota inicial do admin
     ],
   },
   // Rotas Médico

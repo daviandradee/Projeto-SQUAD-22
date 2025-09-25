@@ -3,7 +3,7 @@ import { withMask } from "use-mask-input";
 import { Link } from "react-router-dom";
 import "../../../assets/css/index.css";
 
-function AgendaForm() {
+function AdicionarConsulta() {
   const [minDate, setMinDate] = useState("");
 
   useEffect(() => {
@@ -18,8 +18,6 @@ function AgendaForm() {
   }, []);
 
   return (
-    <div className="main-wrapper">
-      <div className="page-wrapper">
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
@@ -196,7 +194,7 @@ function AgendaForm() {
                 </div>
 
                 <div className="m-t-20 text-center">
-                  <Link to="/admin/agendalist">
+                  <Link to="/secretaria/secretariaconsultalist">
                     <button className="btn btn-primary submit-btn" type="button">
                       Criar consulta
                     </button>
@@ -206,8 +204,6 @@ function AgendaForm() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
   );
 }
-export default AgendaForm;
+export default AdicionarConsulta;
