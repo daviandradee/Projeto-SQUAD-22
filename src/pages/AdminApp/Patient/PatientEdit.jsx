@@ -3,22 +3,24 @@ import { useEffect } from "react";
 import "../../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../../Supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+
 function PatientEdit() {
     //testando
     const [patients, setpatients] = useState([""])
-    const{id} = useParams()
+    const { id } = useParams()
     // carregando a lista e adicionando no usestate
     useEffect(() => {
         fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`)
-        .then((response) => response.json())
-        .then((result) => setpatients(result.data || {}))
-        .catch((error) => console.log("error", error));
+            .then((response) => response.json())
+            .then((result) => setpatients(result.data || {}))
+            .catch((error) => console.log("error", error));
     }, [id]);
 
     const [preview, setPreview] = useState(null);
-
+    const navigate = useNavigate();
     useEffect(() => {
         if (patients.foto_url) {
             setPreview('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr6OBNqnFlVKC6fAk-mzSuzmOKgjWMYq9y0g&s');
@@ -26,20 +28,55 @@ function PatientEdit() {
     }, [patients.foto_url]);
 
     const handleEdit = async (e) => {
-        const requestOptions = {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patients),
-        redirect: "follow",
-        };
-        fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`, requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-            alert("Paciente editado com sucesso!");
-            // redireciona após editar
-        })
-        .catch((error) => console.log("error", error));
-  };
+        e.preventDefault();
+      
+        // Pergunta ao usuário se quer salvar
+        const result = await Swal.fire({
+          title: "Deseja salvar as alterações?",
+          text: "As modificações serão salvas permanentemente.",
+          icon: "question",
+          showDenyButton: true,
+          showCancelButton: true,
+          confirmButtonText: "Salvar",
+          denyButtonText: `Não salvar`,
+          cancelButtonText: "Cancelar",
+        });
+      
+        if (result.isConfirmed) {
+          // Se confirmou, faz o PUT
+          const requestOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(patients),
+            redirect: "follow",
+          };
+      
+          try {
+            const response = await fetch(
+              `https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`,
+              requestOptions
+            );
+      
+            if (!response.ok) throw new Error("Erro ao editar paciente");
+      
+            const data = await response.json();
+      
+            await Swal.fire("Salvo!", "Paciente editado com sucesso.", "success");
+      
+            // Redireciona depois de salvar
+            navigate("/admin/patientlist"); // <- useNavigate do React Router
+      
+          } catch (error) {
+            console.error("Erro:", error);
+            Swal.fire("Erro!", "Não foi possível salvar as alterações.", "error");
+          }
+      
+        } else if (result.isDenied) {
+          // Caso o usuário escolha "Não salvar"
+          Swal.fire("Alterações não salvas", "", "info");
+        }
+      };
+      
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
     // prev= pega o valor anterio
@@ -49,26 +86,26 @@ function PatientEdit() {
             ...prev,
             [name]: value
         }));
-    }; 
-    const buscarCep  = (e) => {
+    };
+    const buscarCep = (e) => {
         const cep = patients.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
-            console.log(data)
-            // salvando os valores para depois colocar nos inputs
-            setValuesFromCep(data)
-            // estou salvando os valoeres no patientData
-            setpatients((prev) => ({
-                ...prev,
-                cidade: data.localidade || '',
-                logradouro: data.logradouro || '',
-                bairro: data.bairro || '',
-                estado: data.estado || ''   
-            }));
+                console.log(data)
+                // salvando os valores para depois colocar nos inputs
+                setValuesFromCep(data)
+                // estou salvando os valoeres no patientData
+                setpatients((prev) => ({
+                    ...prev,
+                    cidade: data.localidade || '',
+                    logradouro: data.logradouro || '',
+                    bairro: data.bairro || '',
+                    estado: data.estado || ''
+                }));
             })
-    } 
+    }
     // aqui esta sentando os valores nos inputs 
     const setValuesFromCep = (data) => {
         document.getElementById('logradouro').value = data.logradouro || '';
@@ -76,7 +113,7 @@ function PatientEdit() {
         document.getElementById('cidade').value = data.localidade || '';
         document.getElementById('estado').value = data.uf || '';
     }
-    
+
 
     const validarCpf = async (cpf) => {
         const cpfLimpo = cpf.replace(/\D/g, "");
@@ -90,7 +127,7 @@ function PatientEdit() {
             });
             const data = await response.json();
             if (data.valido === false) {
-                
+
                 alert("CPF inválido!");
                 return false;
             } else if (data.valido === true) {
@@ -107,7 +144,7 @@ function PatientEdit() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const cpfValido = await validarCpf(patientData.cpf);
 
         // Calcula idade a partir da data de nascimento
@@ -161,8 +198,8 @@ function PatientEdit() {
                                                             <input
                                                                 name="foto_url"
                                                                 onChange={(e) => {
-                                                                handleChange(e);
-                                                                setPreview(URL.createObjectURL(e.target.files[0]));
+                                                                    handleChange(e);
+                                                                    setPreview(URL.createObjectURL(e.target.files[0]));
                                                                 }}
                                                                 type="file"
                                                                 accept="image/png, image/jpeg"
@@ -194,9 +231,9 @@ function PatientEdit() {
                                                                     console.log("Erro ao remover foto:", error);
                                                                 }
                                                             }}
-                                                            >
+                                                        >
                                                             Limpar
-                                                        </div>  
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -206,7 +243,7 @@ function PatientEdit() {
                                             <label>
                                                 Nome completo<span className="text-danger">*</span>
                                             </label>
-                                            <input className="form-control" type="text" 
+                                            <input className="form-control" type="text"
                                                 required
                                                 id="nome"
                                                 name="nome"
@@ -434,7 +471,7 @@ function PatientEdit() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Email</label>
-                                            <input className="form-control" type="email" 
+                                            <input className="form-control" type="email"
                                                 name="email"
                                                 value={patients.email}
                                                 onChange={handleChange}
@@ -496,7 +533,7 @@ function PatientEdit() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Estado</label>
-                                            <input className="form-control" type="text" 
+                                            <input className="form-control" type="text"
                                                 id="estado"
                                                 name="estado"
                                                 value={patients.estado}
@@ -590,12 +627,11 @@ function PatientEdit() {
 
 
                                 <div className="m-t-20 text-center">
-                                        <Link to="/admin/patientlist">
-                                            <button
-                                            className="btn btn-primary submit-btn"
-                                            onClick={handleEdit}
-                                            >Editar Paciente</button>
-                                        </Link>
+                                    <button
+                                        type = "button"
+                                        className="btn btn-primary submit-btn"
+                                        onClick={handleEdit}
+                                    >Editar Paciente</button>
                                 </div>
                             </form>
                         </div>

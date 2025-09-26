@@ -1,76 +1,117 @@
 import "../../../assets/css/index.css";
 import { withMask } from "use-mask-input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import supabase from "../../../Supabase";
-import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function EditDoctor() {
-    const [doctors, setdoctors] = useState([]);
+  const [doctors, setDoctors] = useState({});
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const {id} = useParams()
-    useEffect(() => {
+  // Buscar dados do médico
+  useEffect(() => {
     const fetchDoctors = async () => {
-      const {data, error} = await supabase
-        .from('Doctor')
-        .select('*')
-        .eq ('id', id)
-        .single()
-      if(error){
-        console.error("Erro ao buscar pacientes:", error);
-      }else{
-        setdoctors(data);
+      try {
+        const { data, error } = await supabase
+          .from("Doctor")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (error) {
+          console.error("Erro ao buscar médicos:", error);
+        } else {
+          setDoctors(data);
+        }
+      } catch (err) {
+        console.error("Erro inesperado:", err);
       }
     };
     fetchDoctors();
-  } , []);
+  }, [id]);
 
-  
+  // Atualizar campos
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setdoctors((prev) => ({
+    setDoctors((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-  }
-  const handleEdit = async (e) => {
-    const { data, error } = await supabase
-      .from("Doctor")
-      .update([doctors])
-      .eq ('id', id)
-      .single()
-    
   };
 
-  const buscarCep = (e) => {
-    const cep = doctors.cep.replace(/\D/g, '');
-    console.log(cep);
+  // Confirmação antes de editar
+  const handleEdit = async (e) => {
+    e.preventDefault();
+
+    const result = await Swal.fire({
+      title: "Deseja salvar as alterações?",
+      text: "As modificações serão salvas permanentemente.",
+      icon: "question",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Salvar",
+      denyButtonText: `Não salvar`,
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const { data, error } = await supabase
+          .from("Doctor")
+          .update([doctors])
+          .eq("id", id)
+          .single();
+
+        if (error) throw error;
+
+        await Swal.fire("Salvo!", "As alterações foram salvas.", "success");
+      
+        navigate("/admin/doctorlist");
+      
+      } catch (err) {
+        console.error("Erro ao editar:", err);
+        Swal.fire("Erro!", "Não foi possível salvar as alterações.", "error");
+      }
+
+
+    } else if (result.isDenied) {
+      Swal.fire("Alterações não salvas", "", "info");
+    }
+
+
+  };
+
+  // Buscar CEP
+  const buscarCep = () => {
+    const cep = doctors.cep?.replace(/\D/g, "");
+    if (!cep) return;
+
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-        // salvando os valores para depois colocar nos inputs
-        setValuesFromCep(data)
-        // estou salvando os valoeres no patientData
-        setdoctors((prev) => ({
+      .then((response) => response.json())
+      .then((data) => {
+        setValuesFromCep(data);
+        setDoctors((prev) => ({
           ...prev,
-          cidade: data.localidade || '',
-          estado: data.estado || '',
+          cidade: data.localidade || "",
+          estado: data.uf || "",
           logradouro: data.logradouro || "",
-          bairro: data.bairro || '',
+          bairro: data.bairro || "",
         }));
       })
-  }
+      .catch((err) => console.error("Erro ao buscar CEP:", err));
+  };
+
   const setValuesFromCep = (data) => {
-    document.getElementById('cidade').value = data.localidade || '';
-    document.getElementById('estado').value = data.uf || '';
-    document.getElementById('logradouro').value= data.logradouro || '';
-    document.getElementById('bairro').value= data.bairro || '';
-  }
+    document.getElementById("cidade").value = data.localidade || "";
+    document.getElementById("estado").value = data.uf || "";
+    document.getElementById("logradouro").value = data.logradouro || "";
+    document.getElementById("bairro").value = data.bairro || "";
+  };
+
   return (
     <div className="main-wrapper">
-      {/* FORMULÁRIO*/}
       <div className="page-wrapper">
         <div className="content">
           <div className="row">
@@ -82,56 +123,69 @@ function EditDoctor() {
             <div className="col-lg-8 offset-lg-2">
               <form>
                 <div className="row">
+                  {/* Nome */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>
                         Nome <span className="text-danger">*</span>
                       </label>
-                      <input className="form-control" type="text"
+                      <input
+                        className="form-control"
+                        type="text"
                         name="nome"
-                        value={doctors.nome}
+                        value={doctors.nome || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* Sobrenome */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Sobrenome</label>
-                      <input className="form-control" type="text"
+                      <input
+                        className="form-control"
+                        type="text"
                         name="sobrenome"
-                        value={doctors.sobrenome}
+                        value={doctors.sobrenome || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* CPF */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>CPF <span className="text-danger">*</span></label>
-                      <input className="form-control" type="text" ref={withMask('cpf')}
+                      <input
+                        className="form-control"
+                        type="text"
+                        ref={withMask("cpf")}
                         name="cpf"
-                        value={doctors.cpf}
+                        value={doctors.cpf || ""}
                         onChange={handleChange}
-
                       />
                     </div>
                   </div>
+                  {/* CRM */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>CRM<span className="text-danger">*</span></label>
-                      <input className="form-control" type="text"
+                      <input
+                        className="form-control"
+                        type="text"
                         name="crm"
-                        value={doctors.crm}
+                        value={doctors.crm || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* Especialidade */}
                   <div className="col-sm-6">
                     <label>Especialidade</label>
                     <select
                       name="especialidade"
                       id="especialidade"
                       className="form-control"
-                      value={doctors.especialidade}
+                      value={doctors.especialidade || ""}
                       onChange={handleChange}
                     >
                       <option value="">Selecionar</option>
@@ -144,272 +198,299 @@ function EditDoctor() {
                       <option value="Ortopedia">Ortopedia</option>
                     </select>
                   </div>
+                  {/* Senha */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Senha <span className="text-danger">*</span></label>
-                      <input className="form-control" type="password"
+                      <input
+                        className="form-control"
+                        type="password"
                         name="senha"
-                        value={doctors.senha}
-                        onChange={handleChange} />
+                        value={doctors.senha || ""}
+                        onChange={handleChange}
+                      />
                     </div>
                   </div>
-
+                  {/* Email */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Email</label>
-                      <input className="form-control" type="email" ref={withMask('email')}
+                      <input
+                        className="form-control"
+                        type="email"
+                        ref={withMask("email")}
                         name="email"
-                        value={doctors.email}
+                        value={doctors.email || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* Confirmar senha */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Confirmar Senha</label>
-                      <input className="form-control" type="password"
+                      <input
+                        className="form-control"
+                        type="password"
                         name="confirmarSenha"
-                        value={doctors.confirmarSenha}
+                        value={doctors.confirmarSenha || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* Data de nascimento */}
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Data de Nascimento</label>
-                      <div className="">
-                        <input type="date" className="form-control"
-                          name="data_nascimento"
-                          value={doctors.data_nascimento}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-sm-6">
-                    <div className="form-group">
-                      <label>Telefone </label>
-                      <input className="form-control" type="text" ref={withMask('+99 (99)99999-9999')}
-                        name="telefone"
-                        value={doctors.telefone}
+                      <input
+                        type="date"
+                        className="form-control"
+                        name="data_nascimento"
+                        value={doctors.data_nascimento || ""}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
+                  {/* Telefone */}
+                  <div className="col-sm-6">
+                    <div className="form-group">
+                      <label>Telefone </label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        ref={withMask("+99 (99)99999-9999")}
+                        name="telefone"
+                        value={doctors.telefone || ""}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  {/* Sexo */}
                   <div className="col-sm-6">
                     <div className="form-group gender-select">
                       <label className="gen-label">Sexo:</label>
-                      <div className="form-check-inline">
-                        <label className="form-check-label">
-                          <input type="radio" name="sexo" className="form-check-input"
-                            value={"Masculino"}
-                            checked={doctors.sexo === "Masculino"}
-                            onChange={handleChange}
-                          />Masculino
-                        </label>
-                      </div>
-                      <div className="form-check-inline">
-                        <label className="form-check-label">
-                          <input type="radio" name="sexo" className="form-check-input"
-                            value={"Feminino"}
-                            checked={doctors.sexo === "Feminino"}
-                            onChange={handleChange}
-                          />Feminino
-                        </label>
-                      </div>
-                      <div className="form-check-inline">
-                        <label className="form-check-label">
-                          <input type="radio" name="sexo" className="form-check-input"
-                            value={"Outro"}
-                            checked={doctors.sexo === "Outro"}
-                            onChange={handleChange}
-                          />Outro
-                        </label>
-                      </div>
+                      {["Masculino", "Feminino", "Outro"].map((sexo) => (
+                        <div className="form-check-inline" key={sexo}>
+                          <label className="form-check-label">
+                            <input
+                              type="radio"
+                              name="sexo"
+                              className="form-check-input"
+                              value={sexo}
+                              checked={doctors.sexo === sexo}
+                              onChange={handleChange}
+                            />
+                            {sexo}
+                          </label>
+                        </div>
+                      ))}
                     </div>
                   </div>
+
+                  {/* Endereço */}
                   <div className="col-sm-12">
                     <hr />
                     <h2>Endereço</h2>
                   </div>
                   <div className="col-sm-12">
                     <div className="row">
+                      {/* CEP */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>CEP</label>
-                          <input type="text" className="form-control "
+                          <input
+                            type="text"
+                            className="form-control"
                             id="cep"
                             name="cep"
-                            value={doctors.cep}
+                            value={doctors.cep || ""}
                             onChange={handleChange}
                             onBlur={buscarCep}
                           />
                         </div>
                       </div>
+                      {/* Bairro */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Bairro</label>
-                          <input type="text" className="form-control "
+                          <input
+                            type="text"
+                            className="form-control"
                             id="bairro"
                             name="bairro"
-                            value={doctors.bairro}
+                            value={doctors.bairro || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
+                      {/* Referência */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Referência</label>
-                          <input type="text" className="form-control "
+                          <input
+                            type="text"
+                            className="form-control"
                             id="referencia"
                             name="referencia"
-                            Referência
-                            value={doctors.referencia}
+                            value={doctors.referencia || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
+                      {/* Logradouro */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Logradouro</label>
-                          <input type="text" className="form-control "
+                          <input
+                            type="text"
+                            className="form-control"
                             id="logradouro"
                             name="logradouro"
-                            Referência
-                            value={doctors.logradouro}
+                            value={doctors.logradouro || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
+                      {/* Complemento */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Complemento</label>
-                          <input type="text" className="form-control "
+                          <input
+                            type="text"
+                            className="form-control"
                             id="complemento"
                             name="complemento"
-                            Referência
-                            value={doctors.complemento}
+                            value={doctors.complemento || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
+                      {/* Cidade */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Cidade</label>
-                          <input type="text" className="form-control"
+                          <input
+                            type="text"
+                            className="form-control"
                             id="cidade"
                             name="cidade"
-                            value={doctors.cidade}
+                            value={doctors.cidade || ""}
                             onChange={handleChange}
-
                           />
                         </div>
                       </div>
+                      {/* Estado */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Estado</label>
-                          <input type="text" className="form-control"
+                          <input
+                            type="text"
+                            className="form-control"
                             id="estado"
                             name="estado"
-                            value={doctors.estado}
+                            value={doctors.estado || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
+                      {/* Número */}
                       <div className="col-sm-6 col-md-6 col-lg-3">
                         <div className="form-group">
                           <label>Número</label>
-                          <input type="text" className="form-control"
+                          <input
+                            type="text"
+                            className="form-control"
                             id="numero"
                             name="numero"
-                            value={doctors.numero}
+                            value={doctors.numero || ""}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="form-group">
-                    <label>Anexo</label>
-                    <div className="profile-upload">
-                      <div className="upload-img">
-                        <img alt="" src="assets/img/user.jpg" />
-                      </div>
-                      <div className="upload-input">
-                        <input type="file" multiple accept="image/png, image/jpeg" className="form-control" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="form-group">
-                    <label>Foto</label>
-                    <div className="profile-upload">
-                      <div className="upload-img">
-                        <img alt="" src="assets/img/user.jpg" />
-                      </div>
-                      <div className="upload-input">
-                        <input type="file" accept="image/png, image/jpeg" className="form-control" />
+
+                  {/* Anexo e Foto */}
+                  <div className="col-sm-6">
+                    <div className="form-group">
+                      <label>Anexo</label>
+                      <div className="profile-upload">
+                        <div className="upload-img">
+                          <img alt="" src="assets/img/user.jpg" />
+                        </div>
+                        <div className="upload-input">
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/png, image/jpeg"
+                            className="form-control"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="form-group">
-                  <label>Biografia</label>
-                  <textarea
-                    className="form-control"
-                    rows="3"
-                    cols="30"
-                    name="biografia"
-                    value={doctors.biografia}
-                    onChange={handleChange}
-                  ></textarea>
-                </div>
-                <div className="form-group">
-                  <label className="display-block">Status</label>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="status"
-                      id="status"
-                      value="ativo"
-                      checked={doctors.status === "ativo"}
-                      onChange={handleChange}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="doctor_active"
-                    >
-                      Ativo
-                    </label>
+                  <div className="col-sm-6">
+                    <div className="form-group">
+                      <label>Foto</label>
+                      <div className="profile-upload">
+                        <div className="upload-img">
+                          <img alt="" src="assets/img/user.jpg" />
+                        </div>
+                        <div className="upload-input">
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg"
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="status"
-                      id="status"
-                      value="inativo"
-                      checked={doctors.status === "inativo"}
-                      onChange={handleChange}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="doctor_inactive"
-                    >
-                      Inativo
-                    </label>
+
+                  {/* Biografia */}
+                  <div className="col-sm-12">
+                    <div className="form-group">
+                      <label>Biografia</label>
+                      <textarea
+                        className="form-control"
+                        rows="3"
+                        cols="30"
+                        name="biografia"
+                        value={doctors.biografia || ""}
+                        onChange={handleChange}
+                      ></textarea>
+                    </div>
                   </div>
-                </div>
-                <div className="m-t-20 text-center">
-                 <Link to="/admin/doctorlist"><button 
-                  className="btn btn-primary submit-btn"
-                    onClick={handleEdit}>
-                    Editar
-                  </button></Link>
+
+                  {/* Status */}
+                  <div className="col-sm-12">
+                    <div className="form-group">
+                      <label className="display-block">Status</label>
+                      {["ativo", "inativo"].map((status) => (
+                        <div className="form-check form-check-inline" key={status}>
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="status"
+                            value={status}
+                            checked={doctors.status === status}
+                            onChange={handleChange}
+                          />
+                          <label className="form-check-label">{status.charAt(0).toUpperCase() + status.slice(1)}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Botão de Editar */}
+                  <div className="col-sm-12 m-t-20 text-center">
+                      <button
+                        className="btn btn-primary submit-btn"
+                        onClick={handleEdit}
+                      >
+                        Editar
+                      </button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -419,4 +500,5 @@ function EditDoctor() {
     </div>
   );
 }
-export default EditDoctor
+
+export default EditDoctor;
