@@ -7,7 +7,7 @@ import { getAccessToken } from "../../../utils/auth";
 function Patientform() {
     const tokenUsuario = getAccessToken()
     const [patientData, setpatientData] = useState({
-        full_name: "",
+      full_name: "",
         cpf: "",
         email: "",
         phone_mobile: "",
@@ -21,6 +21,21 @@ function Patientform() {
         city: "",
         state: "",
         cep: "",
+        ethnicity: "",
+        father_name: "",
+        father_profession: "",
+        legacy_code: "",
+        marital_status: "",
+        mother_name: "",
+        mother_profession: "",
+        phone1: "",
+        phone2: "",
+        phone_mobile: "",
+        profession: "",
+        reference: "",
+        guardian_cpf: "",
+        guardian_name: "",
+        complement: "",
     })
 
     const [fotoFile, setFotoFile] = useState(null);
@@ -42,10 +57,10 @@ function Patientform() {
     };
     // aqui esta sentando os valores nos inputs 
     const setValuesFromCep = (data) => {
-        document.getElementById('logradouro').value = data.logradouro || '';
-        document.getElementById('bairro').value = data.bairro || '';
-        document.getElementById('cidade').value = data.localidade || '';
-        document.getElementById('estado').value = data.uf || '';
+        document.getElementById('street').value = data.logradouro || '';
+        document.getElementById('neighborhood').value = data.bairro || '';
+        document.getElementById('city').value = data.localidade || '';
+        document.getElementById('state').value = data.uf || '';
     }
     const buscarCep = (e) => {
         const cep = patientData.cep.replace(/\D/g, '');
@@ -59,10 +74,10 @@ function Patientform() {
                 // estou salvando os valoeres no patientData
                 setpatientData((prev) => ({
                     ...prev,
-                    cidade: data.localidade || '',
-                    logradouro: data.logradouro || '',
-                    bairro: data.bairro || '',
-                    estado: data.estado || ''
+                    city: data.localidade || '',
+                    street: data.logradouro || '',
+                    neighborhood: data.bairro || '',
+                    state: data.estado || ''
                 }));
             })
     }
@@ -355,10 +370,10 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Raça</label>
                                     <select
-                                        name="raça"
-                                        id="raça"
+                                        name="ethnicity"
+                                        id="ethnicity"
                                         className="form-control"
-                                        value={patientData.raça}
+                                        value={patientData.ethnicity}
                                         onChange={handleChange}
                                     >
                                         <option value="">Selecionar</option>
@@ -372,16 +387,16 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Profissão</label>
                                     <input className="form-control" type="text"
-                                        name="profissao"
-                                        value={patientData.profissao}
+                                        name="profession"
+                                        value={patientData.profession}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Nome da mãe</label>
                                     <input className="form-control" type="text"
-                                        name="nome_mae"
-                                        value={patientData.nome_mae}
+                                        name="mother_name"
+                                        value={patientData.mother_name}
                                         onChange={handleChange}
 
                                     />
@@ -389,8 +404,8 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Profissão da mãe</label>
                                     <input className="form-control" type="text"
-                                        name="profissao_mae"
-                                        value={patientData.profissao_mae}
+                                        name="mother_profession"
+                                        value={patientData.mother_profession}
                                         onChange={handleChange}
 
                                     />
@@ -398,8 +413,8 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Nome do responsável</label>
                                     <input className="form-control" type="text"
-                                        name="nome_responsavel"
-                                        value={patientData.nome_responsavel}
+                                        name="guardian_name"
+                                        value={patientData.guardian_name}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -437,15 +452,15 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Número do documento</label>
                                     <input className="form-control" type="text"
-                                        name="numero_documento"
-                                        value={patientData.numero_documento}
+                                        name="document_number"
+                                        value={patientData.document_number}
                                         onChange={handleChange} />
                                 </div>
                                 <div className="form-group">
                                     <label>Estado civil</label>
-                                    <select id="civil" className="form-control"
-                                        name="estado_civil"
-                                        value={patientData.estado_civil}
+                                    <select id="marital_status" className="form-control"
+                                        name="marital_status"
+                                        value={patientData.marital_status}
                                         onChange={handleChange}
                                     >
                                         <option value="">Selecionar</option>
@@ -474,24 +489,24 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Profissão do pai</label>
                                     <input className="form-control" type="text"
-                                        name="profissao_pai"
-                                        value={patientData.profissao_pai}
+                                        name="father_profession"
+                                        value={patientData.father_profession}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>CPF do responsável</label>
                                     <input className="form-control" type="text" ref={withMask('cpf')}
-                                        name="cpf_responsavel"
-                                        value={patientData.cpf_responsavel}
+                                        name="guardian_cpf"
+                                        value={patientData.guardian_cpf}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Código legado</label>
                                     <input className="form-control" type="text"
-                                        name="codigo_legado"
-                                        value={patientData.codigo_legado}
+                                        name="legacy_code"
+                                        value={patientData.legacy_code}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -541,8 +556,8 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Telefone 1</label>
                                     <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
-                                        name="telefone1"
-                                        value={patientData.telefone1}
+                                        name="phone1"
+                                        value={patientData.phone1}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -559,8 +574,8 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Telefone 2</label>
                                     <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
-                                        name="telefone2"
-                                        value={patientData.telefone2}
+                                        name="phone2"
+                                        value={patientData.phone2}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -639,8 +654,8 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Referencia </label>
                                     <input className="form-control" type="text"
-                                        name="referencia"
-                                        value={patientData.referencia}
+                                        name="reference"
+                                        value={patientData.reference}
                                         onChange={handleChange}
                                     />
                                 </div>

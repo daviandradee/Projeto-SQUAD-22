@@ -257,10 +257,10 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Raça</label>
                                     <select
-                                        name="raça"
-                                        id="raça"
+                                        name="ethnicity"
+                                        id="ethnicity"
                                         className="form-control"
-                                        value={patients.raça}
+                                        value={patients.ethnicity}
                                         onChange={handleChange}
                                     >
                                         <option value="">Selecionar</option>
@@ -274,16 +274,16 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Profissão</label>
                                     <input className="form-control" type="text"
-                                        name="profissao"
-                                        value={patients.profissao}
+                                        name="profession"
+                                        value={patients.profession}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Nome da mãe</label>
                                     <input className="form-control" type="text"
-                                        name="nome_mae"
-                                        value={patients.nome_mae}
+                                        name="mother_name"
+                                        value={patients.mother_name}
                                         onChange={handleChange}
 
                                     />
@@ -291,8 +291,8 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Profissão da mãe</label>
                                     <input className="form-control" type="text"
-                                        name="profissao_mae"
-                                        value={patients.profissao_mae}
+                                        name="mother_profession"
+                                        value={patients.mother_profession}
                                         onChange={handleChange}
 
                                     />
@@ -300,8 +300,8 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Nome do responsável</label>
                                     <input className="form-control" type="text"
-                                        name="nome_responsavel"
-                                        value={patients.nome_responsavel}
+                                        name="guardian_name"
+                                        value={patients.guardian_name}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -339,15 +339,15 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Número do documento</label>
                                     <input className="form-control" type="text"
-                                        name="numero_documento"
-                                        value={patients.numero_documento}
+                                        name="document_number"
+                                        value={patients.document_number}
                                         onChange={handleChange} />
                                 </div>
                                 <div className="form-group">
                                     <label>Estado civil</label>
-                                    <select id="civil" className="form-control"
-                                        name="estado_civil"
-                                        value={patients.estado_civil}
+                                    <select id="marital_status" className="form-control"
+                                        name="marital_status"
+                                        value={patients.marital_status}
                                         onChange={handleChange}
                                     >
                                         <option value="">Selecionar</option>
@@ -376,24 +376,24 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Profissão do pai</label>
                                     <input className="form-control" type="text"
-                                        name="profissao_pai"
-                                        value={patients.profissao_pai}
+                                        name="father_profession"
+                                        value={patients.father_profession}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>CPF do responsável</label>
                                     <input className="form-control" type="text" ref={withMask('cpf')}
-                                        name="cpf_responsavel"
-                                        value={patients.cpf_responsavel}
+                                        name="guardian_cpf"
+                                        value={patients.guardian_cpf}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Código legado</label>
                                     <input className="form-control" type="text"
-                                        name="codigo_legado"
-                                        value={patients.codigo_legado}
+                                        name="legacy_code"
+                                        value={patients.legacy_code}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -436,15 +436,15 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Celular</label>
                                     <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
-                                        name="celular"
-                                        value={patients.celular}
+                                        name="phone_mobile"
+                                        value={patients.phone_mobile}
                                         onChange={handleChange} />
                                 </div>
                                 <div className="form-group">
                                     <label>Telefone 1</label>
                                     <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
-                                        name="telefone1"
-                                        value={patients.telefone1}
+                                        name="phone1"
+                                        value={patients.phone1}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -461,8 +461,8 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Telefone 2</label>
                                     <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
-                                        name="telefone2"
-                                        value={patients.telefone2}
+                                        name="phone2"
+                                        value={patients.phone2}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -486,27 +486,27 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Cidade</label>
                                     <input className="form-control" type="text"
-                                        id="cidade"
-                                        name="cidade"
-                                        value={patients.cidade}
+                                        id="city"
+                                        name="city"
+                                        value={patients.city}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Logradouro</label>
                                     <input className="form-control" type="text"
-                                        id="logradouro"
-                                        name="logradouro"
-                                        value={patients.logradouro}
+                                        id="street"
+                                        name="street"
+                                        value={patients.street}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Complemento</label>
                                     <input className="form-control" type="text"
-                                        id="complemento"
-                                        name="complemento"
-                                        value={patients.complemento}
+                                        id="complement"
+                                        name="complement"
+                                        value={patients.complement}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -515,34 +515,34 @@ function PacienteEditar() {
                                 <div className="form-group">
                                     <label>Estado</label>
                                     <input className="form-control" type="text"
-                                        id="estado"
-                                        name="estado"
-                                        value={patients.estado}
+                                        id="state"
+                                        name="state"
+                                        value={patients.state}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Número</label>
                                     <input className="form-control" type="text"
-                                        name="numero"
-                                        value={patients.numero}
+                                        name="number"
+                                        value={patients.number}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Bairro</label>
                                     <input className="form-control" type="text"
-                                        id="bairro"
-                                        name="bairro"
-                                        value={patients.bairro}
+                                        id="neighborhood"
+                                        name="neighborhood"
+                                        value={patients.neighborhood}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Referência </label>
                                     <input className="form-control" type="text"
-                                        name="referencia"
-                                        value={patients.referencia}
+                                        name="reference"
+                                        value={patients.reference}
                                         onChange={handleChange}
                                     />
                                 </div>
