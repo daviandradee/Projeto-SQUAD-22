@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth";
+import AvatarForm from "../../../../public/img/AvatarForm.jpg"
+import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
 
 function PatientEdit() {
     //testando
@@ -72,7 +74,7 @@ function PatientEdit() {
         }));
     };
         const buscarCep = (e) => {
-        const cep = patientData.cep.replace(/\D/g, '');
+        const cep = patients.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
@@ -81,7 +83,7 @@ function PatientEdit() {
                 // salvando os valores para depois colocar nos inputs
                 setValuesFromCep(data)
                 // estou salvando os valoeres no patientData
-                setpatientData((prev) => ({
+                setpatients((prev) => ({
                     ...prev,
                     city: data.localidade || '',
                     street: data.logradouro || '',
@@ -175,7 +177,7 @@ function PatientEdit() {
                                             <label>Avatar</label>
                                             <div className="profile-upload">
                                                 <div className="upload-img">
-                                                    <img alt="" src={preview || "assets/img/user.jpg"} />
+                                                    <img alt="" src={preview || AvatarForm} />
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-9">
@@ -406,8 +408,8 @@ function PatientEdit() {
                                             <div className="form-check-inline">
                                                 <label className="form-check-label">
                                                     <input type="radio" name="sex" className="form-check-input"
-                                                        value={"masculino"}
-                                                        checked={patients.sex === "masculino"}
+                                                        value={"Masculino"}
+                                                        checked={patients.sex === "Masculino"}
                                                         onChange={handleChange}
                                                     /> Masculino
                                                 </label>
@@ -415,8 +417,8 @@ function PatientEdit() {
                                             <div className="form-check-inline">
                                                 <label className="form-check-label">
                                                     <input type="radio" name="sex" className="form-check-input"
-                                                        value={"feminino"}
-                                                        checked={patients.sex === "feminino"}
+                                                        value={"Feminino"}
+                                                        checked={patients.sex === "Feminino"}
                                                         onChange={handleChange}
                                                     /> Feminino
                                                 </label>
@@ -425,7 +427,7 @@ function PatientEdit() {
                                                 <label className="form-check-label">
                                                     <input type="radio" name="sex" className="form-check-input"
                                                         value={"outro"}
-                                                        checked={patients.sex === "outro"}
+                                                        checked={patients.sex === "Outro"}
                                                         onChange={handleChange}
                                                     /> Outro
                                                 </label>
@@ -601,7 +603,7 @@ function PatientEdit() {
                                     <label>Documentos</label>
                                     <div className="profile-upload">
                                         <div className="upload-img">
-                                            <img alt="" src="assets/img/user.jpg" />
+                                            <img alt="" src={AnexoDocumento} />
                                         </div>
                                         <div className="upload-input">
                                             <input type="file" accept="image/png, image/jpeg" className="form-control" />

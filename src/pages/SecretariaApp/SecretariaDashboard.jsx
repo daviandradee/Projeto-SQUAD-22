@@ -1,34 +1,38 @@
 import React from "react";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
+import { getAccessToken } from "../../utils/auth";
 function SecretariaDashboard() {
     const [patients, setPatients] = useState([]);
     const [medico, setMedico] = useState([])
     const [count, setCount] = useState(0);
+    const tokenUsuario = getAccessToken()
+    
 
+    var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
     var requestOptions = {
-        method: "GET",
-        redirect: "follow",
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
     };
-
     useEffect(() => {
-        fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                console.log("API result:", result);
-                setPatients(result.data || []);
-                setMedico(result.data || [])
-                setCount(result.data.length);
-            })
-            .catch((error) => console.log("error", error));
-    }, []);
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+            .then(response => response.json())
+            .then(result => setPatients(Array.isArray(result) ? result : []))
+            .catch(error => console.log('error', error));
+    }, [])
+    useEffect(() => {
+      setCount(patients.length);
+    }, [patients]);
 
 
     return (
 
 
         <div className="content">
-           
+
             <div className="row">
                 <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
                     <div className="dash-widget">
@@ -43,7 +47,7 @@ function SecretariaDashboard() {
                     <div className="dash-widget">
                         <span className="dash-widget-bg1"><i className="fa fa-stethoscope" aria-hidden="true"></i></span>
                         <div className="dash-widget-info text-right">
-                            <h3>{count}</h3>
+                            <h3>6</h3>
                             <span className="widget-title1">Medicos <i className="" aria-hidden="true"></i></span>
                         </div>
                     </div>
@@ -67,7 +71,7 @@ function SecretariaDashboard() {
                     </div>
                 </div>
                 <div className="col-24 col-md-12 col-lg-12 col-xl-12">
-                   <div className="card">
+                    <div className="card">
                         <div className="card-header">
                             <h4 className="text-left">Lista de Consultas</h4> <Link className="btn btn-primary float-right" to="/secretaria/secretariaconsultalist">Ver todos</Link>
                         </div>
@@ -77,10 +81,10 @@ function SecretariaDashboard() {
                                     <thead>
                                         <tr >
                                             <th>Nome</th>
-                                            <th>Departamento</th>
-                                            <th>Dias disponíveis</th>
-                                            <th>Horário disponível</th>
-                                            <th>Status</th>
+                                            <th>Data de Nascimento</th>
+                                            <th>Nome do médico</th>
+                                            <th>Data da consulta</th>
+                                            <th>Hora da consulta</th>
                                             <th className="text-center">Ação</th>
                                         </tr>
                                     </thead>
@@ -90,11 +94,15 @@ function SecretariaDashboard() {
                                                 <tr key={p.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.nome}</h2>
+                                                        <h2>{p.full_name}</h2>
                                                     </td>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.id}</h2>
+                                                        <h2>{p.birth_date}</h2>
+                                                    </td>
+                                                    <td>
+                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
+                                                        <h2>Davi Andrade</h2>
                                                     </td>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
@@ -102,11 +110,7 @@ function SecretariaDashboard() {
                                                     </td>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.data_nascimento}</h2>
-                                                    </td>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.status}</h2>
+                                                        <h2>10:00am - 11:00am</h2>
                                                     </td>
                                                     <td className="text-center">
                                                         <Link className="btn btn-outline-primary take-btn">Detalhes</Link>
@@ -127,7 +131,7 @@ function SecretariaDashboard() {
                 <div className="col-12 col-md-6 col-lg-6 col-xl-6">
                     <div className="card">
                         <div className="card-header">
-                            <h4 className="text-left">Medicos</h4> <Link className="btn btn-primary float-right" to="/secretaria/medicoslista">Ver todos</Link>
+                            <h4 className="text-left">Médicos</h4> <Link className="btn btn-primary float-right" to="/secretaria/medicoslista">Ver todos</Link>
                         </div>
                         <div className="card-block">
                             <div className="table-responsive">
@@ -151,7 +155,7 @@ function SecretariaDashboard() {
                                                     <td>{m.email}</td>
                                                     <td>{m.telefone}</td>
 
-                                               
+
                                                     <td className="text-center">
                                                         <Link className="btn btn-outline-primary take-btn">Detalhes</Link>
                                                     </td>
@@ -159,7 +163,7 @@ function SecretariaDashboard() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="4">Nenhum paciente encontrado.</td>
+                                                <td colSpan="4">Nenhum médico encontrado.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -191,10 +195,10 @@ function SecretariaDashboard() {
                                                 <tr key={p.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.nome}</h2>
+                                                        <h2>{p.full_name}</h2>
                                                     </td>
                                                     <td>{p.email}</td>
-                                                    <td>{p.telefone}</td>
+                                                    <td>{p.phone_mobile}</td>
                                                     <td className="text-center">
                                                         <Link className="btn btn-outline-primary take-btn" >
                                                             Detalhes

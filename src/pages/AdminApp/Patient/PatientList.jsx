@@ -133,7 +133,7 @@ function PatientList() {
 
   const filteredPatients = patients.filter((p) => {
     if (!p) return false;
-    const nome = (p.nome || "").toLowerCase();
+    const nome = (p.full_name || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
     const q = search.toLowerCase();

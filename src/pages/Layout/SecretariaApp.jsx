@@ -49,7 +49,7 @@ function SecretariaApp() {
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
                   <i className="fa fa-user-md"></i>
-                  <span>Medicos</span>
+                  <span>Médicos</span>
                 </NavLink>
               </li>
 

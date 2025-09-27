@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import "../../../assets/css/index.css";
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { getAccessToken } from "../../../utils/auth";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -72,58 +73,26 @@ function LaudoList() {
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [laudos, setLaudos] = useState([
-    {
-      id: 1,
-      pedido: 12345,
-      data: "2024-10-01",
-      prazo: "2024-10-05",
-      paciente: "Davi Andrade",
-      cpf: "12345678900",
-      tipo: "Radiologia",
-      status: "Pendente",
-      executante: "Dr. Silva",
-      exame: "Raio-X de Tórax"
-    },
-    {
-      id: 2,
-      pedido: 12346,
-      data: "2024-10-02",
-      prazo: "2024-10-06",
-      paciente: "Maria Souza",
-      cpf: "98765432100",
-      tipo: "Cardiologia",
-      status: "Pendente",
-      executante: "Dra. Lima",
-      exame: "Eletrocardiograma"
-    },
-    {
-      id: 3,
-      pedido: 12347,
-      data: "2024-10-03",
-      prazo: "2024-10-07",
-      paciente: "João Pereira",
-      cpf: "45678912300",
-      tipo: "Neurologia",
-      status: "Em Andamento",
-      executante: "Dr. Costa",
-      exame: "Ressonância Magnética"
-    },
-    {
-      id: 4,
-      pedido: 12348,
-      data: "2024-10-04",
-      prazo: "2024-10-08",
-      paciente: "Ana Oliveira",
-      cpf: "32165498700",
-      tipo: "Ortopedia",
-      status: "Pendente",
-      executante: "Dra. Fernandes",
-      exame: "Tomografia Computadorizada"
-    },
-  ]);
+  const [laudos, setLaudos] = useState([])
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const tokenUsuario = getAccessToken()
+
+
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  useEffect(() => {
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setLaudos(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
 
   const handleDelete = (id) => {
     if (!window.confirm("Tem certeza que deseja excluir este laudo?")) return;
@@ -134,7 +103,7 @@ function LaudoList() {
   const filteredLaudos = laudos.filter(l => {
     const q = search.toLowerCase();
     const textMatch =
-      (l.paciente || "").toLowerCase().includes(q) ||
+      (l.full_name || "").toLowerCase().includes(q) ||
       (l.cpf || "").toLowerCase().includes(q) ||
       (l.tipo || "").toLowerCase().includes(q) ||
       (l.status || "").toLowerCase().includes(q) ||
@@ -241,12 +210,12 @@ function LaudoList() {
                     <td className="nowrap">{l.pedido}</td>
                     <td className="nowrap">{l.data}</td>
                     <td className="nowrap">{l.prazo}</td>
-                    <td>{l.paciente}</td>
+                    <td>{l.full_name}</td>
                     <td className="nowrap">{mascararCPF(l.cpf)}</td>
                     <td>{l.tipo}</td>
                     <td>{l.status}</td>
-                    <td>{l.executante}</td>
-                    <td className="ellipsis">{l.exame}</td>
+                    <td>Davi Andrade</td>
+                    <td className="ellipsis">Exame de sangue</td>
                     <td className="text-right">
                       <div className="dropdown dropdown-action">
                         <button type="button" ref={el => anchorRefs.current[l.id] = el} className="action-icon"

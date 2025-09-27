@@ -124,7 +124,7 @@ function ConsultaList() {
 
   const filteredConsultas = consulta.filter((c) => {
     if (!c) return false;
-    const nome = (c.nome || "").toLowerCase();
+    const nome = (c.full_name || "").toLowerCase();
     const cpf = (c.cpf || "").toLowerCase();
     const email = (c.email || "").toLowerCase();
     const q = search.toLowerCase();
