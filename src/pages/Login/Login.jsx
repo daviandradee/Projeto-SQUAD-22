@@ -3,18 +3,55 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    // Aqui você pode validar o login com backend ou localStorage
-    // Por enquanto, vamos apenas redirecionar para a página inicial do Admin
-    navigate("/admin/doctorlist");
+  const [conta, setConta] = useState({
+    email: "",
+    password: ""
+  })
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setConta((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Content-Type", "application/json");
 
+    var raw = JSON.stringify({
+      email: conta.email,
+      password: conta.password,
+      grant_type: "password"
+    });
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/auth/v1//token?grant_type=password", requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        if (result.access_token) {
+          // Login OK
+          localStorage.setItem("access_token", result.access_token);
+          localStorage.setItem("refresh_token", result.refresh_token);
+          navigate("/secretaria/pacientelista");
+          console.log(result)
+        } else {
+          alert(result.error_description || result.msg || "Erro ao fazer login");
+        }
+      })
+      .catch(error => {
+        alert("Erro ao conectar ao servidor");
+        console.log('error', error);
+      });
+  };
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -22,17 +59,19 @@ export default function Login() {
         <form onSubmit={handleLogin} style={styles.form}>
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={conta.email}
+            onChange={handleChange}
             required
             style={styles.input}
           />
           <input
             type="password"
             placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            value={conta.password}
+            onChange={handleChange}
             required
             style={styles.input}
           />
@@ -86,6 +125,6 @@ const styles = {
     color: "#fff",
     fontSize: "16px",
     cursor: "pointer",
-    
+
   },
 };

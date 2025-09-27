@@ -4,6 +4,7 @@ import "../../../assets/css/index.css"
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import supabase from "../../../Supabase";
+import { getAccessToken } from "../../../utils/auth";
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -85,33 +86,39 @@ function PatientList() {
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({}); // guarda referência do botão de cada linha
-
+  const tokenUsuario= getAccessToken()
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
-    method: "GET",
-    redirect: "follow",
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
   };
-
   useEffect(() => {
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API result:", result);
-        setPatients(result.data || []);
-      })
-      .catch((error) => console.log("error", error));
-  }, []);
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setPatients(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
 
   // Exemplo simples de delete local (confirmação + remove do state)
   const handleDelete = async (id) => {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
     if (!confirmDel) return;
 
-    const requestOptions = {
+    var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+
+    var requestOptions = {
       method: 'DELETE',
+      headers: myHeaders,
       redirect: 'follow'
     };
 
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
@@ -146,15 +153,15 @@ function PatientList() {
         <div className="content">
           <div className="row ">
             <div className="col-sm-4 col-3">
-                <h4 className="page-title">Lista de Pacientes</h4>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="🔍  Buscar pacientes"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <br />
+              <h4 className="page-title">Lista de Pacientes</h4>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍  Buscar pacientes"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <br />
             </div>
             <div className="col-sm-8 col-9 text-right m-b-20">
               <Link to="/admin/patient" className="btn btn-primary btn-rounded">
@@ -182,12 +189,12 @@ function PatientList() {
                     {filteredPatients.length > 0 ? (
                       filteredPatients.map((p) => (
                         <tr key={p.id}>
-                          <td>{p.nome}</td>
+                          <td>{p.full_name}</td>
                           <td>{mascararCPF(p.cpf)}</td>
-                          <td>{p.data_nascimento}</td>
-                          <td>{p.telefone}</td>
+                          <td>{p.birth_date}</td>
+                          <td>{p.phone_mobile}</td>
                           <td>{p.email}</td>
-                          <td>{p.status}</td>
+                          <td>{p.sex}</td>
                           <td className="text-right">
                             <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
                               <button
