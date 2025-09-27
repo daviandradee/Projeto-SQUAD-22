@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "../../../assets/css/index.css";
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
+import { getAccessToken } from "../../../utils/auth";
 // se for usar supabase para delete, senão pode remover
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
@@ -81,25 +82,25 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 }
 
 function DoctorPatientList() {
+  const tokenUsuario = getAccessToken();
   const [search, setSearch] = useState("");
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({}); // guarda referência do botão de cada linha
-
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
-    method: "GET",
-    redirect: "follow",
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
   };
-
   useEffect(() => {
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API result:", result);
-        setPatients(result.data || []);
-      })
-      .catch((error) => console.log("error", error));
-  }, []);
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setPatients(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
 
   // Exemplo simples de delete local (confirmação + remove do state)
   const handleDelete = async (id) => {
@@ -180,10 +181,10 @@ function DoctorPatientList() {
                     {filteredPatients.length > 0 ? (
                       filteredPatients.map((p) => (
                         <tr key={p.id}>
-                          <td>{p.nome}</td>
+                          <td>{p.full_name}</td>
                           <td>{mascararCPF(p.cpf)}</td>
-                          <td>{p.data_nascimento}</td>
-                          <td>{p.telefone}</td>
+                          <td>{p.birth_date}</td>
+                          <td>{p.phone_mobile}</td>
                           <td>{p.email}</td>
                           <td>{p.status}</td>
                           <td className="text-right">

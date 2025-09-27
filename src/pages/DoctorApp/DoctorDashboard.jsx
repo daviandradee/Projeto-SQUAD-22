@@ -1,27 +1,30 @@
 import React from "react";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
+import { getAccessToken } from "../../utils/auth";
 function DoctorDashboard() {
   const [patients, setPatients] =useState([]);
   const [count, setCount] = useState(0);
+  const tokenUsuario = getAccessToken()
 
-    var requestOptions = {
-    method: "GET",
-    redirect: "follow",
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
   };
-
   useEffect(() => {
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API result:", result);
-        setPatients(result.data || []);
-        setCount(result.data.length);
-      })
-      .catch((error) => console.log("error", error));
-  }, []);
-  
-  
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setPatients(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  // ✅ só roda quando 'patients' mudar
+  }, [])
+useEffect(() => {
+  setCount(patients.length);
+}, [patients]);
 
   
 
@@ -96,23 +99,23 @@ function DoctorDashboard() {
 											<tr key={p.id}>
 												<td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.id}</h2>
+													<h2>{p.created_at}</h2>
 												</td>
                         <td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.data_nascimento}</h2>
+													<h2>{p.birth_date}</h2>
 												</td>
                         <td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.nome}</h2>
-												</td>
-                        <td>
-													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.nome}</h2>
+													<h2>{p.full_name}</h2>
 												</td>
                         <td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
 													<h2>{p.nome}</h2>
+												</td>
+                        <td>
+													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
+													<h2>{p.cpf}</h2>
 												</td>
                         <td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
@@ -127,7 +130,7 @@ function DoctorDashboard() {
 													<h2>{p.nome}</h2>
 												</td>
 									
-												<td>{p.created_at}</td>
+												<td>Cardiovascular</td>
 												<td className="text-center">
                       <Link className="btn btn-outline-primary take-btn">Detalhes</Link> 
                     </td>
@@ -165,7 +168,7 @@ function DoctorDashboard() {
 											<tr key={p.id}>
 												<td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.nome}</h2>
+													<h2>{p.full_name}</h2>
 												</td>
 									
 												<td>{p.created_at}</td>
@@ -208,7 +211,7 @@ function DoctorDashboard() {
 											<tr key={p.id}>
 												<td>
 													<img  className="rounded-circle" src="assets/img/user.jpg" alt=""/> 
-													<h2>{p.nome}</h2>
+													<h2>{p.full_name}</h2>
 												</td>
 												<td>{p.email}</td>
 												<td>{p.telefone}</td>

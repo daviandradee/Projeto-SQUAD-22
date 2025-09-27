@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import DoctorProntuario from "./DoctorProntuario";
+import { getAccessToken } from "../../utils/auth";
 
 // Componente DropdownPortal (mantido igual)
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -78,66 +79,23 @@ function DoctorPatientList() {
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const tokenUsuario = getAccessToken()
+   var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+    useEffect(() => {
+      fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+        .then(response => response.json())
+        .then(result => setPatients(Array.isArray(result) ? result : []))
+        .catch(error => console.log('error', error));
+    }, [])
 
-  // DADOS MOCKADOS - SEM API
-  const pacientesMock = [
-    {
-      id: 1,
-      nome: "João Silva Santos",
-      cpf: "123.456.789-00",
-      data_nascimento: "15/03/1985",
-      telefone: "(11) 99999-9999",
-      email: "joao.silva@email.com",
-      status: "ativo",
-      endereco: "Rua das Flores, 123 - São Paulo/SP"
-    },
-    {
-      id: 2,
-      nome: "Maria Oliveira Costa",
-      cpf: "987.654.321-00",
-      data_nascimento: "22/07/1990",
-      telefone: "(11) 88888-8888",
-      email: "maria.oliveira@email.com",
-      status: "ativo",
-      endereco: "Av. Paulista, 1000 - São Paulo/SP"
-    },
-    {
-      id: 3,
-      nome: "Pedro Almeida Souza",
-      cpf: "456.789.123-00",
-      data_nascimento: "10/12/1978",
-      telefone: "(11) 77777-7777",
-      email: "pedro.almeida@email.com",
-      status: "inativo",
-      endereco: "Rua Augusta, 500 - São Paulo/SP"
-    },
-    {
-      id: 4,
-      nome: "Ana Pereira Lima",
-      cpf: "789.123.456-00",
-      data_nascimento: "05/09/1995",
-      telefone: "(11) 66666-6666",
-      email: "ana.pereira@email.com",
-      status: "ativo",
-      endereco: "Rua Consolação, 200 - São Paulo/SP"
-    },
-    {
-      id: 5,
-      nome: "Carlos Rodrigues Ferreira",
-      cpf: "321.654.987-00",
-      data_nascimento: "30/01/1982",
-      telefone: "(11) 55555-5555",
-      email: "carlos.rodrigues@email.com",
-      status: "arquivado",
-      endereco: "Alameda Santos, 800 - São Paulo/SP"
-    }
-  ];
-
-  useEffect(() => {
-    // Usando dados mockados em vez de API
-    setPatients(pacientesMock);
-    console.log("Carregando pacientes mockados:", pacientesMock);
-  }, []);
+  
 
   const handleDelete = async (id) => {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
@@ -204,10 +162,10 @@ function DoctorPatientList() {
                 {filteredPatients.length > 0 ? (
                   filteredPatients.map((p) => (
                     <tr key={p.id}>
-                      <td>{p.nome}</td>
+                      <td>{p.full_name}</td>
                       <td>{mascararCPF(p.cpf)}</td>
-                      <td>{p.data_nascimento}</td>
-                      <td>{p.telefone}</td>
+                      <td>{p.birth_date}</td>
+                      <td>{p.phone_mobile}</td>
                       <td>{p.email}</td>
                       <td>
                         <span className={`badge ${

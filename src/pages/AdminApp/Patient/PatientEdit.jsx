@@ -6,18 +6,33 @@ import supabase from "../../../Supabase";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { getAccessToken } from "../../../utils/auth";
 
 function PatientEdit() {
     //testando
+    const tokenUsuario = getAccessToken()
     const [patients, setpatients] = useState([""])
     const { id } = useParams()
     // carregando a lista e adicionando no usestate
+    var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+    // eh carregda a lista
     useEffect(() => {
-        fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`)
-            .then((response) => response.json())
-            .then((result) => setpatients(result.data || {}))
-            .catch((error) => console.log("error", error));
-    }, [id]);
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                const paciente = result.find(p => p.id == id);
+                setpatients(paciente || []);
+                console.log(paciente)
+            })
+            .catch(error => console.log('error', error));
+    }, [])
 
     const [preview, setPreview] = useState(null);
     const navigate = useNavigate();
@@ -28,55 +43,24 @@ function PatientEdit() {
     }, [patients.foto_url]);
 
     const handleEdit = async (e) => {
-        e.preventDefault();
-      
-        // Pergunta ao usuário se quer salvar
-        const result = await Swal.fire({
-          title: "Deseja salvar as alterações?",
-          text: "As modificações serão salvas permanentemente.",
-          icon: "question",
-          showDenyButton: true,
-          showCancelButton: true,
-          confirmButtonText: "Salvar",
-          denyButtonText: `Não salvar`,
-          cancelButtonText: "Cancelar",
-        });
-      
-        if (result.isConfirmed) {
-          // Se confirmou, faz o PUT
-          const requestOptions = {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(patients),
-            redirect: "follow",
-          };
-      
-          try {
-            const response = await fetch(
-              `https://mock.apidog.com/m1/1053378-0-default/pacientes/${id}`,
-              requestOptions
-            );
-      
-            if (!response.ok) throw new Error("Erro ao editar paciente");
-      
-            const data = await response.json();
-      
-            await Swal.fire("Salvo!", "Paciente editado com sucesso.", "success");
-      
-            // Redireciona depois de salvar
-            navigate("/admin/patientlist"); // <- useNavigate do React Router
-      
-          } catch (error) {
-            console.error("Erro:", error);
-            Swal.fire("Erro!", "Não foi possível salvar as alterações.", "error");
-          }
-      
-        } else if (result.isDenied) {
-          // Caso o usuário escolha "Não salvar"
-          Swal.fire("Alterações não salvas", "", "info");
-        }
-      };
-      
+        var myHeaders = new Headers();
+        myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+        myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify(patients)
+        var requestOptions = {
+            method: 'PATCH',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+    }
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
     // prev= pega o valor anterio
@@ -87,8 +71,8 @@ function PatientEdit() {
             [name]: value
         }));
     };
-    const buscarCep = (e) => {
-        const cep = patients.cep.replace(/\D/g, '');
+        const buscarCep = (e) => {
+        const cep = patientData.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
@@ -97,24 +81,25 @@ function PatientEdit() {
                 // salvando os valores para depois colocar nos inputs
                 setValuesFromCep(data)
                 // estou salvando os valoeres no patientData
-                setpatients((prev) => ({
+                setpatientData((prev) => ({
                     ...prev,
-                    cidade: data.localidade || '',
-                    logradouro: data.logradouro || '',
-                    bairro: data.bairro || '',
-                    estado: data.estado || ''
+                    city: data.localidade || '',
+                    street: data.logradouro || '',
+                    neighborhood: data.bairro || '',
+                    state: data.estado || ''
                 }));
             })
     }
     // aqui esta sentando os valores nos inputs 
     const setValuesFromCep = (data) => {
-        document.getElementById('logradouro').value = data.logradouro || '';
-        document.getElementById('bairro').value = data.bairro || '';
-        document.getElementById('cidade').value = data.localidade || '';
-        document.getElementById('estado').value = data.uf || '';
+        document.getElementById('street').value = data.logradouro || '';
+        document.getElementById('neighborhood').value = data.bairro || '';
+        document.getElementById('city').value = data.localidade || '';
+        document.getElementById('state').value = data.uf || '';
     }
-
-
+    // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
+    // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
+    // prev= pega o valor anterio
     const validarCpf = async (cpf) => {
         const cpfLimpo = cpf.replace(/\D/g, "");
         try {
@@ -245,9 +230,9 @@ function PatientEdit() {
                                             </label>
                                             <input className="form-control" type="text"
                                                 required
-                                                id="nome"
-                                                name="nome"
-                                                value={patients.nome}
+                                                id="full_name"
+                                                name="full_name"
+                                                value={patients.full_name}
                                                 onChange={handleChange}
 
                                             />
@@ -627,11 +612,11 @@ function PatientEdit() {
 
 
                                 <div className="m-t-20 text-center">
-                                    <button
-                                        type = "button"
+                                    <Link to="/admin/patientlist"><button
+                                        type="button"
                                         className="btn btn-primary submit-btn"
                                         onClick={handleEdit}
-                                    >Editar Paciente</button>
+                                    >Editar Paciente</button></Link>
                                 </div>
                             </form>
                         </div>
@@ -640,6 +625,6 @@ function PatientEdit() {
             </div>
         </div>
     );
-};
+}
 
 export default PatientEdit;
