@@ -4,6 +4,8 @@ import { withMask } from "use-mask-input";
 import supabase from "../../../Supabase";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
+import AvatarForm from "../../../../public/img/AvatarForm.jpg"
+import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
 function Patientform() {
     const tokenUsuario = getAccessToken()
     const [patientData, setpatientData] = useState({
@@ -37,7 +39,7 @@ function Patientform() {
         guardian_name: "",
         complement: "",
     })
-
+    const [previewUrl, setPreviewUrl] = useState(AvatarForm); 
     const [fotoFile, setFotoFile] = useState(null);
     const fileRef = useRef(null);
 
@@ -264,7 +266,13 @@ function Patientform() {
             return false;
         }
     };
-
+    const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFotoFile(file);
+    if (file) {
+      setPreviewUrl(URL.createObjectURL(file)); // gera preview temporário
+    }
+  };
 
     return (
         <div className="main-wrapper">
@@ -286,7 +294,7 @@ function Patientform() {
                                     <label>Avatar</label>
                                     <div className="profile-upload">
                                         <div className="upload-img">
-                                            <img alt="" src="assets/img/user.jpg" />
+                                            <img alt="" src={previewUrl} style={{ width: "40px", height: "40px", objectFit: "cover"}} />
                                         </div>
                                         <div className="row">
                                             <div className="col-md-9">
@@ -297,7 +305,8 @@ function Patientform() {
                                                         ref={fileRef}
                                                         accept="image/png, image/jpeg"
                                                         className="form-control"
-                                                        onChange={(e) => setFotoFile(e.target.files[0])} />
+                                                        onChange={handleFileChange}>
+                                                    </input>
                                                 </div>
                                             </div>
                                             <div className="col-md-3">
@@ -306,7 +315,8 @@ function Patientform() {
                                                     onClick={async () => {
                                                         // Remove no frontend
                                                         setpatientData(prev => ({ ...prev, foto_url: "" }));
-                                                        setFotoFile(null); // Limpa no preview
+                                                        setFotoFile(null)
+                                                        setPreviewUrl(AvatarForm); // Limpa no preview
                                                         if (fileRef.current) fileRef.current.value = null;
 
                                                         // Remove no backend e mostra resposta no console
@@ -710,7 +720,7 @@ function Patientform() {
                             <label>Documentos</label>
                             <div className="profile-upload">
                                 <div className="upload-img">
-                                    <img alt="" src="assets/img/user.jpg" />
+                                    <img alt="" src={AnexoDocumento} />
                                 </div>
                                 <div className="row">
                                     <div className="col-md-9">

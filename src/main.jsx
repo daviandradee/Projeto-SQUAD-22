@@ -107,7 +107,7 @@ element: <Login />
     path: "/secretaria",
     element: <SecretariaApp />,
     children: [
-      { index: true, element: <ConsultaList/> },
+      { index: true, element: <SecretariaDashboard/> },
       { path: "secretariaconsultalist", element: <SecretariaConsultaList/>},
       { path: "adicionarconsulta", element: <AdicionarConsulta/>},
       { path: "editarconsulta/:id", element: <EditarConsultas/>},

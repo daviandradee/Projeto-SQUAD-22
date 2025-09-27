@@ -2,6 +2,7 @@ import "../../../assets/css/index.css"
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
+import { getAccessToken } from "../../../utils/auth";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -82,21 +83,24 @@ function SecretariaConsultaList() {
   const anchorRefs = useRef({});
   const [consulta, setConsultas] = useState([]);
   const [search, setSearch] = useState("");
+  const tokenUsuario = getAccessToken()
 
+
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
-    method: "GET",
-    redirect: "follow",
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
   };
-
   useEffect(() => {
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("API result:", result);
-        setConsultas(result.data || []);
-      })
-      .catch((error) => console.log("error", error));
-  }, []);
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setConsultas(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
+
   const handleDelete = async (id) => {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
     if (!confirmDel) return;
@@ -121,7 +125,7 @@ function SecretariaConsultaList() {
 
   const filteredConsultas = consulta.filter((c) => {
     if (!c) return false;
-    const nome = (c.nome || "").toLowerCase();
+    const nome = (c.full_name || "").toLowerCase();
     const cpf = (c.cpf || "").toLowerCase();
     const email = (c.email || "").toLowerCase();
     const q = search.toLowerCase();
@@ -169,8 +173,8 @@ function SecretariaConsultaList() {
                 {filteredConsultas.length > 0 ? (
                   filteredConsultas.map((c) => (
                     <tr key={c.id}>
-                      <td>{c.nome}</td>
-                      <td>{c.data_nascimento}</td>
+                      <td>{c.full_name}</td>
+                      <td>{c.birth_date}</td>
                       <td>Davi Andrade</td>
                       <td>Cardiologista</td>
                       <td>{c.created_at}</td>

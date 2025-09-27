@@ -6,6 +6,9 @@ import supabase from "../../../Supabase";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
+import AvatarForm from "../../../../public/img/AvatarForm.jpg"
+import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
+
 function PacienteEditar() {
     //testando
     const tokenUsuario = getAccessToken()
@@ -71,7 +74,7 @@ function PacienteEditar() {
         }));
     };
         const buscarCep = (e) => {
-        const cep = patientData.cep.replace(/\D/g, '');
+        const cep = patients.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
@@ -80,7 +83,7 @@ function PacienteEditar() {
                 // salvando os valores para depois colocar nos inputs
                 setValuesFromCep(data)
                 // estou salvando os valoeres no patientData
-                setpatientData((prev) => ({
+                setpatients((prev) => ({
                     ...prev,
                     city: data.localidade || '',
                     street: data.logradouro || '',
@@ -150,7 +153,6 @@ function PacienteEditar() {
             return;
         }
         // aqui estou fazendo o update
-
     };
 
     return (
@@ -171,7 +173,7 @@ function PacienteEditar() {
                                     <label>Avatar</label>
                                     <div className="profile-upload">
                                         <div className="upload-img">
-                                            <img alt="" src={preview || "assets/img/user.jpg"} />
+                                            <img alt="" src={preview || AvatarForm} />
                                         </div>
                                         <div className="row">
                                             <div className="col-md-9">
@@ -410,7 +412,7 @@ function PacienteEditar() {
                                     </div>
                                     <div className="form-check-inline">
                                         <label className="form-check-label">
-                                            <input type="radio" name="sex" className="form-check-input"
+                                            <input type="radio" id="sex" name="sex" className="form-check-input"
                                                 value={"Feminino"}
                                                 checked={patients.sex === "Feminino"}
                                                 onChange={handleChange}
@@ -419,7 +421,7 @@ function PacienteEditar() {
                                     </div>
                                     <div className="form-check-inline">
                                         <label className="form-check-label">
-                                            <input type="radio" name="sex" className="form-check-input"
+                                            <input type="radio" id="sex" name="sex" className="form-check-input"
                                                 value={"Outro"}
                                                 checked={patients.sex === "Outro"}
                                                 onChange={handleChange}
@@ -597,7 +599,7 @@ function PacienteEditar() {
                             <label>Documentos</label>
                             <div className="profile-upload">
                                 <div className="upload-img">
-                                    <img alt="" src="assets/img/user.jpg" />
+                                    <img alt="" src={AnexoDocumento} />
                                 </div>
                                 <div className="upload-input">
                                     <input type="file" accept="image/png, image/jpeg" className="form-control" />
