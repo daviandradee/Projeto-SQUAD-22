@@ -3,14 +3,16 @@ import { useEffect } from "react";
 import "../../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../../Supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
+import Swal from "sweetalert2";
 
 function PacienteEditar() {
     //testando
+    const navigate = useNavigate()
     const tokenUsuario = getAccessToken()
     const [patients, setpatients] = useState([""])
     const { id } = useParams()
@@ -45,23 +47,50 @@ function PacienteEditar() {
     }, [patients.foto_url]);
 
     const handleEdit = async (e) => {
-        var myHeaders = new Headers();
-        myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-        myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-        myHeaders.append("Content-Type", "application/json");
+        e.preventDefault()
+        Swal.fire({
+            title: "Você deseja salvar as alterações?",
+            showDenyButton: true,
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Salvar",
+            denyButtonText: "Não salvar",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    var myHeaders = new Headers();
+                    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+                    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+                    myHeaders.append("Content-Type", "application/json");
+                    var raw = JSON.stringify(patients);
 
-        var raw = JSON.stringify(patients)
-        var requestOptions = {
-            method: 'PATCH',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-        };
+                    var requestOptions = {
+                        method: "PATCH",
+                        headers: myHeaders,
+                        body: raw,
+                        redirect: "follow",
+                    };
 
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.log('error', error));
+                    const response = await fetch(
+                        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+                        requestOptions
+                    );
+
+                    if (response.ok) {
+                        Swal.fire("Salvo!", "", "success").then(() => {
+                            navigate("/secretaria/pacientelista")
+                        })
+                    } else {
+                        Swal.fire("Error saving changes", "", "error");
+                    }
+                } catch (error) {
+                    Swal.fire("Something went wrong", "", "error");
+                    console.error(error);
+                }
+            } else if (result.isDenied) {
+                Swal.fire("As alterações não foram salvas", "", "info");
+            }
+        });
     }
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
@@ -73,7 +102,7 @@ function PacienteEditar() {
             [name]: value
         }));
     };
-        const buscarCep = (e) => {
+    const buscarCep = (e) => {
         const cep = patients.cep.replace(/\D/g, '');
         console.log(cep);
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
@@ -403,7 +432,7 @@ function PacienteEditar() {
                                     <label className="gen-label">Sexo:</label>
                                     <div className="form-check-inline">
                                         <label className="form-check-label">
-                                            <input type="radio" id= "sex" name="sex" className="form-check-input"
+                                            <input type="radio" id="sex" name="sex" className="form-check-input"
                                                 value={"Masculino"}
                                                 checked={patients.sex === "Masculino"}
                                                 onChange={handleChange}
@@ -610,12 +639,12 @@ function PacienteEditar() {
 
 
                         <div className="m-t-20 text-center">
-                            <Link to="/secretaria/pacientelista">
-                                <button
-                                    className="btn btn-primary submit-btn"
-                                    onClick={handleEdit}
-                                >Editar Paciente</button>
-                            </Link>
+
+                            <button
+                                className="btn btn-primary submit-btn"
+                                onClick={handleEdit}
+                            >Editar Paciente</button>
+
                         </div>
                     </form>
                 </div>
