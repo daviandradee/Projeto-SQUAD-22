@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import "../../assets/css/index.css";
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Swal from 'sweetalert2';
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -126,10 +127,26 @@ function LaudoList() {
   const anchorRefs = useRef({});
 
   const handleDelete = (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir este laudo?")) return;
+  Swal.fire({
+  title: "Tem certeza?",
+  text: "Tem certeza que deseja excluir este registro?",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Sim, excluir"
+}).then(async (result) => {
+  if (result.isConfirmed) {
     setLaudos(prev => prev.filter(l => l.id !== id));
     setOpenDropdown(null);
-  };
+    Swal.fire({
+      title: "Registro Excluído",
+      text: "Registro excluído com sucesso",
+      icon: "success"
+    });
+  }
+});
+  }
 
   const filteredLaudos = laudos.filter(l => {
     const q = search.toLowerCase();

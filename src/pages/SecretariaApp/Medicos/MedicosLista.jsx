@@ -2,6 +2,7 @@ import "../../../assets/css/index.css";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../../Supabase";
+import Swal from 'sweetalert2';
 
 function MedicosLista() {
   const [doctors, setDoctors] = useState([]);
@@ -22,12 +23,36 @@ function MedicosLista() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Tem certeza que deseja excluir este médico?")) {
-      const { error } = await supabase.from("Doctor").delete().eq("id", id);
-      if (error) console.error("Erro ao deletar médico:", error);
-      else setDoctors(doctors.filter((doc) => doc.id !== id));
+  Swal.fire({
+    title: "Tem certeza?",
+    text: "Tem certeza que deseja excluir este registro?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sim, excluir",
+    cancelButtonText: "Cancelar"
+  }).then(async (result) => {
+    try {
+    if (result.isConfirmed) {
+    const { error } = await supabase.from("Doctor").delete().eq("id", id);
+
+    if (error) {
+      console.error("Erro ao deletar médico:", error);
+      Swal.fire("Erro!", "Não foi possível excluir o registro.", "error");
+    } else {
+      setDoctors(doctors.filter((doc) => doc.id !== id));
+      Swal.fire("Excluído!", "O registro foi removido com sucesso.", "success");
     }
-  };
+  }
+}
+  catch (error) {
+    Swal.fire("Something went wrong", "", "error");
+    console.error(error);
+  }
+  });
+};
+
 
   return (
       <div className="content">
