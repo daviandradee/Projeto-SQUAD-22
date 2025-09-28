@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import supabase from "../../../Supabase";
 import { getAccessToken } from "../../../utils/auth";
+import Swal from "sweetalert2";
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -102,33 +103,53 @@ function PatientList() {
       .catch(error => console.log('error', error));
   }, [])
 
-  // Exemplo simples de delete local (confirmação + remove do state)
   const handleDelete = async (id) => {
-    const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
-    if (!confirmDel) return;
-
-    var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-
-    var requestOptions = {
-      method: 'DELETE',
-      headers: myHeaders,
-      redirect: 'follow'
-    };
-
-
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
-
-    // Se quiser apagar no supabase, faça a chamada aqui.
-    // const { error } = await supabase.from("Patient").delete().eq("id", id);
-    // if (error) { console.error(error); return; }
-
-    setPatients((prev) => prev.filter((p) => p.id !== id));
-    setOpenDropdown(null);
+    Swal.fire({
+          title: "Tem certeza?",
+          text: "Tem certeza que deseja excluir este registro?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sim, excluir"
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+                var myHeaders = new Headers();
+                myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+                myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+    
+                var requestOptions = {
+                method: 'DELETE',
+                headers: myHeaders,
+                redirect: 'follow'
+                };
+    
+                const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
+    
+                if (response.ok) {
+                setPatients(prev => prev.filter(l => l.id !== id));
+                setOpenDropdown(null);
+                Swal.fire({
+                title: "Registro Excluído",
+                text: "Registro excluído com sucesso",
+                icon: "success"
+                })
+    
+            } else {
+              Swal.fire("Error saving changes", "", "error");
+            }
+          }
+            catch (error) {
+              Swal.fire("Something went wrong", "", "error");
+              console.error(error);
+            }
+          }
+        });
+    
+        // Se quiser apagar no supabase, faça a chamada aqui.
+        // const { error } = await supabase.from("Patient").delete().eq("id", id);
+        // if (error) { console.error(error); return; }
   };
 
   const filteredPatients = patients.filter((p) => {
