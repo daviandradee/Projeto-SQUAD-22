@@ -4,6 +4,7 @@ import { useState } from "react";
 import supabase from "../../../Supabase";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function DoctorForm() {
 
@@ -63,7 +64,11 @@ function DoctorForm() {
       console.error("Erro ao cadastrar doutor:", error);
       alert(`Erro ao cadastrar doutor: ${error.message}`);
     } else {
-      alert("Doutor cadastrado com sucesso!");
+       Swal.fire({
+                    title: "Médico cadastrado!",
+                     icon: "success",
+                     draggable: true
+            });
       navigate("/admin/doctorlist");
     }
   };

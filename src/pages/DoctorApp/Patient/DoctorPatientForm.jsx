@@ -3,6 +3,7 @@ import "../../../assets/css/index.css"
 import { withMask } from "use-mask-input";
 import supabase from "../../../Supabase";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function DoctorPatientForm() {
     const [patientData, setpatientData] = useState({
@@ -210,7 +211,11 @@ function DoctorPatientForm() {
                 }
             }
 
-            alert("paciente cadastrado")
+            Swal.fire({
+                title: "Paciente cadastrado!",
+                 icon: "success",
+                 draggable: true
+        });
             navigate("/doctor/patients")
         })
         .catch(error => console.log('error', error));
