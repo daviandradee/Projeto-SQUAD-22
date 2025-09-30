@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { withMask } from "use-mask-input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import "../../../assets/css/index.css";
+import Swal from 'sweetalert2';
 
 function AgendaEdit() {
   const [minDate, setMinDate] = useState("");
@@ -16,6 +17,30 @@ function AgendaEdit() {
 
     setMinDate(getToday());
   }, []);
+
+const navigate = useNavigate();
+
+const handleEdit = async () => {
+  const result = await Swal.fire({
+    title: "Você deseja salvar as alterações?",
+    showDenyButton: true,
+    showCancelButton: true,
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Salvar",
+    denyButtonText: "Não salvar",
+  });
+
+  if (result.isConfirmed) {
+    // Caso o usuário confirme, envie os dados para o backend
+    Swal.fire("Salvo!", "Consulta atualizada com sucesso.", "success").then(() => {
+      navigate("/admin/agendalist");
+    });
+  } else if (result.isDenied) {
+    Swal.fire("Alterações descartadas", "Nenhuma alteração foi salva.", "info");
+  }
+
+
+};
 
   return (
     <div className="main-wrapper">
@@ -195,12 +220,10 @@ function AgendaEdit() {
                   </div>
                 </div>
 
-                <div className="m-t-20 text-center">
-                  <Link to="/admin/agendalist">
-                    <button className="btn btn-primary submit-btn" type="button">
-                      Salvar
-                    </button>
-                  </Link>
+               <div className="m-t-20 text-center">
+                  <button className="btn btn-primary submit-btn" type="button" onClick={handleEdit}>
+                    Salvar
+                   </button>
                 </div>
               </form>
             </div>

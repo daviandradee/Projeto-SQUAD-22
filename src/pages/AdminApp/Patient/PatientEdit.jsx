@@ -45,24 +45,51 @@ function PatientEdit() {
     }, [patients.foto_url]);
 
     const handleEdit = async (e) => {
-        var myHeaders = new Headers();
-        myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-        myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-        myHeaders.append("Content-Type", "application/json");
-
-        var raw = JSON.stringify(patients)
-        var requestOptions = {
-            method: 'PATCH',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-        };
-
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.log('error', error));
-    }
+            e.preventDefault()
+            Swal.fire({
+                title: "Você deseja salvar as alterações?",
+                showDenyButton: true,
+                showCancelButton: true,
+                cancelButtonText: "Cancelar",
+                confirmButtonText: "Salvar",
+                denyButtonText: "Não salvar",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        var myHeaders = new Headers();
+                        myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+                        myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+                        myHeaders.append("Content-Type", "application/json");
+                        var raw = JSON.stringify(patients);
+    
+                        var requestOptions = {
+                            method: "PATCH",
+                            headers: myHeaders,
+                            body: raw,
+                            redirect: "follow",
+                        };
+    
+                        const response = await fetch(
+                            `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+                            requestOptions
+                        );
+    
+                        if (response.ok) {
+                            Swal.fire("Salvo!", "", "success").then(() => {
+                                navigate("/admin/patientlist");
+                            })
+                        } else {
+                            Swal.fire("Error saving changes", "", "error");
+                        }
+                    } catch (error) {
+                        Swal.fire("Something went wrong", "", "error");
+                        console.error(error);
+                    }
+                } else if (result.isDenied) {
+                    Swal.fire("As alterações não foram salvas", "", "info");
+                }
+            });
+        }
     // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
     // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
     // prev= pega o valor anterio

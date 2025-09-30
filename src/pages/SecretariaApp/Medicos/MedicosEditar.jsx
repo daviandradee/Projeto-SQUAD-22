@@ -2,12 +2,14 @@ import "../../../assets/css/index.css";
 import { withMask } from "use-mask-input";
 import { useState } from "react";
 import supabase from "../../../Supabase";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 function MedicosEditar() {
     const [doctors, setdoctors] = useState([]);
+    const navigate = useNavigate()
 
     const {id} = useParams()
     useEffect(() => {
@@ -35,12 +37,43 @@ function MedicosEditar() {
     }));
   }
   const handleEdit = async (e) => {
-    const { data, error } = await supabase
-      .from("Doctor")
-      .update([doctors])
-      .eq ('id', id)
-      .single()
-    
+    e.preventDefault();
+
+    const result = await Swal.fire({
+      title: "Deseja salvar as alterações?",
+      text: "As modificações serão salvas permanentemente.",
+      icon: "question",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Salvar",
+      denyButtonText: `Não salvar`,
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const { data, error } = await supabase
+          .from("Doctor")
+          .update([doctors])
+          .eq("id", id)
+          .single();
+
+        if (error) throw error;
+
+        await Swal.fire("Salvo!", "As alterações foram salvas.", "success");
+        navigate("/secretaria/medicoslista");
+      
+      } catch (err) {
+        console.error("Erro ao editar:", err);
+        Swal.fire("Erro!", "Não foi possível salvar as alterações.", "error");
+      }
+
+
+    } else if (result.isDenied) {
+      Swal.fire("Alterações não salvas", "", "info");
+    }
+
+
   };
 
   const buscarCep = (e) => {
