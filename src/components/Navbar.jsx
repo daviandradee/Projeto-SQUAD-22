@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import "../assets/css/index.css"
 import { Link } from "react-router-dom";
 
-function Navbar() {
+function Navbar({ onMenuClick }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -73,7 +73,12 @@ function Navbar() {
         </Link>
       </div>
 
-      <a id="mobile_btn" className="mobile_btn float-left" href="#sidebar">
+      <a id="mobile_btn" className="mobile_btn float-left" href="#sidebar"
+      onClick={(e) => {
+                        e.preventDefault(); // Impede a navegação
+                        onMenuClick();      // Executa a função do componente pai
+                    }}
+      >
         <i className="fa fa-bars"></i>
       </a>
 
