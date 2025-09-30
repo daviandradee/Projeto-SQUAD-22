@@ -20,9 +20,12 @@ function AgendaEdit() {
 
 const navigate = useNavigate();
 
-const handleEdit = async () => {
+const handleEdit = async (e) => {
+  e.preventDefault()
   const result = await Swal.fire({
     title: "Você deseja salvar as alterações?",
+    text: "As modificações serão salvas permanentemente.",
+    icon: "question",
     showDenyButton: true,
     showCancelButton: true,
     cancelButtonText: "Cancelar",

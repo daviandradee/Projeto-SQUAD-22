@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { withMask } from "use-mask-input";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
+import Swal from "sweetalert2";
 
 function EditarConsultas() {
   const tokenUsuario = getAccessToken()
   const { id } = useParams()
   const [minDate, setMinDate] = useState("");
   const [consultas, setConsultas] = useState([])
+  const navigate = useNavigate()
+
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
@@ -39,6 +42,30 @@ function EditarConsultas() {
 
     setMinDate(getToday());
   }, []);
+
+const handleEdit = async (e) => {
+  e.preventDefault()
+  const result = await Swal.fire({
+    title: "Você deseja salvar as alterações?",
+    text: "As modificações serão salvas permanentemente.",
+    icon: "question",
+    showDenyButton: true,
+    showCancelButton: true,
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Salvar",
+    denyButtonText: "Não salvar",
+  });
+
+  if (result.isConfirmed) {
+    // Caso o usuário confirme, envie os dados para o backend
+    Swal.fire("Salvo!", "Consulta atualizada com sucesso.", "success").then(() => {
+      navigate("/secretaria/secretariaconsultalist");
+    });
+  } else if (result.isDenied) {
+    Swal.fire("Alterações descartadas", "Nenhuma alteração foi salva.", "info");
+  }
+
+  };
 
   return (
     <div className="content">
@@ -226,11 +253,9 @@ function EditarConsultas() {
             </div>
 
             <div className="m-t-20 text-center">
-              <Link to="/secretaria/secretariaconsultalist">
-                <button className="btn btn-primary submit-btn" type="button">
-                  Salvar
-                </button>
-              </Link>
+              <button className="btn btn-primary submit-btn" type="button" onClick={handleEdit}>
+                Salvar
+              </button>
             </div>
           </form>
         </div>
