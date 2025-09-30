@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
+import Swal from "sweetalert2";
 
 function PacienteForm() {
     const tokenUsuario = getAccessToken()
@@ -163,7 +164,11 @@ function PacienteForm() {
             .then(response => response.text())
             .then(result => {
                 console.log(result);
-                alert("paciente cadastrado");
+                Swal.fire({
+                    title: "Paciente cadastrado!",
+                     icon: "success",
+                        draggable: true
+            });
                 navigate("/secretaria/pacientelista");
                 console.log(patientData);
             })
