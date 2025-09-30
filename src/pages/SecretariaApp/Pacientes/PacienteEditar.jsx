@@ -50,6 +50,8 @@ function PacienteEditar() {
         e.preventDefault()
         Swal.fire({
             title: "Você deseja salvar as alterações?",
+            text: "As modificações serão salvas permanentemente.",
+            icon: "question",
             showDenyButton: true,
             showCancelButton: true,
             cancelButtonText: "Cancelar",
