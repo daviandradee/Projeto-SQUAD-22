@@ -1,9 +1,20 @@
 import '../assets/css/index.css'
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 function Sidebar() {
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+  
+      // 2. Adicione a função para alternar o estado
+      const toggleSidebar = () => {
+          setSidebarOpen(!isSidebarOpen);
+      };
+  
+      // 3. Crie a string de classe que será aplicada dinamicamente
+      const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
     return (
         <div>
+            <div className={mainWrapperClass}>
             <div className="sidebar" id="sidebar">
                 <div className="sidebar-inner slimscroll">
                     <div id="sidebar-menu" className="sidebar-menu">
@@ -61,6 +72,7 @@ function Sidebar() {
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 }

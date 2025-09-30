@@ -933,6 +933,36 @@ textarea.form-control {
 .mobile_btn {
 	display: none;
 }
+@media (max-width: 991.98px) {
+    
+    /* Faz o botão de menu (hambúrguer) aparecer */
+    .mobile_btn {
+        display: block; /* Ou 'inline-block', dependendo do seu layout */
+        float: left;
+        color: white; /* Ajuste a cor para combinar com seu header */
+        font-size: 24px;
+        line-height: 50px; /* Centraliza verticalmente (use a altura do header) */
+        padding: 0 15px;
+        cursor: pointer; /* Muda o cursor para indicar que é clicável */
+    }
+    
+    /* 1. Por padrão, em mobile, a sidebar fica ESCONDIDA para a esquerda */
+    .sidebar {
+        transform: translateX(-100%); /* Move a sidebar totalmente para fora da tela */
+        z-index: 1040; /* Garante que a sidebar fique na frente do conteúdo */
+    }
+
+    /* 2. REGRA PRINCIPAL: Quando a classe 'sidebar-open' é adicionada ao
+          'main-wrapper', a sidebar desliza para dentro da tela */
+    .main-wrapper.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    /* 3. Em mobile, o conteúdo principal não deve ser "empurrado" pela sidebar */
+    .page-wrapper {
+        margin-left: 0 !important;
+    }
+}
 .sidebar .sidebar-menu > ul > li > a span {
 	transition: all 0.2s ease-in-out 0s;
 	display: inline-block;
@@ -4567,7 +4597,6 @@ blockquote p {
 		display: none;
 	}
 	.sidebar {
-		margin-left: -225px;
 		width: 225px;
 	}
 	.page-wrapper {
@@ -4767,10 +4796,9 @@ blockquote p {
 		height: 120px;
 	}
 	.table-responsive {
-		display: block;
 		width: 100%;
-		overflow-x: auto;
-		-ms-overflow-style: -ms-autohiding-scrollbar;
+    overflow-x: auto; /* A mágica acontece aqui! */
+    -webkit-overflow-scrolling: touch;
 	}
 	.header .has-arrow .dropdown-toggle > span:nth-child(2) {
 		display: none;

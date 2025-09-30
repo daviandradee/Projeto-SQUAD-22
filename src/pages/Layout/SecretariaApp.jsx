@@ -1,11 +1,22 @@
 import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from '../../components/Navbar'
+import React, { useState } from 'react';
 
 function SecretariaApp() {
+  // 1. Adicione o estado para controlar a sidebar
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+
+    // 2. Adicione a função para alternar o estado
+    const toggleSidebar = () => {
+        setSidebarOpen(!isSidebarOpen);
+    };
+
+    // 3. Crie a string de classe que será aplicada dinamicamente
+    const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
   return (
-    <div className="main-wrapper">
-      <Navbar />
+    <div className={mainWrapperClass}>
+      <Navbar onMenuClick={toggleSidebar} />
       {/* Sidebar */}
       <div className="sidebar" id="sidebar">
         <div className="sidebar-inner slimscroll">
