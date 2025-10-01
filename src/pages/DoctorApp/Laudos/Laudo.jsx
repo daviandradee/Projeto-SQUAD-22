@@ -139,11 +139,21 @@ function LaudoList() {
 
     return textMatch && dateMatch;
   });
-
+  const [itemsPerPage1] = useState(2);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastLaudos = currentPage1 * itemsPerPage1;
+  const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
+  const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
+  const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
+   useEffect(() => {
+        setCurrentPage1(1);
+      }, [search]);
+      
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
     return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
   };
+  
 
   return (
     <div className="content">
@@ -205,7 +215,7 @@ function LaudoList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLaudos.length > 0 ? filteredLaudos.map(l => (
+                {currentLaudos.length > 0 ? currentLaudos.map(l => (
                   <tr key={l.id}>
                     <td className="nowrap">{l.pedido}</td>
                     <td className="nowrap">{l.data}</td>
@@ -242,6 +252,51 @@ function LaudoList() {
               </tbody>
             </table>
           </div>
+           <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "../../../assets/css/index.css"
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import {getAccessToken} from "../../../utils/auth"
+import { getAccessToken } from "../../../utils/auth"
 import Swal from 'sweetalert2';
 
 
@@ -89,6 +89,28 @@ function PacienteLista() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
 
+const filteredPatients = patients.filter(p => {
+  if (!p) return false;
+  const nome = (p.full_name || "").toLowerCase();
+  const cpf = (p.cpf || "").toLowerCase();
+  const email = (p.email || "").toLowerCase();
+  const q = search.toLowerCase();
+  return nome.includes(q) || cpf.includes(q) || email.includes(q);
+});
+const [itemsPerPage1] = useState(10);
+const [currentPage1, setCurrentPage1] = useState(1);
+const indexOfLastPatient = currentPage1 * itemsPerPage1;
+const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+useEffect(() => {
+  setCurrentPage1(1);
+}, [search]);
+
+  
+
+
+
   // guarda referência do botão de cada linha
 
 
@@ -107,7 +129,7 @@ function PacienteLista() {
       .catch(error => console.log('error', error));
   }, [])
 
-  
+
   const handleDelete = async (id) => {
     Swal.fire({
       title: "Tem certeza?",
@@ -120,31 +142,31 @@ function PacienteLista() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-            var myHeaders = new Headers();
-            myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-            myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+          var myHeaders = new Headers();
+          myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+          myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
-            var requestOptions = {
+          var requestOptions = {
             method: 'DELETE',
             headers: myHeaders,
             redirect: 'follow'
-            };
+          };
 
-            const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
+          const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
 
-            if (response.ok) {
+          if (response.ok) {
             setPatients(prev => prev.filter(l => l.id !== id));
             setOpenDropdown(null);
             Swal.fire({
-            title: "Registro Excluído",
-            text: "Registro excluído com sucesso",
-            icon: "success"
+              title: "Registro Excluído",
+              text: "Registro excluído com sucesso",
+              icon: "success"
             })
 
-        } else {
-          Swal.fire("Error saving changes", "", "error");
+          } else {
+            Swal.fire("Error saving changes", "", "error");
+          }
         }
-      }
         catch (error) {
           Swal.fire("Something went wrong", "", "error");
           console.error(error);
@@ -157,14 +179,7 @@ function PacienteLista() {
     // if (error) { console.error(error); return; }
   };
 
-  const filteredPatients = patients.filter((p) => {
-    if (!p) return false;
-    const nome = (p.full_name || "").toLowerCase();
-    const cpf = (p.cpf || "").toLowerCase();
-    const email = (p.email || "").toLowerCase();
-    const q = search.toLowerCase();
-    return nome.includes(q) || cpf.includes(q) || email.includes(q);
-  });
+  
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -210,8 +225,8 @@ function PacienteLista() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPatients.length > 0 ? (
-                  filteredPatients.map((p) => (
+                {currentPatients.length > 0 ? (
+                  currentPatients.map((p) => (
                     <tr key={p.id}>
                       <td>{p.full_name}</td>
                       <td>{mascararCPF(p.cpf)}</td>
@@ -283,6 +298,52 @@ function PacienteLista() {
               </tbody>
             </table>
           </div>
+          <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+              
+            </ul>
+          </nav>
         </div>
       </div>
     </div>

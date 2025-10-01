@@ -5,57 +5,31 @@ import { getAccessToken } from "../../utils/auth";
 function SecretariaDashboard() {
     const [patients, setPatients] = useState([]);
     const [medico, setMedico] = useState([])
-    const [count, setCount] = useState(0);
+    const [consulta, setConsulta] = useState([])
+    const [countPaciente, setCountPaciente] = useState(0);
+    const [countMedico, setCountMedico] = useState(0);
     const tokenUsuario = getAccessToken()
 
     const [currentPage1, setCurrentPage1] = useState(1);
-    const [itemsPerPage1] = useState(5);
-
+    const [itemsPerPage1] = useState(4);
     const indexOfLastPatient = currentPage1 * itemsPerPage1;
     const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
     const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
-
     const totalPages1 = Math.ceil(patients.length / itemsPerPage1);
 
     const [currentPage2, setCurrentPage2] = useState(1);
     const [itemsPerPage2] = useState(5);
-
     const indexOfLastDoctor = currentPage2 * itemsPerPage2;
     const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
     const currentMedicos = medico.slice(indexOfFirstDoctor, indexOfLastDoctor);
-
     const totalPages2 = Math.ceil(medico.length / itemsPerPage2);
 
-    function getPageNumbers(currentPage, totalPages) {
-        const delta = 1;
-        const range = [];
-        const rangeWithDots = [];
-        let l;
-
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
-                range.push(i);
-            }
-        }
-
-        for (let i of range) {
-            if (l) {
-                if (i - l === 2) {
-                    rangeWithDots.push(l + 1);
-                } else if (i - l !== 1) {
-                    rangeWithDots.push("...");
-                }
-            }
-            rangeWithDots.push(i);
-            l = i;
-        }
-
-        return rangeWithDots;
-    }
-    const pageNumbers1 = getPageNumbers(currentPage1, totalPages1);
-    const pageNumbers2 = getPageNumbers(currentPage2, totalPages2);
-
-
+    const [currentPage3, setCurrentPage3] = useState(1);
+    const [itemsPerPage3] = useState(5);
+    const indexOfLastConsulta = currentPage3 * itemsPerPage3;
+    const indexOfFirstConsulta = indexOfLastConsulta - itemsPerPage3;
+    const currentConsulta = consulta.slice(indexOfFirstConsulta, indexOfLastConsulta);
+    const totalPages3 = Math.ceil(consulta.length / itemsPerPage3);
 
     var myHeaders = new Headers();
     myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
@@ -68,13 +42,12 @@ function SecretariaDashboard() {
     useEffect(() => {
         fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
             .then(response => response.json())
-            .then(result => setPatients(Array.isArray(result) ? result : []))
-            .catch(error => console.log('error', error));
+            .then(result => {
+                setPatients(Array.isArray(result) ? result : [])
+                setConsulta(Array.isArray(result) ? result : [])
+            })
+            .catch(error => console.log("error", error))
     }, [])
-    useEffect(() => {
-        setCount(patients.length);
-    }, [patients]);
-
     var myHeaders = new Headers();
     myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
     myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
@@ -89,9 +62,13 @@ function SecretariaDashboard() {
             .then(result => setMedico(Array.isArray(result) ? result : []))
             .catch(error => console.log('error', error));
     }, [])
+
     useEffect(() => {
-        setCount(medico.length);
-    }, [medico]);
+        setCountPaciente(patients.length);
+    });
+    useEffect(() => {
+        setCountMedico(medico.length);
+    });
 
 
     return (
@@ -104,7 +81,7 @@ function SecretariaDashboard() {
                     <div className="dash-widget">
                         <span className="dash-widget-bg2"><i className="fa fa-user-o"></i></span>
                         <div className="dash-widget-info text-right">
-                            <h3>{count}</h3>
+                            <h3>{countPaciente}</h3>
                             <span className="widget-title2">Patients <i className="" aria-hidden="true"></i></span>
                         </div>
                     </div>
@@ -113,7 +90,7 @@ function SecretariaDashboard() {
                     <div className="dash-widget">
                         <span className="dash-widget-bg1"><i className="fa fa-stethoscope" aria-hidden="true"></i></span>
                         <div className="dash-widget-info text-right">
-                            <h3>6</h3>
+                            <h3>{countMedico}</h3>
                             <span className="widget-title1">Medicos <i className="" aria-hidden="true"></i></span>
                         </div>
                     </div>
@@ -122,7 +99,7 @@ function SecretariaDashboard() {
                     <div className="dash-widget">
                         <span className="dash-widget-bg3"><i className="fa fa-user-md" aria-hidden="true"></i></span>
                         <div className="dash-widget-info text-right">
-                            <h3>{count}</h3>
+                            <h3>{countPaciente}</h3>
                             <span className="widget-title3">Consultas <i className="" aria-hidden="true"></i></span>
                         </div>
                     </div>
@@ -155,8 +132,8 @@ function SecretariaDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {currentPatients.length > 0 ? (
-                                            currentPatients.map((p) => (
+                                        {currentConsulta.length > 0 ? (
+                                            currentConsulta.map((p) => (
                                                 <tr key={p.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
@@ -195,17 +172,17 @@ function SecretariaDashboard() {
                         <nav className="mt-3">
                             <ul className="pagination justify-content-center">
                                 {/* Ir para a primeira página */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                                <li className={`page-item ${currentPage3 === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage3(1)}>
                                         {"<<"} {/* ou "Início" */}
                                     </button>
                                 </li>
 
                                 {/* Botão de página anterior */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                <li className={`page-item ${currentPage3 === 1 ? "disabled" : ""}`}>
                                     <button
                                         className="page-link"
-                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                                        onClick={() => currentPage3 > 1 && setCurrentPage3(currentPage3 - 1)}
                                     >
                                         &lt;
                                     </button>
@@ -214,14 +191,14 @@ function SecretariaDashboard() {
                                 {/* Números de página */}
 
                                 <li className="page-item active">
-                                    <span className="page-link">{currentPage1}</span>
+                                    <span className="page-link">{currentPage3}</span>
                                 </li>
                                 {/* Botão de próxima página */}
-                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                <li className={`page-item ${currentPage3 === totalPages3 ? "disabled" : ""}`}>
                                     <button
                                         className="page-link"
                                         onClick={() =>
-                                            currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                                            currentPage1 < totalPages3 && setCurrentPage3(currentPage3 + 1)
                                         }
                                     >
                                         &gt;
@@ -230,8 +207,8 @@ function SecretariaDashboard() {
 
 
                                 {/* Ir para a última página */}
-                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                                <li className={`page-item ${currentPage3 === totalPages3 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage3(totalPages3)}>
                                         {">>"} {/* ou "Fim" */}
                                     </button>
                                 </li>
@@ -257,8 +234,8 @@ function SecretariaDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {medico.length > 0 ? (
-                                            medico.map((m) => (
+                                        {currentMedicos.length > 0 ? (
+                                            currentMedicos.map((m) => (
                                                 <tr key={m.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
@@ -347,8 +324,8 @@ function SecretariaDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {patients.length > 0 ? (
-                                            patients.map((p) => (
+                                        {currentPatients.length > 0 ? (
+                                            currentPatients.map((p) => (
                                                 <tr key={p.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
@@ -372,54 +349,54 @@ function SecretariaDashboard() {
                                 </table>
                             </div>
                         </div>
+                        <nav className="mt-3">
+                        <ul className="pagination justify-content-center">
+                            {/* Ir para a primeira página */}
+                            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                                    {"<<"} {/* ou "Início" */}
+                                </button>
+                            </li>
+
+                            {/* Botão de página anterior */}
+                            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                                >
+                                    &lt;
+                                </button>
+                            </li>
+
+                            {/* Números de página */}
+
+                            <li className="page-item active">
+                                <span className="page-link">{currentPage1}</span>
+                            </li>
+                            {/* Botão de próxima página */}
+                            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() =>
+                                        currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                                    }
+                                >
+                                    &gt;
+                                </button>
+                            </li>
+
+
+                            {/* Ir para a última página */}
+                            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                                    {">>"} {/* ou "Fim" */}
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                     </div>
-                    <nav className="mt-3">
-                            <ul className="pagination justify-content-center">
-                                {/* Ir para a primeira página */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                                        {"<<"} {/* ou "Início" */}
-                                    </button>
-                                </li>
-
-                                {/* Botão de página anterior */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                                    >
-                                        &lt;
-                                    </button>
-                                </li>
-
-                                {/* Números de página */}
-
-<li className="page-item active">
-    <span className="page-link">{currentPage1}</span>
-  </li>
-                                {/* Botão de próxima página */}
-                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() =>
-                                            currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                                        }
-                                    >
-                                        &gt;
-                                    </button>
-                                </li>
-                                
-
-                                {/* Ir para a última página */}
-                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                                        {">>"} {/* ou "Fim" */}
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
                 </div>
-                
+
             </div>
         </div>
     );

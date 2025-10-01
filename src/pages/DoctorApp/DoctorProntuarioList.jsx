@@ -80,22 +80,22 @@ function DoctorPatientList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
   const tokenUsuario = getAccessToken()
-   var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-    var requestOptions = {
-      method: 'GET',
-      headers: myHeaders,
-      redirect: 'follow'
-    };
-    useEffect(() => {
-      fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
-        .then(response => response.json())
-        .then(result => setPatients(Array.isArray(result) ? result : []))
-        .catch(error => console.log('error', error));
-    }, [])
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  useEffect(() => {
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+      .then(response => response.json())
+      .then(result => setPatients(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
 
-  
+
 
   const handleDelete = async (id) => {
     const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
@@ -106,14 +106,24 @@ function DoctorPatientList() {
     setOpenDropdown(null);
   };
 
-  const filteredPatients = patients.filter((p) => {
+  const filteredPatients = patients.filter(p => {
     if (!p) return false;
-    const nome = (p.full_name|| "").toLowerCase();
+    const nome = (p.full_name || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
     const q = search.toLowerCase();
     return nome.includes(q) || cpf.includes(q) || email.includes(q);
   });
+
+  const [itemsPerPage1] = useState(10);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastPatient = currentPage1 * itemsPerPage1;
+  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+  const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+  const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+   useEffect(() => {
+      setCurrentPage1(1);
+    }, [search]);
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -126,7 +136,7 @@ function DoctorPatientList() {
     <div className="content">
       <div className="row ">
         <div className="col-sm-4 col-3">
-          <h4 className="page-title">Lista de Pacientes</h4>
+          <h4 className="page-title">Prontuários</h4>
           <input
             type="text"
             className="form-control"
@@ -135,11 +145,6 @@ function DoctorPatientList() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <br />
-        </div>
-        <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/doctor/patientform" className="btn btn-primary btn-rounded">
-            <i className="fa fa-plus"></i> Adicionar Paciente
-          </Link>
         </div>
       </div>
 
@@ -159,8 +164,8 @@ function DoctorPatientList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPatients.length > 0 ? (
-                  filteredPatients.map((p) => (
+                {currentPatients.length > 0 ? (
+                  currentPatients.map((p) => (
                     <tr key={p.id}>
                       <td>{p.full_name}</td>
                       <td>{mascararCPF(p.cpf)}</td>
@@ -168,24 +173,23 @@ function DoctorPatientList() {
                       <td>{p.phone_mobile}</td>
                       <td>{p.email}</td>
                       <td>
-                        <span className={`badge ${
-                          p.status === 'ativo' ? 'bg-success' : 
-                          p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
-                        }`}>
+                        <span className={`badge ${p.status === 'ativo' ? 'bg-success' :
+                            p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
+                          }`}>
                           {p.status}
                         </span>
                       </td>
                       <td className="text-right">
                         <div className="dropdown dropdown-action" style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
-                          
+
                           {/* BOTÃO DE PRONTUÁRIO - FUNCIONANDO COM DADOS MOCKADOS */}
                           <Link
                             to="/doctor/doctorprontuario/${p.id}"
                             state={{ paciente: p }}
                             className="btn btn-sm btn-info"
                             title="Abrir Prontuário"
-                            style={{ 
-                              padding: "5px 10px", 
+                            style={{
+                              padding: "5px 10px",
                               fontSize: "12px",
                               display: "inline-flex",
                               alignItems: "center",
@@ -246,6 +250,51 @@ function DoctorPatientList() {
               </tbody>
             </table>
           </div>
+          <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
