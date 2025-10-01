@@ -152,14 +152,23 @@ function DoctorPatientList() {
     // if (error) { console.error(error); return; }
   };
 
-  const filteredPatients = patients.filter((p) => {
-    if (!p) return false;
-    const nome = (p.full_name || "").toLowerCase();
-    const cpf = (p.cpf || "").toLowerCase();
-    const email = (p.email || "").toLowerCase();
-    const q = search.toLowerCase();
-    return nome.includes(q) || cpf.includes(q) || email.includes(q);
-  });
+   const filteredPatients = patients.filter(p => {
+      if (!p) return false;
+      const nome = (p.full_name || "").toLowerCase();
+      const cpf = (p.cpf || "").toLowerCase();
+      const email = (p.email || "").toLowerCase();
+      const q = search.toLowerCase();
+      return nome.includes(q) || cpf.includes(q) || email.includes(q);
+    });
+    const [itemsPerPage1] = useState(10);
+    const [currentPage1, setCurrentPage1] = useState(1);
+    const indexOfLastPatient = currentPage1 * itemsPerPage1;
+    const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+    const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+    const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+    useEffect(() => {
+    setCurrentPage1(1);
+  }, [search]);
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -205,8 +214,8 @@ function DoctorPatientList() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatients.length > 0 ? (
-                      filteredPatients.map((p) => (
+                    {currentPatients .length > 0 ? (
+                      currentPatients .map((p) => (
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{mascararCPF(p.cpf)}</td>
@@ -278,6 +287,51 @@ function DoctorPatientList() {
                   </tbody>
                 </table>
               </div>
+              <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
             </div>
           </div>
         </div>

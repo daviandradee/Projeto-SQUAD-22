@@ -152,7 +152,8 @@ function PatientList() {
         // if (error) { console.error(error); return; }
   };
 
-  const filteredPatients = patients.filter((p) => {
+
+  const filteredPatients = patients.filter(p => {
     if (!p) return false;
     const nome = (p.full_name || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
@@ -160,6 +161,17 @@ function PatientList() {
     const q = search.toLowerCase();
     return nome.includes(q) || cpf.includes(q) || email.includes(q);
   });
+  const [itemsPerPage1] = useState(10);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastPatient = currentPage1 * itemsPerPage1;
+  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+  const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+  const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search]);
+
+
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -207,8 +219,8 @@ function PatientList() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatients.length > 0 ? (
-                      filteredPatients.map((p) => (
+                    {currentPatients.length > 0 ? (
+                      currentPatients.map((p) => (
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{mascararCPF(p.cpf)}</td>
@@ -280,6 +292,42 @@ function PatientList() {
                   </tbody>
                 </table>
               </div>
+            <nav className="mt-3">
+  <ul className="pagination justify-content-center">
+    {/* Primeira página */}
+    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+      <button className="page-link" onClick={() => setCurrentPage1(1)}>
+        {"<<"}
+      </button>
+    </li>
+
+    {/* Página anterior */}
+    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>
+        &lt;
+      </button>
+    </li>
+
+    {/* Número da página atual */}
+    <li className="page-item active">
+      <span className="page-link">{currentPage1}</span>
+    </li>
+
+    {/* Próxima página */}
+    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>
+        &gt;
+      </button>
+    </li>
+
+    {/* Última página */}
+    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+        {">>"}
+      </button>
+    </li>
+  </ul>
+</nav>
             </div>
           </div>
         </div>
