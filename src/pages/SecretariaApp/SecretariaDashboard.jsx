@@ -27,6 +27,24 @@ function SecretariaDashboard() {
       setCount(patients.length);
     }, [patients]);
 
+    var myHeaders = new Headers();
+    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+    useEffect(() => {
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors`, requestOptions)
+            .then(response => response.json())
+            .then(result => setMedico(Array.isArray(result) ? result : []))
+            .catch(error => console.log('error', error));
+    }, [])
+    useEffect(() => {
+      setCount(medico.length);
+    }, [medico]);
+
 
     return (
 
@@ -150,10 +168,10 @@ function SecretariaDashboard() {
                                                 <tr key={m.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{m.nome}</h2>
+                                                        <h2>{m.full_name}</h2>
                                                     </td>
                                                     <td>{m.email}</td>
-                                                    <td>{m.telefone}</td>
+                                                    <td>{m.phone_mobile}</td>
 
 
                                                     <td className="text-center">
