@@ -7,7 +7,55 @@ function SecretariaDashboard() {
     const [medico, setMedico] = useState([])
     const [count, setCount] = useState(0);
     const tokenUsuario = getAccessToken()
-    
+
+    const [currentPage1, setCurrentPage1] = useState(1);
+    const [itemsPerPage1] = useState(5);
+
+    const indexOfLastPatient = currentPage1 * itemsPerPage1;
+    const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+    const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
+
+    const totalPages1 = Math.ceil(patients.length / itemsPerPage1);
+
+    const [currentPage2, setCurrentPage2] = useState(1);
+    const [itemsPerPage2] = useState(5);
+
+    const indexOfLastDoctor = currentPage2 * itemsPerPage2;
+    const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
+    const currentMedicos = medico.slice(indexOfFirstDoctor, indexOfLastDoctor);
+
+    const totalPages2 = Math.ceil(medico.length / itemsPerPage2);
+
+    function getPageNumbers(currentPage, totalPages) {
+        const delta = 1;
+        const range = [];
+        const rangeWithDots = [];
+        let l;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+                range.push(i);
+            }
+        }
+
+        for (let i of range) {
+            if (l) {
+                if (i - l === 2) {
+                    rangeWithDots.push(l + 1);
+                } else if (i - l !== 1) {
+                    rangeWithDots.push("...");
+                }
+            }
+            rangeWithDots.push(i);
+            l = i;
+        }
+
+        return rangeWithDots;
+    }
+    const pageNumbers1 = getPageNumbers(currentPage1, totalPages1);
+    const pageNumbers2 = getPageNumbers(currentPage2, totalPages2);
+
+
 
     var myHeaders = new Headers();
     myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
@@ -24,7 +72,7 @@ function SecretariaDashboard() {
             .catch(error => console.log('error', error));
     }, [])
     useEffect(() => {
-      setCount(patients.length);
+        setCount(patients.length);
     }, [patients]);
 
     var myHeaders = new Headers();
@@ -42,7 +90,7 @@ function SecretariaDashboard() {
             .catch(error => console.log('error', error));
     }, [])
     useEffect(() => {
-      setCount(medico.length);
+        setCount(medico.length);
     }, [medico]);
 
 
@@ -107,8 +155,8 @@ function SecretariaDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {patients.length > 0 ? (
-                                            patients.map((p) => (
+                                        {currentPatients.length > 0 ? (
+                                            currentPatients.map((p) => (
                                                 <tr key={p.id}>
                                                     <td>
                                                         <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
@@ -144,6 +192,52 @@ function SecretariaDashboard() {
                                 </table>
                             </div>
                         </div>
+                        <nav className="mt-3">
+                            <ul className="pagination justify-content-center">
+                                {/* Ir para a primeira página */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                                        {"<<"} {/* ou "Início" */}
+                                    </button>
+                                </li>
+
+                                {/* Botão de página anterior */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                                    >
+                                        &lt;
+                                    </button>
+                                </li>
+
+                                {/* Números de página */}
+
+                                <li className="page-item active">
+                                    <span className="page-link">{currentPage1}</span>
+                                </li>
+                                {/* Botão de próxima página */}
+                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() =>
+                                            currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                                        }
+                                    >
+                                        &gt;
+                                    </button>
+                                </li>
+
+
+                                {/* Ir para a última página */}
+                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                                        {">>"} {/* ou "Fim" */}
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+
                     </div>
                 </div>
                 <div className="col-12 col-md-6 col-lg-6 col-xl-6">
@@ -188,6 +282,51 @@ function SecretariaDashboard() {
                                 </table>
                             </div>
                         </div>
+                        <nav className="mt-3">
+                            <ul className="pagination justify-content-center">
+                                {/* Ir para a primeira página */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                                        {"<<"} {/* ou "Início" */}
+                                    </button>
+                                </li>
+
+                                {/* Botão de página anterior */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                                    >
+                                        &lt;
+                                    </button>
+                                </li>
+
+                                {/* Números de página */}
+
+                                <li className="page-item active">
+                                    <span className="page-link">{currentPage2}</span>
+                                </li>
+                                {/* Botão de próxima página */}
+                                <li className={`page-item ${currentPage2 === totalPages2 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() =>
+                                            currentPage2 < totalPages2 && setCurrentPage2(currentPage2 + 1)
+                                        }
+                                    >
+                                        &gt;
+                                    </button>
+                                </li>
+
+
+                                {/* Ir para a última página */}
+                                <li className={`page-item ${currentPage2 === totalPages2 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages2)}>
+                                        {">>"} {/* ou "Fim" */}
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
                 {/* eh os pacientes*/}
@@ -234,7 +373,53 @@ function SecretariaDashboard() {
                             </div>
                         </div>
                     </div>
+                    <nav className="mt-3">
+                            <ul className="pagination justify-content-center">
+                                {/* Ir para a primeira página */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                                        {"<<"} {/* ou "Início" */}
+                                    </button>
+                                </li>
+
+                                {/* Botão de página anterior */}
+                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                                    >
+                                        &lt;
+                                    </button>
+                                </li>
+
+                                {/* Números de página */}
+
+<li className="page-item active">
+    <span className="page-link">{currentPage1}</span>
+  </li>
+                                {/* Botão de próxima página */}
+                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() =>
+                                            currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                                        }
+                                    >
+                                        &gt;
+                                    </button>
+                                </li>
+                                
+
+                                {/* Ir para a última página */}
+                                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                                        {">>"} {/* ou "Fim" */}
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
                 </div>
+                
             </div>
         </div>
     );
