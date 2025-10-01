@@ -45,7 +45,30 @@ function DoctorForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Campos obrigatórios (sem active, pois é boolean)
+    const requiredFields = [
+      "full_name",     // Nome completo
+      "cpf",           // CPF
+      "email",         // Email
+      "phone_mobile",  // Telefone
+      "crm",           // CRM
+      "crm_uf",        // CRM - UF
+      "specialty",     // Especialidade
+      "birth_date",    // Data de nascimento
+      "cep",           // CEP
+      "street",        // Logradouro
+      "number",        // Número
+      "neighborhood",  // Bairro
+      "city",          // Cidade
+      "state"          // Estado
+    ];
+    const missing = requiredFields.filter(
+      (f) => !doctorData[f] || doctorData[f].toString().trim() === ""
+    );
+    
+    if (missing.length > 0) {
+      Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "warning");
+      return;
+    }
     
     try {
       const requestOptions = {

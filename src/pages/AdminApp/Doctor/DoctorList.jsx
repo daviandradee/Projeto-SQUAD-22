@@ -42,22 +42,38 @@ function Doctors() {
       confirmButtonText: "Sim, excluir",
       cancelButtonText: "Cancelar"
     }).then(async (result) => {
-      try {
-        if (result.isConfirmed) {
-          const { error } = await supabase.from("Doctor").delete().eq("id", id);
-
-          if (error) {
-            console.error("Erro ao deletar médico:", error);
-            Swal.fire("Erro!", "Não foi possível excluir o registro.", "error");
-          } else {
-            setDoctors(doctors.filter((doc) => doc.id !== id));
-            Swal.fire("Excluído!", "O registro foi removido com sucesso.", "success");
+      if (result.isConfirmed) {
+        try {
+          const tokenUsuario = getAccessToken(); // pega o token do usuário (mesmo que usa no form)
+  
+          var myHeaders = new Headers();
+          myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+          myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+          myHeaders.append("Content-Type", "application/json");
+  
+          const response = await fetch(
+            `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`,
+            {
+              method: "DELETE",
+              headers: myHeaders,
+            }
+          );
+  
+          if (!response.ok) {
+            const err = await response.json();
+            console.error("Erro ao deletar médico:", err);
+            Swal.fire("Erro!", err.message || "Não foi possível excluir o registro.", "error");
+            return;
           }
+  
+          // Atualiza a lista local
+          setDoctors((prev) => prev.filter((doc) => doc.id !== id));
+  
+          Swal.fire("Excluído!", "O registro foi removido com sucesso.", "success");
+        } catch (error) {
+          console.error("Erro inesperado:", error);
+          Swal.fire("Erro!", "Algo deu errado ao excluir.", "error");
         }
-      }
-      catch (error) {
-        Swal.fire("Something went wrong", "", "error");
-        console.error(error);
       }
     });
   };
