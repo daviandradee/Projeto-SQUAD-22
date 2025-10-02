@@ -24,7 +24,7 @@ import Calendar from "./pages/AdminApp/calendar/Calendar.jsx";
 import EditDoctor from "./pages/AdminApp/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/AdminApp/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/AdminApp/Doctor/DoctorProfile.jsx";
-
+import Roles from "./pages/AdminApp/Roles.jsx";
 // paginas secretaria
 
 import SecretariaConsultaList from "./pages/SecretariaApp/Consultas/ConsultasList.jsx"
@@ -100,7 +100,8 @@ element: <Login />
       { path: "agendaedit", element: <AgendaEdit />},
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
-      { path: "laudo", element: <Laudo />}
+      { path: "laudo", element: <Laudo />},
+      { path: "roles", element: <Roles/>}
     ],
   },
    {
