@@ -52,7 +52,7 @@ function DoctorProfile() {
                       <div className="col-md-5">
                         <div className="profile-info-left"> 
                           <h3 className="user-name m-t-0 mb-0">{doctorData.nome} {doctorData.sobrenome}</h3>
-                          <a className="text">{doctorData.especialidade}</a> 
+                          <a className="specialty">{doctorData.specialty}</a> 
                           <div className="staff-id"></div>
                         </div>
                       </div>
@@ -60,7 +60,7 @@ function DoctorProfile() {
                         <ul className="personal-info">
                           <li>
                             <span className="title">Phone:</span>
-                            <span className="text"><a href="#">{doctorData.telefone}</a></span>
+                            <span className="phone_mobile"><a href="#">{doctorData.phone_mobile}</a></span>
                           </li>
                           <li>
                             <span className="title">Email:</span>

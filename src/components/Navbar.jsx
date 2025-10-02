@@ -68,7 +68,7 @@ function Navbar({ onMenuClick }) {
       <div className="header-left">
         {/* Logo dinâmica */}
         <Link to={isDoctor ? "/doctor" : "/admin"} className="logo">
-          <img src="/img/logomedconnect.png" width="35" height="35" alt="" />{" "}
+          <img src="/img/logo50.png" width="55" height="55"  alt="" class/>{" "}
           <span>MediConnect</span>
         </Link>
       </div>
