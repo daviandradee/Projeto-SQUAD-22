@@ -14,7 +14,6 @@ function PacienteForm() {
         full_name: "",
         cpf: "",
         email: "",
-        phone_mobile: "",
         birth_date: "",
         social_name: "",
         sex: "",
@@ -39,7 +38,6 @@ function PacienteForm() {
         reference: "",
         guardian_cpf: "",
         guardian_name: "",
-        complement: "",
 
     })
     const [previewUrl, setPreviewUrl] = useState(AvatarForm); 

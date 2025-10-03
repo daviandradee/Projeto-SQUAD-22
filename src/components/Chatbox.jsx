@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import  {companyInfo}  from "../companyinfo";
 
 
-function Chatbox() {
+function ChatBox() {
     const [chatHistory, setChatHistory] = useState([{
         hideInchat: true,
         role: "model",
@@ -76,4 +76,4 @@ function Chatbox() {
     )
 }
 
-export default Chatbox;
+export default ChatBox;
