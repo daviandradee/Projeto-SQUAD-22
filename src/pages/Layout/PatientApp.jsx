@@ -2,24 +2,20 @@ import { Outlet, NavLink } from "react-router-dom";
 import "../../assets/css/index.css";
 import Navbar from './../../components/Navbar'
 import { useState } from "react";
-
 import Chatbox from '../../components/Chatbox';
 
 ;
 
-import AcessibilityWidget from "../../components/AcessibilityWidget";
-
-
 export default function PatientApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-
-  // 2. Adicione a função para alternar o estado
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
-
-  // 3. Crie a string de classe que será aplicada dinamicamente
-  const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
+      
+          // 2. Adicione a função para alternar o estado
+          const toggleSidebar = () => {
+              setSidebarOpen(!isSidebarOpen);
+          };
+      
+          // 3. Crie a string de classe que será aplicada dinamicamente
+          const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
   return (
     <div className={mainWrapperClass}>
       <Navbar onMenuClick={toggleSidebar} />
@@ -68,7 +64,6 @@ export default function PatientApp() {
       {/* Conteúdo */}
       <div className="page-wrapper">
         <div className="content">
-          <AcessibilityWidget />
           <Outlet />
           <Chatbox />
         </div>

@@ -3,12 +3,8 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { Outlet } from 'react-router-dom';
-
 import Chatbox from '../../components/Chatbox';
 
-
-
-import AcessibilityWidget from '../../components/AcessibilityWidget';
 
 
 
@@ -77,7 +73,7 @@ function Sidebar() {
                                 </li>
                                 <li>
                                     <Link to="/admin/roles">
-                                        <i className="fa fa-users" /><span> Usuários</span>
+                                    <i className="fa fa-users" /><span> Usuários</span>
                                     </Link>
 
 
@@ -93,15 +89,8 @@ function Sidebar() {
                     </div>
                 </div>
             </div>
-
-            <Outlet />
-            <Chatbox />
-
-            <AcessibilityWidget />
-
-
-            <Outlet />
-
+                <Outlet />
+                <Chatbox />
         </div>
     );
 }
