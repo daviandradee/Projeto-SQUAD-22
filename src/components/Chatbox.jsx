@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import  {companyInfo}  from "../companyinfo";
 
 
+
 function Chatbox() {
     const [chatHistory, setChatHistory] = useState([{
         hideInchat: true,
