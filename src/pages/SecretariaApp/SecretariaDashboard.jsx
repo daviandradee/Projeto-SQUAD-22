@@ -1,405 +1,220 @@
-import React from "react";
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth";
+import "./../../assets/css/index.css"; 
+
 function SecretariaDashboard() {
-    const [patients, setPatients] = useState([]);
-    const [medico, setMedico] = useState([])
-    const [consulta, setConsulta] = useState([])
-    const [countPaciente, setCountPaciente] = useState(0);
-    const [countMedico, setCountMedico] = useState(0);
-    const tokenUsuario = getAccessToken()
+  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [consulta, setConsulta] = useState([]);
+  const [countPaciente, setCountPaciente] = useState(0);
+  const [countMedico, setCountMedico] = useState(0);
 
-    const [currentPage1, setCurrentPage1] = useState(1);
-    const [itemsPerPage1] = useState(4);
-    const indexOfLastPatient = currentPage1 * itemsPerPage1;
-    const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
-    const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
-    const totalPages1 = Math.ceil(patients.length / itemsPerPage1);
+  const tokenUsuario = getAccessToken();
 
-    const [currentPage2, setCurrentPage2] = useState(1);
-    const [itemsPerPage2] = useState(5);
-    const indexOfLastDoctor = currentPage2 * itemsPerPage2;
-    const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
-    const currentMedicos = medico.slice(indexOfFirstDoctor, indexOfLastDoctor);
-    const totalPages2 = Math.ceil(medico.length / itemsPerPage2);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const itemsPerPage1 = 4;
+  const indexOfLastPatient = currentPage1 * itemsPerPage1;
+  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+  const currentPatients = Array.isArray(patients)
+    ? patients.slice(indexOfFirstPatient, indexOfLastPatient)
+    : [];
+  const totalPages1 = Math.ceil(currentPatients.length / itemsPerPage1);
 
-    const [currentPage3, setCurrentPage3] = useState(1);
-    const [itemsPerPage3] = useState(5);
-    const indexOfLastConsulta = currentPage3 * itemsPerPage3;
-    const indexOfFirstConsulta = indexOfLastConsulta - itemsPerPage3;
-    const currentConsulta = consulta.slice(indexOfFirstConsulta, indexOfLastConsulta);
-    const totalPages3 = Math.ceil(consulta.length / itemsPerPage3);
+  const [currentPage2, setCurrentPage2] = useState(1);
+  const itemsPerPage2 = 4;
+  const indexOfLastDoctor = currentPage2 * itemsPerPage2;
+  const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
+  const currentDoctors = Array.isArray(doctors)
+    ? doctors.slice(indexOfFirstDoctor, indexOfLastDoctor)
+    : [];
+  const totalPages2 = Math.ceil(currentDoctors.length / itemsPerPage2);
 
-    var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-    var requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-        redirect: 'follow'
-    };
-    useEffect(() => {
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setPatients(Array.isArray(result) ? result : [])
-                setConsulta(Array.isArray(result) ? result : [])
-            })
-            .catch(error => console.log("error", error))
-    }, [])
-    var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-    var requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-        redirect: 'follow'
-    };
-    useEffect(() => {
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors`, requestOptions)
-            .then(response => response.json())
-            .then(result => setMedico(Array.isArray(result) ? result : []))
-            .catch(error => console.log('error', error));
-    }, [])
+  const [currentPage3, setCurrentPage3] = useState(1);
+  const itemsPerPage3 = 5;
+  const indexOfLastConsulta = currentPage3 * itemsPerPage3;
+  const indexOfFirstConsulta = indexOfLastConsulta - itemsPerPage3;
+  const currentConsulta = Array.isArray(consulta)
+    ? consulta.slice(indexOfFirstConsulta, indexOfLastConsulta)
+    : [];
+  const totalPages3 = Math.ceil(currentConsulta.length / itemsPerPage3);
 
-    useEffect(() => {
-        setCountPaciente(patients.length);
-    });
-    useEffect(() => {
-        setCountMedico(medico.length);
-    });
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      apikey:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+      Authorization: `Bearer ${tokenUsuario}`,
+    },
+    redirect: "follow",
+  };
 
+  useEffect(() => {
+    fetch(
+      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
+      requestOptions
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [];
+        setPatients(arr);
+        setConsulta(arr); // assumindo consultas estão nos pacientes
+        setCountPaciente(arr.length);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-    return (
+  useEffect(() => {
+    fetch(
+      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors",
+      requestOptions
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [];
+        setDoctors(arr);
+        setCountMedico(arr.length);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-
-        <div className="content">
-
-            <div className="row">
-                <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
-                    <div className="dash-widget">
-                        <span className="dash-widget-bg2"><i className="fa fa-user-o"></i></span>
-                        <div className="dash-widget-info text-right">
-                            <h3>{countPaciente}</h3>
-                            <span className="widget-title2">Patients <i className="" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
-                    <div className="dash-widget">
-                        <span className="dash-widget-bg1"><i className="fa fa-stethoscope" aria-hidden="true"></i></span>
-                        <div className="dash-widget-info text-right">
-                            <h3>{countMedico}</h3>
-                            <span className="widget-title1">Medicos <i className="" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
-                    <div className="dash-widget">
-                        <span className="dash-widget-bg3"><i className="fa fa-user-md" aria-hidden="true"></i></span>
-                        <div className="dash-widget-info text-right">
-                            <h3>{countPaciente}</h3>
-                            <span className="widget-title3">Consultas <i className="" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
-                    <div className="dash-widget">
-                        <span className="dash-widget-bg4"><i className="fa fa-heartbeat" aria-hidden="true"></i></span>
-                        <div className="dash-widget-info text-right">
-                            <h3>80</h3>
-                            <span className="widget-title4">Atendidos <i className="" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-24 col-md-12 col-lg-12 col-xl-12">
-                    <div className="card">
-                        <div className="card-header">
-                            <h4 className="text-left">Lista de Consultas</h4> <Link className="btn btn-primary float-right" to="/secretaria/secretariaconsultalist">Ver todos</Link>
-                        </div>
-                        <div className="card-block">
-                            <div className="table-responsive">
-                                <table className="table table-border table-striped custom-table mb-0">
-                                    <thead>
-                                        <tr >
-                                            <th>Nome</th>
-                                            <th>Data de Nascimento</th>
-                                            <th>Nome do médico</th>
-                                            <th>Data da consulta</th>
-                                            <th>Hora da consulta</th>
-                                            <th className="text-center">Ação</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentConsulta.length > 0 ? (
-                                            currentConsulta.map((p) => (
-                                                <tr key={p.id}>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.full_name}</h2>
-                                                    </td>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.birth_date}</h2>
-                                                    </td>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>Davi Andrade</h2>
-                                                    </td>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.created_at}</h2>
-                                                    </td>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>10:00am - 11:00am</h2>
-                                                    </td>
-                                                    <td className="text-center">
-                                                        <Link className="btn btn-outline-primary take-btn">Detalhes</Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="4">Nenhum paciente encontrado.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <nav className="mt-3">
-                            <ul className="pagination justify-content-center">
-                                {/* Ir para a primeira página */}
-                                <li className={`page-item ${currentPage3 === 1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage3(1)}>
-                                        {"<<"} {/* ou "Início" */}
-                                    </button>
-                                </li>
-
-                                {/* Botão de página anterior */}
-                                <li className={`page-item ${currentPage3 === 1 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => currentPage3 > 1 && setCurrentPage3(currentPage3 - 1)}
-                                    >
-                                        &lt;
-                                    </button>
-                                </li>
-
-                                {/* Números de página */}
-
-                                <li className="page-item active">
-                                    <span className="page-link">{currentPage3}</span>
-                                </li>
-                                {/* Botão de próxima página */}
-                                <li className={`page-item ${currentPage3 === totalPages3 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() =>
-                                            currentPage1 < totalPages3 && setCurrentPage3(currentPage3 + 1)
-                                        }
-                                    >
-                                        &gt;
-                                    </button>
-                                </li>
-
-
-                                {/* Ir para a última página */}
-                                <li className={`page-item ${currentPage3 === totalPages3 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage3(totalPages3)}>
-                                        {">>"} {/* ou "Fim" */}
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-
-                    </div>
-                </div>
-                <div className="col-12 col-md-6 col-lg-6 col-xl-6">
-                    <div className="card">
-                        <div className="card-header">
-                            <h4 className="text-left">Médicos</h4> <Link className="btn btn-primary float-right" to="/secretaria/medicoslista">Ver todos</Link>
-                        </div>
-                        <div className="card-block">
-                            <div className="table-responsive">
-                                <table className="table table-border table-striped custom-table mb-0">
-                                    <thead>
-                                        <tr >
-                                            <th>Nome</th>
-                                            <th>Email</th>
-                                            <th>Contato</th>
-                                            <th className="text-center">Ação</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentMedicos.length > 0 ? (
-                                            currentMedicos.map((m) => (
-                                                <tr key={m.id}>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{m.full_name}</h2>
-                                                    </td>
-                                                    <td>{m.email}</td>
-                                                    <td>{m.phone_mobile}</td>
-
-
-                                                    <td className="text-center">
-                                                        <Link className="btn btn-outline-primary take-btn">Detalhes</Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="4">Nenhum médico encontrado.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <nav className="mt-3">
-                            <ul className="pagination justify-content-center">
-                                {/* Ir para a primeira página */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                                        {"<<"} {/* ou "Início" */}
-                                    </button>
-                                </li>
-
-                                {/* Botão de página anterior */}
-                                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                                    >
-                                        &lt;
-                                    </button>
-                                </li>
-
-                                {/* Números de página */}
-
-                                <li className="page-item active">
-                                    <span className="page-link">{currentPage2}</span>
-                                </li>
-                                {/* Botão de próxima página */}
-                                <li className={`page-item ${currentPage2 === totalPages2 ? "disabled" : ""}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() =>
-                                            currentPage2 < totalPages2 && setCurrentPage2(currentPage2 + 1)
-                                        }
-                                    >
-                                        &gt;
-                                    </button>
-                                </li>
-
-
-                                {/* Ir para a última página */}
-                                <li className={`page-item ${currentPage2 === totalPages2 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage1(totalPages2)}>
-                                        {">>"} {/* ou "Fim" */}
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-                {/* eh os pacientes*/}
-                <div className="col-12 col-md-6 col-lg-6 col-xl-6">
-                    <div className="card">
-                        <div className="card-header">
-                            <h4 className="text-left">Pacientes</h4> <Link className="btn btn-primary float-right" to="/secretaria/pacientelista">Ver todos</Link>
-                        </div>
-                        <div className="card-block">
-                            <div className="table-responsive">
-                                <table className="table table-border table-striped custom-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>E-mail</th>
-                                            <th>Contato</th>
-                                            <th className="text-center">Ação</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentPatients.length > 0 ? (
-                                            currentPatients.map((p) => (
-                                                <tr key={p.id}>
-                                                    <td>
-                                                        <img className="rounded-circle" src="assets/img/user.jpg" alt="" />
-                                                        <h2>{p.full_name}</h2>
-                                                    </td>
-                                                    <td>{p.email}</td>
-                                                    <td>{p.phone_mobile}</td>
-                                                    <td className="text-center">
-                                                        <Link className="btn btn-outline-primary take-btn" >
-                                                            Detalhes
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="4">Nenhum paciente encontrado.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <nav className="mt-3">
-                        <ul className="pagination justify-content-center">
-                            {/* Ir para a primeira página */}
-                            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                                    {"<<"} {/* ou "Início" */}
-                                </button>
-                            </li>
-
-                            {/* Botão de página anterior */}
-                            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                                >
-                                    &lt;
-                                </button>
-                            </li>
-
-                            {/* Números de página */}
-
-                            <li className="page-item active">
-                                <span className="page-link">{currentPage1}</span>
-                            </li>
-                            {/* Botão de próxima página */}
-                            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() =>
-                                        currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                                    }
-                                >
-                                    &gt;
-                                </button>
-                            </li>
-
-
-                            {/* Ir para a última página */}
-                            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                                    {">>"} {/* ou "Fim" */}
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                    </div>
-                </div>
-
+  return (
+    <div className="sdc-content">
+      {/* Widgets */}
+      <div className="row">
+        <div className="col-md-3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg2">
+              <i className="fa fa-user-o" />
+            </span>
+            <div className="sdc-dash-widget-info">
+              <h3>{countPaciente}</h3>
+              <span>Pacientes</span>
             </div>
+          </div>
         </div>
-    );
+        <div className="col-md-3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg1">
+              <i className="fa fa-stethoscope" />
+            </span>
+            <div className="sdc-dash-widget-info">
+              <h3>{countMedico}</h3>
+              <span>Médicos</span>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg3">
+              <i className="fa fa-user-md" />
+            </span>
+            <div className="sdc-dash-widget-info">
+              <h3>{consulta.length}</h3>
+              <span>Consultas</span>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg4">
+              <i className="fa fa-heartbeat" />
+            </span>
+            <div className="sdc-dash-widget-info">
+              <h3>80</h3>
+              <span>Atendidos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gráfico de pizza */}
+      <div className="sdc-pie-chart-wrapper">
+        <div className="sdc-pie-chart-label">
+          {countPaciente} Pacientes<br />
+          {countMedico} Médicos
+        </div>
+      </div>
+
+      {/* Gráfico de colunas */}
+      <div className="sdc-bar-chart-wrapper">
+        <div className="sdc-bar" style={{ height: "120px" }}>
+          <span>{countMedico}</span>
+        </div>
+        <div className="sdc-bar sdc-bar-red" style={{ height: "150px" }}>
+          <span>80</span>
+        </div>
+        <div className="sdc-bar sdc-bar-orange" style={{ height: "100px" }}>
+          <span>{countPaciente}</span>
+        </div>
+        <div className="sdc-bar sdc-bar-green" style={{ height: "180px" }}>
+          <span>{countPaciente}</span>
+        </div>
+      </div>
+
+      {/* Cards Médicos */}
+      <div className="row">
+        <div className="col-md-6">
+          <div className="sdc-card">
+            <div className="sdc-card-header">
+              <h4>Médicos</h4>
+              <Link
+                className="sdc-btn sdc-btn-primary float-right"
+                to="/secretaria/medicoslista"
+              >
+                Ver todos
+              </Link>
+            </div>
+            <div>
+              {currentDoctors.map((d) => (
+                <div
+                  key={d.id}
+                  className="sdc-card"
+                  style={{ marginBottom: "10px" }}
+                >
+                  <strong>{d.full_name}</strong>
+                  <br />
+                  {d.email}
+                  <br />
+                  {d.phone_mobile}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Cards Pacientes */}
+        <div className="col-md-6">
+          <div className="sdc-card">
+            <div className="sdc-card-header">
+              <h4>Pacientes</h4>
+              <Link
+                className="sdc-btn sdc-btn-primary float-right"
+                to="/secretaria/pacientelista"
+              >
+                Ver todos
+              </Link>
+            </div>
+            <div>
+              {currentPatients.map((p) => (
+                <div
+                  key={p.id}
+                  className="sdc-card"
+                  style={{ marginBottom: "10px" }}
+                >
+                  <strong>{p.full_name}</strong>
+                  <br />
+                  {p.email}
+                  <br />
+                  {p.phone_mobile}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default SecretariaDashboard;
