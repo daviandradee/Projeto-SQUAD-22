@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAccessToken } from "../../utils/auth";
-import "./../../assets/css/index.css";
+import { getAccessToken } from "../../../utils/auth";
+import "../../../assets/css/index.css"; 
 
-function DoctorDashboard() {
+function AdminDashboard() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [consulta, setConsulta] = useState([]);
@@ -79,38 +79,50 @@ function DoctorDashboard() {
   }, []);
 
   return (
-    <div className="doc-content">
+ <div className="main-wrapper">
+  <div className="page-wrapper">
+    <div className="sdc-content">
       {/* Widgets */}
       <div className="row">
         <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg2">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg2">
               <i className="fa fa-user-o" />
             </span>
-            <div className="doc-dash-widget-info">
+            <div className="sdc-dash-widget-info">
               <h3>{countPaciente}</h3>
               <span>Pacientes</span>
             </div>
           </div>
         </div>
-
         <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg1">
+              <i className="fa fa-stethoscope" />
+            </span>
+            <div className="sdc-dash-widget-info">
+              <h3>{countMedico}</h3>
+              <span>Médicos</span>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg3">
               <i className="fa fa-user-md" />
             </span>
-            <div className="doc-dash-widget-info">
+            <div className="sdc-dash-widget-info">
               <h3>{consulta.length}</h3>
               <span>Consultas</span>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg4">
+          <div className="sdc-dash-widget">
+            <span className="sdc-dash-widget-bg4">
               <i className="fa fa-heartbeat" />
             </span>
-            <div className="doc-dash-widget-info">
+            <div className="sdc-dash-widget-info">
               <h3>80</h3>
               <span>Atendidos</span>
             </div>
@@ -119,59 +131,94 @@ function DoctorDashboard() {
       </div>
 
       {/* Gráfico de pizza */}
-      <div className="doc-pie-chart-wrapper">
-        <div className="doc-pie-chart-label">
+      <div className="sdc-pie-chart-wrapper">
+        <div className="sdc-pie-chart-label">
           {countPaciente} Pacientes<br />
+          {countMedico} Médicos
         </div>
       </div>
 
       {/* Gráfico de colunas */}
-      <div className="doc-bar-chart-wrapper">
-
-        <div className="doc-bar doc-bar-red" style={{ height: "150px" }}>
+      <div className="sdc-bar-chart-wrapper">
+        <div className="sdc-bar" style={{ height: "120px" }}>
+          <span>{countMedico}</span>
+        </div>
+        <div className="sdc-bar sdc-bar-red" style={{ height: "150px" }}>
           <span>80</span>
         </div>
-        <div className="doc-bar doc-bar-orange" style={{ height: "100px" }}>
+        <div className="sdc-bar sdc-bar-orange" style={{ height: "100px" }}>
           <span>{countPaciente}</span>
         </div>
-        <div className="doc-bar doc-bar-green" style={{ height: "180px" }}>
+        <div className="sdc-bar sdc-bar-green" style={{ height: "180px" }}>
           <span>{countPaciente}</span>
         </div>
       </div>
 
-
-
-      {/* Cards Pacientes */}
-      <div className="col-md-6">
-        <div className="doc-card">
-          <div className="doc-card-header">
-            <h4>Pacientes</h4>
-            <Link
-              className="doc-btn doc-btn-primary float-right"
-              to="/secretaria/pacientelista"
-            >
-              Ver todos
-            </Link>
-          </div>
-          <div>
-            {currentPatients.map((p) => (
-              <div
-                key={p.id}
-                className="doc-card"
-                style={{ marginBottom: "10px" }}
+      {/* Cards Médicos */}
+      <div className="row">
+        <div className="col-md-6">
+          <div className="sdc-card">
+            <div className="sdc-card-header">
+              <h4>Médicos</h4>
+              <Link
+                className="sdc-btn sdc-btn-primary float-right"
+                to="/secretaria/medicoslista"
               >
-                <strong>{p.full_name}</strong>
-                <br />
-                {p.email}
-                <br />
-                {p.phone_mobile}
-              </div>
-            ))}
+                Ver todos
+              </Link>
+            </div>
+            <div>
+              {currentDoctors.map((d) => (
+                <div
+                  key={d.id}
+                  className="sdc-card"
+                  style={{ marginBottom: "10px" }}
+                >
+                  <strong>{d.full_name}</strong>
+                  <br />
+                  {d.email}
+                  <br />
+                  {d.phone_mobile}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Cards Pacientes */}
+        <div className="col-md-6">
+          <div className="sdc-card">
+            <div className="sdc-card-header">
+              <h4>Pacientes</h4>
+              <Link
+                className="sdc-btn sdc-btn-primary float-right"
+                to="/secretaria/pacientelista"
+              >
+                Ver todos
+              </Link>
+            </div>
+            <div>
+              {currentPatients.map((p) => (
+                <div
+                  key={p.id}
+                  className="sdc-card"
+                  style={{ marginBottom: "10px" }}
+                >
+                  <strong>{p.full_name}</strong>
+                  <br />
+                  {p.email}
+                  <br />
+                  {p.phone_mobile}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div> 
+    </div>
+  </div >
+</div>
   );
 }
 
-export default DoctorDashboard;
+export default AdminDashboard;

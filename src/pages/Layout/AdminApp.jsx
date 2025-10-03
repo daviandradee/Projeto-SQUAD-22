@@ -29,12 +29,12 @@ function Sidebar() {
                             <ul>
                                 <li className="menu-title">Painel Administrador</li>
 
-                                {/*<li>
-                                <a href="index-2.html">
-                                    <i className="fa fa-dashboard" /> <span>Dashboard</span>
-                                </a>
-                            </li>*/}
-
+                                <li>
+                                    <Link to="/admin/dashboard">
+                                        <i className="fa fa-bar-chart" /> <span>Dashboard</span>
+                                    </Link>
+                                </li>
+                                
                                 <li>
                                     <Link to="/admin/doctorlist">
                                         <i className="fa fa-user-md" /> <span>Médicos</span>
