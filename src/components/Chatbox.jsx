@@ -3,7 +3,7 @@ import "../assets/css/index.css"
 import ChatForm from "./ChatForm";
 import  ChatMessage  from "./ChatMessage";
 import { useState, useRef, useEffect } from "react";
-import  {companyinfo}  from "../companyinfo.js"
+import  companyinfo  from "../companyinfo.js"
 
 
 
