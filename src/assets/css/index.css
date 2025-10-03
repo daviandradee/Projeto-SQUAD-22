@@ -25,6 +25,7 @@
 @import './chatbot.css';
 
 @import './Dashboard.css';
+@import './DoctorDashboard.css'; 
 
 /* Estilos para cards de eventos */
 .event-card {

@@ -15,6 +15,7 @@ import PatientApp from "./pages/Layout/PatientApp.jsx";
 import SecretariaApp from "./pages/Layout/SecretariaApp.jsx";
 
 // Páginas Admin
+import Dashboard from "./pages/AdminApp/AdminDashboard/AdminDashboard.jsx";
 import Patientform from "./pages/AdminApp/Patient/Patientform.jsx";
 import PatientList from "./pages/AdminApp/Patient/PatientList.jsx";
 import Doctorlist from "./pages/AdminApp/Doctor/DoctorList.jsx";
@@ -88,6 +89,7 @@ element: <Login />
     element: <App />,
     children: [
       { index: true, element: <Doctorlist /> }, // Rota inicial do admin
+      {path: "dashboard", element: <Dashboard /> },
       { path: "patient", element: <Patientform /> },
       { path: "patientlist", element: <PatientList /> },
       { path: "doctorlist", element: <Doctorlist /> },

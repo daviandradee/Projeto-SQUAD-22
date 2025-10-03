@@ -21,7 +21,6 @@ function Sidebar() {
                             <ul>
                                 <li className="menu-title">Painel Administrador</li>
 
-                               
 
                                 <li>
                                     <Link to="/admin/doctorlist">
