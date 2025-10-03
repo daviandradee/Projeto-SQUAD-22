@@ -2,6 +2,7 @@ import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from '../../components/Navbar'
 import React, { useState } from 'react';
+import Chatbox from "../../components/chatbox";
 
 function SecretariaApp() {
   // 1. Adicione o estado para controlar a sidebar
@@ -82,6 +83,7 @@ function SecretariaApp() {
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
+          <Chatbox />
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from './../../components/Navbar'
 import { useState } from "react";
+import Chatbox from "../../components/chatbox";
 
 function DoctorApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -90,6 +91,7 @@ function DoctorApp() {
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
+          <Chatbox />
         </div>
       </div>
     </div>

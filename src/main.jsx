@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./assets/css/index.css";
+import Chatbox from "./components/chatbox.jsx";
 
 //Login
 import Login from "./pages/Login/Login.jsx";
@@ -65,6 +66,7 @@ import EditarConsultas from "./pages/SecretariaApp/Consultas/EditarConsultas.jsx
 import AgendaMedica from "./pages/SecretariaApp/Agenda/Agendamedica.jsx";
 import AdicionarAgenda from "./pages/SecretariaApp/Agenda/AdicionarAgenda.jsx";
 import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
+import ChatbotIcon from "./components/ChatbotIcon.jsx";
 
 
 
@@ -101,7 +103,8 @@ element: <Login />
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />},
-      { path: "roles", element: <Roles/>}
+      { path: "roles", element: <Roles/>},
+      { path: "chat", element: <Chatbox />}
     ],
   },
    {
