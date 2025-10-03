@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import supabase from "../../../Supabase";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth";
+import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
@@ -101,7 +102,7 @@ function Doctors() {
               <div className="profile-widget">
                 <div className="doctor-img">
                   <div className="avatar">
-                    <img alt="" src="/img/doctor-thumb-03.jpg" />
+                    <img alt="" src={AvatarForm} />
                   </div>
                 </div>
 

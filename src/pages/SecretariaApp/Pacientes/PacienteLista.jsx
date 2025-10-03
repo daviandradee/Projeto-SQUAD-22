@@ -97,7 +97,7 @@ const filteredPatients = patients.filter(p => {
   const q = search.toLowerCase();
   return nome.includes(q) || cpf.includes(q) || email.includes(q);
 });
-const [itemsPerPage1] = useState(10);
+const [itemsPerPage1] = useState(15);
 const [currentPage1, setCurrentPage1] = useState(1);
 const indexOfLastPatient = currentPage1 * itemsPerPage1;
 const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;

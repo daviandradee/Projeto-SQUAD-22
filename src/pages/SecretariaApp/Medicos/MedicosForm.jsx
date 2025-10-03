@@ -213,6 +213,7 @@ function MedicosForm() {
                       </div>
                     </div>
                   </div>
+                  
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Telefone<span className="text-danger">*</span></label>
