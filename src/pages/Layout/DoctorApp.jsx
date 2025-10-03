@@ -2,7 +2,8 @@ import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from './../../components/Navbar'
 import { useState } from "react";
-import ChatBox from "../../components/chatbox";
+import Chatbox from "../../components/chatbox";
+
 
 
 function DoctorApp() {
@@ -92,7 +93,7 @@ function DoctorApp() {
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
-          <ChatBox/>
+          <Chatbox />
         </div>
       </div>
     </div>
