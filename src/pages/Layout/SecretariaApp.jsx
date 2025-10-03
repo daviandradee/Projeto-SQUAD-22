@@ -2,8 +2,12 @@ import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from '../../components/Navbar'
 import React, { useState } from 'react';
+
 import Chatbox from '../../components/Chatbox';
 
+
+
+import AcessibilityWidget from "../../components/AcessibilityWidget"
 
 
 function SecretariaApp() {
@@ -84,6 +88,7 @@ function SecretariaApp() {
       {/* Conteúdo */}
       <div className="page-wrapper">
         <div className="content">
+          <AcessibilityWidget/>
           <Outlet />
           <Chatbox />
         </div>

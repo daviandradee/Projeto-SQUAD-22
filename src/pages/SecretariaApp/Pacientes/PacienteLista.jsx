@@ -50,20 +50,55 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   // fecha ao clicar fora / ao rolar
   useEffect(() => {
     if (!isOpen) return;
-    function handleDocClick(e) {
-      const menu = menuRef.current;
-      if (menu && !menu.contains(e.target) && anchorEl && !anchorEl.contains(e.target)) {
+    
+    let timeoutId;
+    
+    function handleOutsideClick(e) {
+      // Usa setTimeout para garantir que o evento seja processado após o clique no botão
+      timeoutId = setTimeout(() => {
+        if (menuRef.current && anchorEl) {
+          const isInsideMenu = menuRef.current.contains(e.target);
+          const isInsideButton = anchorEl.contains(e.target);
+          
+          if (!isInsideMenu && !isInsideButton) {
+            onClose();
+          }
+        }
+      }, 0);
+    }
+    
+    function handleMouseDown(e) {
+      if (menuRef.current && anchorEl) {
+        const isInsideMenu = menuRef.current.contains(e.target);
+        const isInsideButton = anchorEl.contains(e.target);
+        
+        if (!isInsideMenu && !isInsideButton) {
+          onClose();
+        }
+      }
+    }
+    
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
         onClose();
       }
     }
+    
     function handleScroll() {
       onClose();
     }
-    document.addEventListener("mousedown", handleDocClick);
-    // captura scroll em qualquer elemento (true)
+    
+    // Adiciona múltiplos eventos para máxima compatibilidade
+    document.addEventListener("click", handleOutsideClick, true);
+    document.addEventListener("mousedown", handleMouseDown, true);
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("scroll", handleScroll, true);
+    
     return () => {
-      document.removeEventListener("mousedown", handleDocClick);
+      if (timeoutId) clearTimeout(timeoutId);
+      document.removeEventListener("click", handleOutsideClick, true);
+      document.removeEventListener("mousedown", handleMouseDown, true);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("scroll", handleScroll, true);
     };
   }, [isOpen, onClose, anchorEl]);
@@ -74,7 +109,6 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
       ref={menuRef}
       className={className} // mantém as classes que você já usa no CSS
       style={stylePos}
-      onClick={(e) => e.stopPropagation()}
     >
       {children}
     </div>,
