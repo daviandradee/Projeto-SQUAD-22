@@ -24,6 +24,9 @@
 
 @import './chatbot.css';
 
+
+
+@import './Dashboard.css';
 /* Estilos para cards de eventos */
 .event-card {
   padding: 6px 10px;
