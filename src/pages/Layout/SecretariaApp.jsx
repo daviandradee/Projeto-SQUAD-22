@@ -2,7 +2,8 @@ import { Outlet, NavLink } from "react-router-dom";
 import './../../assets/css/index.css'
 import Navbar from '../../components/Navbar'
 import React, { useState } from 'react';
-import ChatBox from '../../components/ChatBox';
+import ChatBox from "../../components/chatbox";
+
 
 function SecretariaApp() {
   // 1. Adicione o estado para controlar a sidebar
