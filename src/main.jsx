@@ -99,7 +99,7 @@ element: <Login />
       { path: "editdoctor/:id", element: <EditDoctor /> },
       { path: "editpatient/:id", element: <PatientEdit /> },
       { path: "agendaform", element: <AgendaForm />},
-      { path: "agendaedit", element: <AgendaEdit />},
+      { path: "agendaedit/:id", element: <AgendaEdit />},
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />},

@@ -87,7 +87,7 @@ function PatientList() {
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({}); // guarda referência do botão de cada linha
-  const tokenUsuario= getAccessToken()
+  const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
@@ -105,51 +105,51 @@ function PatientList() {
 
   const handleDelete = async (id) => {
     Swal.fire({
-          title: "Tem certeza?",
-          text: "Tem certeza que deseja excluir este registro?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Sim, excluir"
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-                var myHeaders = new Headers();
-                myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-                myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-    
-                var requestOptions = {
-                method: 'DELETE',
-                headers: myHeaders,
-                redirect: 'follow'
-                };
-    
-                const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
-    
-                if (response.ok) {
-                setPatients(prev => prev.filter(l => l.id !== id));
-                setOpenDropdown(null);
-                Swal.fire({
-                title: "Registro Excluído",
-                text: "Registro excluído com sucesso",
-                icon: "success"
-                })
-    
-            } else {
-              Swal.fire("Error saving changes", "", "error");
-            }
+      title: "Tem certeza?",
+      text: "Tem certeza que deseja excluir este registro?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, excluir"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          var myHeaders = new Headers();
+          myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+          myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+
+          var requestOptions = {
+            method: 'DELETE',
+            headers: myHeaders,
+            redirect: 'follow'
+          };
+
+          const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
+
+          if (response.ok) {
+            setPatients(prev => prev.filter(l => l.id !== id));
+            setOpenDropdown(null);
+            Swal.fire({
+              title: "Registro Excluído",
+              text: "Registro excluído com sucesso",
+              icon: "success"
+            })
+
+          } else {
+            Swal.fire("Error saving changes", "", "error");
           }
-            catch (error) {
-              Swal.fire("Something went wrong", "", "error");
-              console.error(error);
-            }
-          }
-        });
-    
-        // Se quiser apagar no supabase, faça a chamada aqui.
-        // const { error } = await supabase.from("Patient").delete().eq("id", id);
-        // if (error) { console.error(error); return; }
+        }
+        catch (error) {
+          Swal.fire("Something went wrong", "", "error");
+          console.error(error);
+        }
+      }
+    });
+
+    // Se quiser apagar no supabase, faça a chamada aqui.
+    // const { error } = await supabase.from("Patient").delete().eq("id", id);
+    // if (error) { console.error(error); return; }
   };
 
 
@@ -161,7 +161,7 @@ function PatientList() {
     const q = search.toLowerCase();
     return nome.includes(q) || cpf.includes(q) || email.includes(q);
   });
-  const [itemsPerPage1] = useState(10);
+  const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
@@ -292,42 +292,42 @@ function PatientList() {
                   </tbody>
                 </table>
               </div>
-            <nav className="mt-3">
-  <ul className="pagination justify-content-center">
-    {/* Primeira página */}
-    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(1)}>
-        {"<<"}
-      </button>
-    </li>
+              <nav className="mt-3">
+                <ul className="pagination justify-content-center">
+                  {/* Primeira página */}
+                  <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                      {"<<"}
+                    </button>
+                  </li>
 
-    {/* Página anterior */}
-    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>
-        &lt;
-      </button>
-    </li>
+                  {/* Página anterior */}
+                  <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>
+                      &lt;
+                    </button>
+                  </li>
 
-    {/* Número da página atual */}
-    <li className="page-item active">
-      <span className="page-link">{currentPage1}</span>
-    </li>
+                  {/* Número da página atual */}
+                  <li className="page-item active">
+                    <span className="page-link">{currentPage1}</span>
+                  </li>
 
-    {/* Próxima página */}
-    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>
-        &gt;
-      </button>
-    </li>
+                  {/* Próxima página */}
+                  <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>
+                      &gt;
+                    </button>
+                  </li>
 
-    {/* Última página */}
-    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-        {">>"}
-      </button>
-    </li>
-  </ul>
-</nav>
+                  {/* Última página */}
+                  <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                      {">>"}
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>

@@ -131,7 +131,7 @@ function AgendaList() {
     const q = search.toLowerCase();
     return nome.includes(q) || cpf.includes(q) || email.includes(q);
   });
-  const [itemsPerPage1] = useState(10);
+  const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
@@ -158,7 +158,7 @@ function AgendaList() {
           <br />
         </div>
         <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/secretaria/adicionarconsulta" className="btn btn-primary btn-rounded">
+          <Link to="/admin/agendaform" className="btn btn-primary btn-rounded">
             <i className="fa fa-plus"></i> Adicionar consulta
           </Link>
         </div>
@@ -229,7 +229,7 @@ function AgendaList() {
 
                             <Link
                               className="dropdown-item-custom"
-                              to={`/secretaria/editarconsulta/${c.id}`}
+                              to={`/admin/agendaedit/${c.id}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);

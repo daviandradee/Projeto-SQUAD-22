@@ -2,7 +2,8 @@ import "../../../assets/css/index.css";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { getAccessToken } from "../../../utils/auth"; // importa o token do usuário
+import { getAccessToken } from "../../../utils/auth"; 
+import AvatarForm from "../../../../public/img/AvatarForm.jpg"// importa o token do usuário
 
 function MedicosLista() {
   const [doctors, setDoctors] = useState([]);
@@ -76,14 +77,6 @@ function MedicosLista() {
         <div className="col-sm-4 col-3">
           <h4 className="page-title">Médicos</h4>
         </div>
-        <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link
-            to="/secretaria/medicosform"
-            className="btn btn-primary btn-rounded float-right"
-          >
-            <i className="fa fa-plus"></i> Adicionar Médico
-          </Link>
-        </div>
       </div>
 
       <div className="row doctor-grid">
@@ -92,7 +85,7 @@ function MedicosLista() {
             <div className="profile-widget">
               <div className="doctor-img">
                 <div className="avatar">
-                  <img alt="" src="/img/doctor-thumb-03.jpg" />
+                  <img alt="" src={AvatarForm}/>
                 </div>
               </div>
 

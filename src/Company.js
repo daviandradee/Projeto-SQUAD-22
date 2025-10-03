@@ -79,7 +79,7 @@ Exemplos de perguntas:
 
 Secretaria - Cadastra novos pacientes.
 
-Realiza CRUD de médicos (criar, ler, atualizar, excluir).
+Acesso somente a lista de medicos
 
 Marca, confirma e remarca consultas para pacientes.
 

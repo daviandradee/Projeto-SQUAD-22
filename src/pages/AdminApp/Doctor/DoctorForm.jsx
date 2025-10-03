@@ -64,12 +64,12 @@ function DoctorForm() {
     const missing = requiredFields.filter(
       (f) => !doctorData[f] || doctorData[f].toString().trim() === ""
     );
-    
+
     if (missing.length > 0) {
       Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "warning");
       return;
     }
-    
+
     try {
       const requestOptions = {
         method: "POST",
@@ -120,14 +120,13 @@ function DoctorForm() {
         <div className="content">
           <div className="row">
             <div className="col-lg-8 offset-lg-2">
-              <h4 className="page-title">Cadastrar Médico</h4>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-lg-8 offset-lg-2">
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   {/* Nome completo */}
+                  <div className="col-sm-12">
+                    <hr />
+                    <h2>Dados pessoais</h2>
+                  </div>
                   <div className="col-sm-6">
                     <div className="form-group">
                       <label>Nome Completo <span className="text-danger">*</span></label>
@@ -281,150 +280,186 @@ function DoctorForm() {
                       />
                     </div>
                   </div>
-
-                  
-                  {/* CEP */}
-                  <div className="col-sm-4">
-                    <div className="form-group">
-                      <label>CEP <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="cep"
-                        value={doctorData.cep}
-                        onChange={handleChange}
-                        onBlur={buscarCep}
-                      />
+                    <div className="col-sm-6">
+                  <div className="form-group gender-select">
+                    <label className="gen-label">Sexo:<span className="text-danger">*</span></label>
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sex" className="form-check-input"
+                          value={"Masculino"}
+                          checked={doctorData.sex === "Masculino"}
+                          onChange={handleChange}
+                        /> Masculino
+                      </label>
                     </div>
-                  </div>
-
-                  {/* Rua */}
-                  <div className="col-sm-8">
-                    <div className="form-group">
-                      <label>Logradouro <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="street"
-                        value={doctorData.street}
-                        onChange={handleChange}
-                      />
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sex" className="form-check-input"
+                          value={"Feminino"}
+                          checked={doctorData.sex === "Feminino"}
+                          onChange={handleChange}
+                        /> Feminino
+                      </label>
                     </div>
-                  </div>
-
-                  {/* Número */}
-                  <div className="col-sm-4">
-                    <div className="form-group">
-                      <label>Número <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="number"
-                        value={doctorData.number}
-                        onChange={handleChange}
-                      />
+                    <div className="form-check-inline">
+                      <label className="form-check-label">
+                        <input type="radio" name="sex" className="form-check-input"
+                          value={"outro"}
+                          checked={doctorData.sex === "outro"}
+                          onChange={handleChange}
+                        /> Outro
+                      </label>
                     </div>
-                  </div>
+                </div>
+                </div>
+                <div className="col-sm-12">
+                  <hr />
+                  <h2>Endereço</h2>
+                </div>
 
-                  {/* Complemento */}
-                  <div className="col-sm-4">
-                    <div className="form-group">
-                      <label>Complemento</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="complement"
-                        value={doctorData.complement}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
 
-                  {/* Bairro */}
-                  <div className="col-sm-4">
-                    <div className="form-group">
-                      <label>Bairro <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="neighborhood"
-                        value={doctorData.neighborhood}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Cidade */}
-                  <div className="col-sm-6">
-                    <div className="form-group">
-                      <label>Cidade <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="city"
-                        value={doctorData.city}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Estado */}
-                  <div className="col-sm-6">
-                    <div className="form-group">
-                      <label>Estado <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="state"
-                        value={doctorData.state}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Ativo/Inativo */}
-                  <div className="col-sm-12">
-                    <div className="form-group">
-                      <label className="d-block">Status <span className="text-danger">*</span></label>
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="active"
-                          id="ativo"
-                          value="true"
-                          checked={doctorData.active === true}
-                          onChange={() => setDoctorData((prev) => ({ ...prev, active: true }))}
-                        />
-                        <label className="form-check-label" htmlFor="ativo">Ativo</label>
-                      </div>
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="active"
-                          id="inativo"
-                          value="false"
-                          checked={doctorData.active === false}
-                          onChange={() => setDoctorData((prev) => ({ ...prev, active: false }))}
-                        />
-                        <label className="form-check-label" htmlFor="inativo">Inativo</label>
-                      </div>
-                    </div>
+                {/* CEP */}
+                <div className="col-sm-4">
+                  <div className="form-group">
+                    <label>CEP <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="cep"
+                      value={doctorData.cep}
+                      onChange={handleChange}
+                      onBlur={buscarCep}
+                    />
                   </div>
                 </div>
 
-                <div className="m-t-20 text-center">
-                  <button className="btn btn-primary submit-btn" type="submit">
-                    Cadastrar Médico
-                  </button>
+                {/* Rua */}
+                <div className="col-sm-8">
+                  <div className="form-group">
+                    <label>Logradouro <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="street"
+                      value={doctorData.street}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
-              </form>
+
+                {/* Número */}
+                <div className="col-sm-4">
+                  <div className="form-group">
+                    <label>Número <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="number"
+                      value={doctorData.number}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Complemento */}
+                <div className="col-sm-4">
+                  <div className="form-group">
+                    <label>Complemento</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="complement"
+                      value={doctorData.complement}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Bairro */}
+                <div className="col-sm-4">
+                  <div className="form-group">
+                    <label>Bairro <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="neighborhood"
+                      value={doctorData.neighborhood}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Cidade */}
+                <div className="col-sm-6">
+                  <div className="form-group">
+                    <label>Cidade <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="city"
+                      value={doctorData.city}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Estado */}
+                <div className="col-sm-6">
+                  <div className="form-group">
+                    <label>Estado <span className="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="state"
+                      value={doctorData.state}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Ativo/Inativo */}
+                <div className="col-sm-12">
+                  <div className="form-group">
+                    <label className="d-block">Status <span className="text-danger">*</span></label>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="active"
+                        id="ativo"
+                        value="true"
+                        checked={doctorData.active === true}
+                        onChange={() => setDoctorData((prev) => ({ ...prev, active: true }))}
+                      />
+                      <label className="form-check-label" htmlFor="ativo">Ativo</label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="active"
+                        id="inativo"
+                        value="false"
+                        checked={doctorData.active === false}
+                        onChange={() => setDoctorData((prev) => ({ ...prev, active: false }))}
+                      />
+                      <label className="form-check-label" htmlFor="inativo">Inativo</label>
+                    </div>
+                  </div>
+                </div>
             </div>
-          </div>
+
+            <div className="m-t-20 text-center">
+              <button className="btn btn-primary submit-btn" type="submit">
+                Cadastrar Médico
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+      </div >
+    </div >
   );
 }
 

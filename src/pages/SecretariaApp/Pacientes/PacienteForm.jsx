@@ -656,7 +656,10 @@ function PacienteForm() {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Bairro</label>
+                                    <label>
+                                        Bairro<span className="text-danger">*</span>
+
+                                    </label>
                                     <input className="form-control" type="text"
                                         id="neighborhood"
                                         name="neighborhood"
