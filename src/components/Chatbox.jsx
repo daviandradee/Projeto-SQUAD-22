@@ -3,7 +3,7 @@ import "../assets/css/index.css"
 import ChatForm from "./ChatForm";
 import  ChatMessage  from "./ChatMessage";
 import { useState, useRef, useEffect } from "react";
-import  {companyInfo}  from "../companyinfo";
+import  {companyinfo}  from "../companyinfo"
 
 
 
@@ -11,7 +11,7 @@ function Chatbox() {
     const [chatHistory, setChatHistory] = useState([{
         hideInchat: true,
         role: "model",
-        text: companyInfo
+        text: companyinfo
     }]);
     const [showChatbot, setShowChatbot] = useState(false);
     const chatBodyRef = useRef()

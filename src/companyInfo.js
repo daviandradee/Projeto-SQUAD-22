@@ -1,4 +1,4 @@
-export const companyInfo = `
+export const companyinfo = `
 ===============================
 Introdução:
 ===============================
