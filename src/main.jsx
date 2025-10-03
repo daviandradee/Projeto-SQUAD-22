@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./assets/css/index.css";
 
+
 //Login
 import Login from "./pages/Login/Login.jsx";
 
@@ -70,6 +71,7 @@ import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
 
 
 
+
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
    
@@ -101,7 +103,7 @@ element: <Login />
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />},
-      { path: "roles", element: <Roles/>}
+      { path: "roles", element: <Roles/>},
     ],
   },
    {
