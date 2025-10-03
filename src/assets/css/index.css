@@ -22,6 +22,8 @@
 
 @import './tiptap.css';
 
+@import './chatbot.css';
+
 /* Estilos para cards de eventos */
 .event-card {
   padding: 6px 10px;
