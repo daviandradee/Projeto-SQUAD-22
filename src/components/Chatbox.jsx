@@ -39,6 +39,8 @@ function ChatBox() {
     useEffect(()=>{
         chatBodyRef.current.scrollTo({top: chatBodyRef.current.scrollHeight, behavior:"smooth"})
     }, [chatHistory])
+    {/*
+        nosso chat */}
     return (
         <div className={`container-chatbox ${showChatbot ? "show-chatbot" : ""}`}>
                 <button onClick={()=> setShowChatbot(prev => !prev)} id="chatbot-toggler">
