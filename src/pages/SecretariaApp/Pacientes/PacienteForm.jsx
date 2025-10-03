@@ -7,14 +7,14 @@ import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
 import Swal from "sweetalert2";
-
+{/*
+    nosso formulario de paciente */}
 function PacienteForm() {
     const tokenUsuario = getAccessToken()
     const [patientData, setpatientData] = useState({
         full_name: "",
         cpf: "",
         email: "",
-        phone_mobile: "",
         birth_date: "",
         social_name: "",
         sex: "",
@@ -39,7 +39,6 @@ function PacienteForm() {
         reference: "",
         guardian_cpf: "",
         guardian_name: "",
-        complement: "",
 
     })
     const [previewUrl, setPreviewUrl] = useState(AvatarForm); 

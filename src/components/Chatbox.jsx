@@ -3,14 +3,15 @@ import "../assets/css/index.css"
 import ChatForm from "./ChatForm";
 import  ChatMessage  from "./ChatMessage";
 import { useState, useRef, useEffect } from "react";
-import  {companyInfo}  from "../companyinfo";
+import { Company } from "../Company";
+
 
 
 function Chatbox() {
     const [chatHistory, setChatHistory] = useState([{
         hideInchat: true,
         role: "model",
-        text: companyInfo
+        text: Company
     }]);
     const [showChatbot, setShowChatbot] = useState(false);
     const chatBodyRef = useRef()
@@ -39,6 +40,8 @@ function Chatbox() {
     useEffect(()=>{
         chatBodyRef.current.scrollTo({top: chatBodyRef.current.scrollHeight, behavior:"smooth"})
     }, [chatHistory])
+    {/*
+        nosso chat */}
     return (
         <div className={`container-chatbox ${showChatbot ? "show-chatbot" : ""}`}>
                 <button onClick={()=> setShowChatbot(prev => !prev)} id="chatbot-toggler">
