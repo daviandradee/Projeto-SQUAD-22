@@ -3,7 +3,7 @@ import './../../assets/css/index.css'
 import Navbar from './../../components/Navbar'
 import { useState } from "react";
 import Chatbox from '../../components/Chatbox';
-
+import AccessibilityWidget from '../../components/AccessibilityWidget';
 
 
 function DoctorApp() {
@@ -93,6 +93,8 @@ function DoctorApp() {
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
+          <AccessibilityWidget />
+         
           <Chatbox />
         </div>
       </div>

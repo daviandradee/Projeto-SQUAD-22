@@ -1,0 +1,1130 @@
+/* ============
+   ESTILOS BASE
+   ============ */
+body {
+    background: #f5f8ff;
+    color: #111;
+    font-family: "Inter", sans-serif;
+    transition: background-color 0.4s, color 0.4s;
+}
+
+/* ============
+     MODO ESCURO
+     ============ */
+body.dark-mode {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode a {
+    color: #60a5fa;
+}
+
+body.dark-mode a:hover {
+    color: #93c5fd;
+}
+
+body.dark-mode .card,
+body.dark-mode .card-box,
+body.dark-mode .profile-widget {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border: 1px solid #334155;
+}
+
+/* ============
+     BOTÃO ♿
+     ============ */
+.acc-btn {
+    position: fixed;
+    right: 90px;
+    bottom: 30px;
+    z-index: 3000;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background-color: #3399ff;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.acc-btn:hover {
+    background-color: #4da6ff;
+}
+
+.acc-btn.active {
+    border: 2px solid #fff;
+}
+
+/* ============
+     PAINEL
+     ============ */
+.acc-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    background: #ffffff;
+    color: #000;
+    border-radius: 12px;
+    padding: 16px;
+    width: 280px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 4000;
+}
+
+body.dark-mode .acc-panel {
+    background: #1e293b;
+    color: #f9fafb;
+    border: 1px solid #334155;
+}
+
+/* Header */
+.acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.acc-header strong {
+    font-size: 16px;
+}
+
+.acc-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Conteúdo */
+.acc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.acc-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Rodapé */
+.acc-footer {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 8px;
+}
+
+/* ============
+   AJUSTES ADICIONAIS DE MODO ESCURO
+   ============ */
+
+/* Sidebar e rolagem */
+body.dark-mode .sidebar,
+body.dark-mode .sidebar-inner,
+body.dark-mode .slimscroll {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+body.dark-mode .sidebar a {
+    color: #e2e8f0;
+}
+
+body.dark-mode .sidebar a:hover {
+    color: #60a5fa;
+}
+
+body.dark-mode .menu-title {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* ========
+   Aba "nav-tabs" (como a da aba 'Sobre' dos perfis)
+   ======== */
+body.dark-mode .nav-tabs.nav-tabs-bottom {
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .nav-tabs.nav-tabs-bottom .nav-link {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .nav-tabs.nav-tabs-bottom .nav-link:hover {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+}
+
+body.dark-mode .nav-tabs.nav-tabs-bottom .nav-link.active {
+    color: #ffffff;
+    border-bottom: 2px solid #3399ff;
+    font-weight: 600;
+    background-color: #1e293b;
+}
+
+/* ========
+   Conteúdo da aba ativa (ex: Biografia, Sobre, etc)
+   ======== */
+body.dark-mode .tab-content {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+body.dark-mode .tab-pane {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+/* ========
+   Cards dentro das abas (ex: Biografia, Dados, etc)
+   ======== */
+body.dark-mode .card-box {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+}
+
+/* ========
+   Scrollbars visuais (modo escuro)
+   ======== */
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ========
+   Links e botões dentro de abas
+   ======== */
+body.dark-mode .nav-link,
+body.dark-mode .btn-link {
+    color: #93c5fd;
+}
+
+body.dark-mode .nav-link:hover,
+body.dark-mode .btn-link:hover {
+    color: #60a5fa;
+}
+
+/* ============
+   AJUSTES COMPLETOS PARA ABA NAV-TABS (INCLUINDO NAV CONTAINER)
+   ============ */
+
+/* Container principal das abas */
+body.dark-mode nav.nav.nav-tabs.nav-tabs-bottom {
+    background-color: #1e293b;
+    border-bottom: 1px solid #334155;
+    border-radius: 8px 8px 0 0;
+    padding: 6px 10px;
+}
+
+/* Cada aba */
+body.dark-mode nav.nav.nav-tabs.nav-tabs-bottom .nav-link {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Hover da aba */
+body.dark-mode nav.nav.nav-tabs.nav-tabs-bottom .nav-link:hover {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+}
+
+/* Aba ativa */
+body.dark-mode nav.nav.nav-tabs.nav-tabs-bottom .nav-link.active {
+    color: #ffffff;
+    border-bottom: 2px solid #3399ff;
+    font-weight: 600;
+    background-color: #1e293b;
+    border-radius: 4px 4px 0 0;
+}
+
+/* Conteúdo das abas */
+body.dark-mode .tab-content {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-radius: 0 0 8px 8px;
+    padding: 16px;
+    border: 1px solid #334155;
+}
+
+/* Painel interno (cada aba) */
+body.dark-mode .tab-pane {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+/* ========
+     Sidebar e slimscroll
+     ======== */
+body.dark-mode .sidebar,
+body.dark-mode .sidebar-inner,
+body.dark-mode .slimscroll {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+body.dark-mode .sidebar a {
+    color: #e2e8f0;
+}
+
+body.dark-mode .sidebar a:hover {
+    color: #60a5fa;
+}
+
+body.dark-mode .menu-title {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* ========
+     Scrollbars visuais (modo escuro)
+     ======== */
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ============
+   CORREÇÃO DO MODO ESCURO PARA UL.NAV.NAV-TABS.NAV-TABS-BOTTOM
+   ============ */
+
+body.dark-mode ul.nav.nav-tabs.nav-tabs-bottom {
+    background-color: #1e293b !important;
+    border-bottom: 1px solid #334155 !important;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 6px 10px !important;
+}
+
+body.dark-mode ul.nav.nav-tabs.nav-tabs-bottom .nav-link {
+    background-color: transparent !important;
+    color: #cbd5e1 !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+body.dark-mode ul.nav.nav-tabs.nav-tabs-bottom .nav-link:hover {
+    color: #60a5fa !important;
+    border-bottom-color: #60a5fa !important;
+}
+
+body.dark-mode ul.nav.nav-tabs.nav-tabs-bottom .nav-link.active {
+    color: #ffffff !important;
+    border-bottom: 2px solid #3399ff !important;
+    font-weight: 600 !important;
+    background-color: #1e293b !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* Conteúdo da aba */
+body.dark-mode .tab-content {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-radius: 0 0 8px 8px !important;
+    padding: 16px !important;
+    border: 1px solid #334155 !important;
+}
+
+/* ============
+   DASHBOARD (sdc-dash-widget / sdc-card / sdc-card-header)
+   ============ */
+
+/* ===== Widget principal (cards de métricas) ===== */
+body.dark-mode .sdc-dash-widget {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    border-radius: 12px !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .sdc-dash-widget:hover {
+    border-color: #3399ff !important;
+    box-shadow: 0 0 0 2px rgba(51, 153, 255, 0.4) !important;
+}
+
+/* ===== Cartões (sdc-card) ===== */
+body.dark-mode .sdc-card {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #e2e8f0 !important;
+    border-radius: 10px !important;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-mode .sdc-card:hover {
+    border-color: #3399ff !important;
+}
+
+/* ===== Cabeçalho dos cartões (sdc-card-header) ===== */
+body.dark-mode .sdc-card-header {
+    background-color: #0f172a !important;
+    color: #93c5fd !important;
+    border-bottom: 1px solid #334155 !important;
+    padding: 10px 16px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.dark-mode .sdc-card-header i,
+body.dark-mode .sdc-card-header svg {
+    color: #60a5fa !important;
+}
+
+/* ===== Ícones e textos dentro dos widgets ===== */
+body.dark-mode .sdc-dash-widget h3,
+body.dark-mode .sdc-dash-widget span,
+body.dark-mode .sdc-dash-widget i {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .sdc-dash-widget .icon {
+    background: rgba(51, 153, 255, 0.15) !important;
+    border-radius: 50% !important;
+    color: #3399ff !important;
+    padding: 10px;
+}
+
+/* ============
+   TABELAS • th / td / thead / DataTables
+   ============ */
+
+/* Base para qualquer tabela (Bootstrap, nativa e DataTables) */
+body.dark-mode table,
+body.dark-mode .table {
+    background-color: #1e293b !important;
+    /* fundo do corpo */
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+/* Cabeçalho */
+body.dark-mode thead,
+body.dark-mode .table thead {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .table thead th,
+body.dark-mode thead th {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+/* Células do corpo */
+body.dark-mode .table td,
+body.dark-mode td {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+/* Bordas da tabela */
+body.dark-mode .table-bordered,
+body.dark-mode .table-bordered th,
+body.dark-mode .table-bordered td {
+    border-color: #334155 !important;
+}
+
+/* Striped (zebrado) */
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #192230 !important;
+    /* um tom acima do corpo */
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(even) {
+    background-color: #1e293b !important;
+}
+
+/* Hover */
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: #243244 !important;
+}
+
+/* Links dentro da tabela */
+body.dark-mode .table a {
+    color: #60a5fa !important;
+}
+
+body.dark-mode .table a:hover {
+    color: #93c5fd !important;
+}
+
+/* Cabeçalho fixo / responsivo */
+body.dark-mode .table-responsive {
+    background: transparent !important;
+    border-color: #334155 !important;
+}
+
+/* ===== DataTables (Bootstrap 4) ===== */
+body.dark-mode .dataTables_wrapper .dataTables_length select,
+body.dark-mode .dataTables_wrapper .dataTables_filter input {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_info {
+    color: #94a3b8 !important;
+}
+
+/* Paginação (Bootstrap) */
+body.dark-mode .pagination .page-link,
+body.dark-mode .page-item .page-link {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode .page-item.active .page-link {
+    background-color: #3399ff !important;
+    border-color: #3399ff !important;
+    color: #0b1220 !important;
+}
+
+body.dark-mode .page-item.disabled .page-link {
+    background-color: #0f172a !important;
+    color: #64748b !important;
+    border-color: #334155 !important;
+}
+
+/* Paginação (classe do DataTables puro) */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #3399ff !important;
+    border-color: #3399ff !important;
+    color: #0b1220 !important;
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #243244 !important;
+    color: #e2e8f0 !important;
+    border-color: #3b4a62 !important;
+}
+
+/* Dropdowns dentro de tabela */
+body.dark-mode .dropdown-menu {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #1e293b !important;
+    color: #93c5fd !important;
+}
+
+/* Badges/labels dentro da tabela (se existirem) */
+body.dark-mode .badge,
+body.dark-mode .label {
+    background: #243244 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode h4 {
+    color: #f8fafc !important;
+    /* texto branco puro */
+    font-weight: 600 !important;
+}
+
+body.dark-mode h4 {
+    color: #f8fafc !important;
+    /* texto branco puro */
+    font-weight: 600 !important;
+}
+
+/* ============
+   BOTÕES PRIMÁRIOS (Bootstrap)
+   ============ */
+
+/* Botão principal */
+body.dark-mode .btn-primary,
+body.dark-mode .btn.btn-primary,
+body.dark-mode .btn.btn-primary.btn-rounded,
+body.dark-mode .btn.btn-primary.float-right {
+    background-color: #3399ff !important;
+    /* azul padrão Mediconnect */
+    border-color: #3399ff !important;
+    color: #ffffff !important;
+    /* texto branco */
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(51, 153, 255, 0.3) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover e foco */
+body.dark-mode .btn-primary:hover,
+body.dark-mode .btn.btn-primary:hover,
+body.dark-mode .btn.btn-primary.btn-rounded:hover,
+body.dark-mode .btn.btn-primary.float-right:hover {
+    background-color: #4da6ff !important;
+    /* azul mais claro no hover */
+    border-color: #4da6ff !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(51, 153, 255, 0.4) !important;
+}
+
+/* Estado ativo / clicado */
+body.dark-mode .btn-primary:active,
+body.dark-mode .btn.btn-primary:active {
+    background-color: #1d8bff !important;
+    border-color: #1d8bff !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Estado desabilitado */
+body.dark-mode .btn-primary:disabled,
+body.dark-mode .btn.btn-primary:disabled {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #64748b !important;
+    opacity: 0.8;
+}
+
+/* Corrige contraste em todos botões azuis */
+body.dark-mode .btn-primary span,
+body.dark-mode .btn-primary i,
+body.dark-mode .btn-primary svg {
+    color: #ffffff !important;
+}
+
+/* ============
+   TÍTULOS, NOMES DE USUÁRIO E TEXTOS IMPORTANTES
+   ============ */
+
+/* Nomes de usuário / headings principais */
+body.dark-mode .user-name,
+body.dark-mode .user-name.m-t-0.mb-0,
+body.dark-mode .profile-widget .user-name,
+body.dark-mode .header-title,
+body.dark-mode .page-title {
+    color: #f8fafc !important;
+    /* branco puro */
+    font-weight: 600 !important;
+}
+
+/* Títulos de cards */
+body.dark-mode .card-title,
+body.dark-mode .sdc-card-header .card-title,
+body.dark-mode .widget-title,
+body.dark-mode .title,
+body.dark-mode span.title,
+body.dark-mode .page-header .title {
+    color: #f1f5f9 !important;
+    font-weight: 600 !important;
+    text-shadow: 0 0 4px rgba(51, 153, 255, 0.2);
+}
+
+/* Subtítulos e textos menores */
+body.dark-mode .card-subtitle,
+body.dark-mode .subtitle,
+body.dark-mode .user-role,
+body.dark-mode .user-position,
+body.dark-mode small,
+body.dark-mode .text-muted {
+    color: #dbeafe !important;
+    /* azul-claro suave */
+}
+
+/* Ícones dentro dos títulos */
+body.dark-mode .card-title i,
+body.dark-mode .title i,
+body.dark-mode .user-name i {
+    color: #60a5fa !important;
+}
+
+/* Corrige títulos com cor herdada inline */
+body.dark-mode [style*="color: #6c757d"],
+body.dark-mode [style*="color:#6c757d"] {
+    color: #f1f5f9 !important;
+}
+
+/* ============
+   MENU TITLE (SIDEBAR)
+   ============ */
+body.dark-mode .menu-title,
+body.dark-mode li.menu-title,
+body.dark-mode .sidebar-menu .menu-title {
+    color: #93c5fd !important;
+    /* azul-claro sutil */
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+/* Corrige ícones e textos dentro do menu */
+body.dark-mode .sidebar-menu a,
+body.dark-mode .sidebar-menu i {
+    color: #e2e8f0 !important;
+    transition: color 0.2s ease-in-out;
+}
+
+body.dark-mode .sidebar-menu a:hover,
+body.dark-mode .sidebar-menu a:focus,
+body.dark-mode .sidebar-menu .active>a {
+    color: #60a5fa !important;
+}
+
+/* ============
+   BOTÕES SDC (FLOAT-RIGHT)
+   ============ */
+body.dark-mode .sdc-btn.sdc-btn-primary,
+body.dark-mode .sdc-btn.sdc-btn-primary.float-right {
+    background-color: #3399ff !important;
+    /* azul Mediconnect */
+    border-color: #3399ff !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(51, 153, 255, 0.3) !important;
+    transition: background 0.25s ease, transform 0.15s ease;
+}
+
+body.dark-mode .sdc-btn.sdc-btn-primary:hover,
+body.dark-mode .sdc-btn.sdc-btn-primary.float-right:hover {
+    background-color: #4da6ff !important;
+    /* azul mais claro no hover */
+    transform: scale(1.03);
+    color: #fff !important;
+}
+
+body.dark-mode .sdc-btn.sdc-btn-primary:active {
+    background-color: #1d8bff !important;
+    border-color: #1d8bff !important;
+    transform: scale(0.98);
+}
+
+body.dark-mode .sdc-btn.sdc-btn-primary:disabled {
+    background-color: #1e293b !important;
+    color: #64748b !important;
+    opacity: 0.7;
+    box-shadow: none !important;
+}
+
+/* ============
+   BOTÕES INFO (btn-info)
+   ============ */
+body.dark-mode .btn.btn-sm.btn-info,
+body.dark-mode .btn.btn-info {
+    background-color: #3399ff !important;
+    /* Azul principal */
+    border-color: #3399ff !important;
+    color: #fff !important;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(51, 153, 255, 0.3);
+    transition: all 0.2s ease-in-out;
+}
+
+body.dark-mode .btn.btn-info:hover,
+body.dark-mode .btn.btn-sm.btn-info:hover {
+    background-color: #4da6ff !important;
+    /* Azul mais claro */
+    transform: scale(1.03);
+}
+
+body.dark-mode .btn.btn-info:active {
+    background-color: #1d8bff !important;
+    transform: scale(0.98);
+}
+
+/* ============
+   DOC ELEMENTS (geral)
+   ============ */
+body.dark-mode .doc-content,
+body.dark-mode .doc-dash-widget,
+body.dark-mode .doc-card,
+body.dark-mode .doc-pie-chart-wrapper {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Header do card */
+/* ============
+   CABEÇALHOS DE CARDS E TÍTULOS (h3, h4, span)
+   ============ */
+
+/* Header do card - fundo igual aos demais headers do sistema */
+body.dark-mode .doc-card-header,
+body.dark-mode .card-header,
+body.dark-mode .profile-header,
+body.dark-mode .sdc-card-header {
+    background-color: #162033 !important;
+    /* azul escuro uniforme */
+    color: #f1f5f9 !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Títulos dentro de qualquer header ou card */
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .card-title,
+body.dark-mode .doc-card-header h3,
+body.dark-mode .doc-card-header h4,
+body.dark-mode .doc-card-header span,
+body.dark-mode .sdc-card-header h3,
+body.dark-mode .sdc-card-header span {
+    color: #e8eefc !important;
+    /* branco azulado suave */
+    font-weight: 600;
+}
+
+/* Subtítulos ou spans dentro de headers */
+body.dark-mode .doc-card-header span,
+body.dark-mode .card-header span,
+body.dark-mode .sdc-card-header span {
+    color: #c7d7ff !important;
+    /* tom mais claro, legível */
+    font-weight: 500;
+}
+
+/* Hover em elementos clicáveis do header */
+body.dark-mode .doc-card-header a:hover,
+body.dark-mode .card-header a:hover {
+    color: #93c5fd !important;
+    /* azul claro do resto do site */
+}
+
+/* ============
+   BOTÕES DOC PRIMARY
+   ============ */
+body.dark-mode .doc-btn.doc-btn-primary,
+body.dark-mode .doc-btn.doc-btn-primary.float-right {
+    background-color: #3399ff !important;
+    border: 1px solid #3399ff !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(51, 153, 255, 0.25);
+    transition: background 0.25s ease, transform 0.15s ease;
+}
+
+body.dark-mode .doc-btn.doc-btn-primary:hover,
+body.dark-mode .doc-btn.doc-btn-primary.float-right:hover {
+    background-color: #4da6ff !important;
+    transform: scale(1.03);
+}
+
+body.dark-mode .doc-btn.doc-btn-primary:active {
+    background-color: #1d8bff !important;
+    border-color: #1d8bff !important;
+    transform: scale(0.98);
+}
+
+/* ============
+   ELEMENTOS GRÁFICOS (gráficos e painéis)
+   ============ */
+body.dark-mode canvas,
+body.dark-mode .chart,
+body.dark-mode .doc-pie-chart-wrapper canvas {
+    background-color: transparent !important;
+    filter: brightness(0.9) contrast(1.1);
+}
+
+body.dark-mode .chartjs-render-monitor {
+    background: transparent !important;
+}
+
+/* ============
+   AJUSTE: sdc-card-header sem fundo escuro
+   ============ */
+body.dark-mode .sdc-card-header {
+    background: transparent !important;
+    /* sem fundo */
+    border-bottom: 1px solid #334155 !important;
+    /* linha suave pra separar */
+    color: #e8eefc !important;
+    /* mantém legível */
+    box-shadow: none !important;
+}
+
+/* ============
+     BADGES CUSTOMIZADAS
+     ============ */
+body.dark-mode .custom-badge.status-green {
+    background-color: #22c55e !important;
+    /* verde vivo (tailwind emerald-500) */
+    color: #ffffff !important;
+    border: 1px solid #16a34a !important;
+    /* leve contraste */
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* Ao passar o mouse */
+body.dark-mode .custom-badge.status-green:hover {
+    background-color: #16a34a !important;
+    /* tom mais escuro no hover */
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.6);
+}
+
+/* ============
+   DASHBOARD WIDGETS (modo escuro - cores vivas)
+   ============ */
+
+/* Container principal */
+body.dark-mode .dash-widget {
+    background-color: #1b2638 !important;
+    /* fundo escuro, levemente azulado */
+    color: #ffffff !important;
+    border: 1px solid #2f3c52 !important;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+/* Título do widget */
+body.dark-mode .widget-title2 {
+    color: #ffffff !important;
+    /* branco puro */
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.2px;
+}
+
+/* Informações e números à direita */
+body.dark-mode .dash-widget-info.text-right,
+body.dark-mode .dash-widget-info.text-right h3,
+body.dark-mode .dash-widget-info.text-right span {
+    color: #60a5fa !important;
+    /* azul vivo */
+    font-weight: 700;
+}
+
+/* Ícones ou textos auxiliares dentro do card */
+body.dark-mode .dash-widget i,
+body.dark-mode .dash-widget small,
+body.dark-mode .dash-widget .subtext {
+    color: #cbd5e1 !important;
+    /* cinza claro visível */
+}
+
+/* Hover leve — realce sutil */
+body.dark-mode .dash-widget:hover {
+    background-color: #22314b !important;
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.25);
+    transform: translateY(-2px);
+    transition: all 0.25s ease;
+}
+
+/* ============
+   DASHBOARD WIDGETS (texto forte e legível)
+   ============ */
+
+/* Container */
+body.dark-mode .dash-widget {
+    background-color: #1b2638 !important;
+    border: 1px solid #2f3c52 !important;
+    border-radius: 10px;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+}
+
+/* Títulos dos widgets */
+/* ============
+   AJUSTE FINAL - widget-title2
+   ============ */
+
+   body.dark-mode .widget-title2,
+   body.dark-mode .widget-title2 *,
+   body.dark-mode .dash-widget h3,
+   body.dark-mode h3.widget-title2 {
+     color: #ffffff !important;      /* branco puro */
+     font-weight: 800 !important;    /* texto mais encorpado */
+     text-shadow: 0 0 4px rgba(255, 255, 255, 0.08); /* brilho suave */
+     letter-spacing: 0.3px;
+     opacity: 1 !important;          /* evita cinza translúcido */
+   }
+
+/* Subtítulos e spans */
+body.dark-mode .dash-widget span,
+body.dark-mode .dash-widget small {
+    color: #cbd5e1 !important;
+    /* cinza claro legível */
+}
+
+/* Informações à direita */
+body.dark-mode .dash-widget-info.text-right,
+body.dark-mode .dash-widget-info.text-right h3,
+body.dark-mode .dash-widget-info.text-right span {
+    color: #60a5fa !important;
+    /* azul vibrante */
+    font-weight: 700 !important;
+}
+
+/* Hover leve */
+body.dark-mode .dash-widget:hover {
+    background-color: #24324a !important;
+    box-shadow: 0 0 12px rgba(96, 165, 250, 0.3);
+    transform: translateY(-2px);
+}/* ============
+   DOC CARD HEADER (modo escuro limpo)
+   ============ */
+body.dark-mode .doc-card-header {
+    background: transparent !important; /* remove o fundo escuro */
+    border-bottom: 1px solid #334155 !important; /* linha discreta */
+    color: #ffffff !important; /* texto branco visível */
+    box-shadow: none !important;
+  }
+  
+  /* Ajuste dos títulos dentro do header */
+  body.dark-mode .doc-card-header h3,
+  body.dark-mode .doc-card-header span,
+  body.dark-mode .doc-card-header strong {
+    color: #ffffff !important; /* texto 100% branco */
+    font-weight: 700;
+  }
+  
+  /* Se tiver botões dentro do header */
+  body.dark-mode .doc-card-header button,
+  body.dark-mode .doc-card-header a {
+    background: #2563eb !important; /* azul consistente */
+    color: #fff !important;
+    border: none !important;
+    transition: background 0.3s ease;
+  }
+  
+  body.dark-mode .doc-card-header button:hover,
+  body.dark-mode .doc-card-header a:hover {
+    background: #3b82f6 !important; /* azul mais claro ao passar o mouse */
+  }/* ============
+   CHATBOT (modo escuro)
+   ============ */
+
+/* Corpo do chat */
+body.dark-mode .chat-body {
+    background-color: #0f172a !important; /* fundo escuro principal */
+    color: #f1f5f9 !important; /* texto claro */
+    border-top: 1px solid #334155 !important;
+    border-bottom: 1px solid #334155 !important;
+    scrollbar-color: #475569 #1e293b; /* cores da barra de rolagem */
+  }
+  
+  /* Mensagens do usuário e do bot */
+  body.dark-mode .chat-body .message-text {
+    color: #f1f5f9 !important; /* texto claro legível */
+  }
+  
+  body.dark-mode .chat-body .user-message .message-text {
+    background-color: #2563eb !important; /* azul consistente */
+    color: #ffffff !important;
+    border-radius: 10px 10px 0 10px;
+  }
+  
+  body.dark-mode .chat-body .bot-message .message-text {
+    background-color: #1e293b !important; /* cinza azulado escuro */
+    color: #e2e8f0 !important;
+    border-radius: 10px 10px 10px 0;
+  }
+  
+  /* Rodapé (área de digitação) */
+  body.dark-mode .chat-footer {
+    background-color: #1e293b !important; /* mesmo tom do restante */
+    border-top: 1px solid #334155 !important;
+    padding: 10px;
+  }
+  
+  /* Campo de entrada de mensagem */
+  body.dark-mode .message-input {
+    background-color: #0f172a !important; /* fundo escuro */
+    color: #ffffff !important; /* texto branco */
+    border: 1px solid #3b82f6 !important; /* azul no contorno */
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+  }
+  
+  body.dark-mode .message-input::placeholder {
+    color: #94a3b8 !important; /* placeholder cinza claro */
+  }
+  
+  body.dark-mode .message-input:focus {
+    outline: none;
+    border-color: #60a5fa !important; /* azul mais claro ao focar */
+    box-shadow: 0 0 6px rgba(96, 165, 250, 0.4);
+  }
+  
+  /* Botão de envio */
+  body.dark-mode .chat-footer button {
+    background-color: #2563eb !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  body.dark-mode .chat-footer button:hover {
+    background-color: #3b82f6 !important;
+  }
+  
+  /* Ícone do botão (seta) */
+  body.dark-mode .chat-footer button .material-symbols-rounded {
+    color: #fff !important;
+    font-size: 20px;
+  }

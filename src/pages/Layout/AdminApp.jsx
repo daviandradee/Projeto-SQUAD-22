@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { Outlet } from 'react-router-dom';
 import Chatbox from '../../components/Chatbox';
-
+import AccessibilityWidget from '../../components/AccessibilityWidget';
 
 
 
@@ -90,6 +90,8 @@ function Sidebar() {
                 </div>
             </div>
                 <Outlet />
+                <AccessibilityWidget />
+                
                 <Chatbox />
         </div>
     );

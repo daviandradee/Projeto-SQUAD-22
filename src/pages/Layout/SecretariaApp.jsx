@@ -3,7 +3,7 @@ import './../../assets/css/index.css'
 import Navbar from '../../components/Navbar'
 import React, { useState } from 'react';
 import Chatbox from '../../components/Chatbox';
-
+import AccessibilityWidget from '../../components/AccessibilityWidget';
 
 
 function SecretariaApp() {
@@ -85,6 +85,8 @@ function SecretariaApp() {
       <div className="page-wrapper">
         <div className="content">
           <Outlet />
+          <AccessibilityWidget />
+          
           <Chatbox />
         </div>
       </div>
