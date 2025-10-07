@@ -3,6 +3,7 @@ import "../../../assets/css/index.css";
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth";
+import Swal from 'sweetalert2';
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -68,7 +69,6 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   );
 }
 
-
 function LaudoList() {
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
@@ -78,9 +78,6 @@ function LaudoList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
   const tokenUsuario = getAccessToken()
-  
-  
-
 
   var myHeaders = new Headers();
   myHeaders.append(
@@ -93,6 +90,7 @@ function LaudoList() {
     headers: myHeaders,
     redirect: 'follow'
   };
+
   useEffect(() => {
     fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
       .then(response => response.json())
@@ -100,10 +98,110 @@ function LaudoList() {
       .catch(error => console.log('error', error));
   }, [])
 
+  const handleVerDetalhes = (laudo) => {
+    Swal.fire({
+      title: "Detalhes do Laudo",
+      html: `
+        <div class="text-start" style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <div class="mb-3">
+            <h6 class="text-primary">Informações do Pedido</h6>
+            <p><strong>Nº Pedido:</strong> ${laudo.order_number || 'N/A'}</p>
+            <p><strong>Paciente ID:</strong> ${laudo.patient_id || 'N/A'}</p>
+            <p><strong>Tipo:</strong> ${laudo.tipo || 'N/A'}</p>         
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Detalhes do Exame</h6>
+            <p><strong>Exame:</strong> ${laudo.exam || 'N/A'}</p>
+            <p><strong>Diagnóstico:</strong> ${laudo.diagnosis || 'Nenhum diagnóstico'}</p>
+            <p><strong>Conclusão:</strong> ${laudo.conclusion || 'Nenhuma conclusão'}</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Responsáveis</h6>
+            <p><strong>Executante:</strong> ${laudo.requested_by || 'N/A'}</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Datas</h6>
+            <p><strong>Criado em:</strong> ${formatDate(laudo.created_at) || 'N/A'}</p>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Abrir Laudo",
+      cancelButtonText: "Fechar",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      icon: "info",
+      width: "600px",
+      draggable: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Abrir o form de laudo
+        abrirFormLaudo(laudo.id);
+      }
+    });
+  };
+
+  const abrirFormLaudo = (laudoId) => {
+    // Navega para o form de laudo com o ID
+    window.location.href = `/doctor/laudoform?id=${laudoId}`;
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'concluído':
+      case 'finalizado':
+        return 'bg-success';
+      case 'pendente':
+        return 'bg-warning';
+      case 'cancelado':
+        return 'bg-danger';
+      default:
+        return 'bg-secondary';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   const handleDelete = (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir este laudo?")) return;
-    setLaudos(prev => prev.filter(l => l.id !== id));
-    setOpenDropdown(null);
+    Swal.fire({
+      title: "Excluir Laudo?",
+      text: "Tem certeza que deseja excluir este laudo?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sim, Excluir",
+      cancelButtonText: "Cancelar",
+      draggable: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setLaudos(prev => prev.filter(l => l.id !== id));
+        setOpenDropdown(null);
+        Swal.fire({
+          title: "Excluído!",
+          text: "Laudo excluído com sucesso.",
+          icon: "success",
+          draggable: true
+        });
+      }
+    });
   };
 
   const filteredLaudos = laudos.filter(l => {
@@ -145,21 +243,22 @@ function LaudoList() {
 
     return textMatch && dateMatch;
   });
+
   const [itemsPerPage1] = useState(10);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastLaudos = currentPage1 * itemsPerPage1;
   const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
   const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
   const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
-   useEffect(() => {
-        setCurrentPage1(1);
-      }, [search]);
-      
+
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search]);
+
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
     return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
   };
-  
 
   return (
     <div className="content">
@@ -196,8 +295,6 @@ function LaudoList() {
             <button className={`btn-filter ${period === "week" ? "active" : ""}`} onClick={() => setPeriod("week")}>Semana</button>
             <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
           </div>
-
-
         </div>
       </div>
 
@@ -238,9 +335,18 @@ function LaudoList() {
                         </button>
                         <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown === l.id}
                           onClose={() => setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
-                          <Link className="dropdown-item-custom" to={`/doctor/laudoform`} onClick={e => { e.stopPropagation(); setOpenDropdown(null); }}>
-                            <i className="fa fa-file-text"></i> Laudo
-                          </Link>
+                          {/* BOTÃO VER DETALHES - SUBSTITUIU O BOTÃO LAUDO */}
+                          <button 
+                            className="dropdown-item-custom" 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setOpenDropdown(null);
+                              handleVerDetalhes(l);
+                            }}
+                          >
+                            <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                          </button>
+                          
                           <button className="dropdown-item-custom dropdown-item-delete" onClick={() => handleDelete(l.id)}>
                             <i className="fa fa-trash-o m-r-5"></i> Excluir
                           </button>
@@ -256,16 +362,13 @@ function LaudoList() {
               </tbody>
             </table>
           </div>
-           <nav className="mt-3">
+          <nav className="mt-3">
             <ul className="pagination justify-content-center">
-              {/* Ir para a primeira página */}
               <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
                 <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                  {"<<"} {/* ou "Início" */}
+                  {"<<"}
                 </button>
               </li>
-
-              {/* Botão de página anterior */}
               <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"
@@ -274,13 +377,9 @@ function LaudoList() {
                   &lt;
                 </button>
               </li>
-
-              {/* Números de página */}
-
               <li className="page-item active">
                 <span className="page-link">{currentPage1}</span>
               </li>
-              {/* Botão de próxima página */}
               <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"
@@ -291,22 +390,17 @@ function LaudoList() {
                   &gt;
                 </button>
               </li>
-
-
-              {/* Ir para a última página */}
               <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
                 <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                  {">>"} {/* ou "Fim" */}
+                  {">>"}
                 </button>
               </li>
             </ul>
           </nav>
         </div>
       </div>
-
     </div>
   );
 }
 
 export default LaudoList;
-
