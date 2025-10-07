@@ -68,6 +68,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   );
 }
 
+
 function LaudoList() {
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
@@ -77,10 +78,15 @@ function LaudoList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
   const tokenUsuario = getAccessToken()
+  
+  
 
 
   var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append(
+    "apikey",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"
+  );
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
     method: 'GET',
@@ -88,7 +94,7 @@ function LaudoList() {
     redirect: 'follow'
   };
   useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
       .then(response => response.json())
       .then(result => setLaudos(Array.isArray(result) ? result : []))
       .catch(error => console.log('error', error));
@@ -109,8 +115,8 @@ function LaudoList() {
       (l.status || "").toLowerCase().includes(q) ||
       (l.pedido || "").toString().toLowerCase().includes(q) ||
       (l.prazo || "").toLowerCase().includes(q) ||
-      (l.executante || "").toLowerCase().includes(q) ||
-      (l.exame || "").toLowerCase().includes(q) ||
+      (l.requested_by || "").toLowerCase().includes(q) ||
+      (l.exam || "").toLowerCase().includes(q) ||
       (l.data || "").toLowerCase().includes(q);
 
     let dateMatch = true;
@@ -139,7 +145,7 @@ function LaudoList() {
 
     return textMatch && dateMatch;
   });
-  const [itemsPerPage1] = useState(2);
+  const [itemsPerPage1] = useState(10);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastLaudos = currentPage1 * itemsPerPage1;
   const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
@@ -203,29 +209,27 @@ function LaudoList() {
               <thead>
                 <tr>
                   <th>Pedido</th>
-                  <th>Data</th>
-                  <th>Prazo</th>
-                  <th>Paciente</th>
-                  <th>CPF</th>
-                  <th>Tipo</th>
+                  <th>Pacient ID</th>
+                  <th>Exame</th>
+                  <th>Diasgnostico</th>
+                  <th>Conclusão</th>
                   <th>Status</th>
                   <th>Executante</th>
-                  <th>Exame</th>
+                  <th>Criado em</th>
                   <th className="text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {currentLaudos.length > 0 ? currentLaudos.map(l => (
                   <tr key={l.id}>
-                    <td className="nowrap">{l.pedido}</td>
-                    <td className="nowrap">{l.data}</td>
-                    <td className="nowrap">{l.prazo}</td>
-                    <td>{l.full_name}</td>
-                    <td className="nowrap">{mascararCPF(l.cpf)}</td>
-                    <td>{l.tipo}</td>
+                    <td className="nowrap">{l.order_number}</td>
+                    <td>{l.patient_id}</td>
+                    <td>{l.exam}</td>
+                    <td>{l.diagnosis}</td>
+                    <td>{l.conclusion}</td>
                     <td>{l.status}</td>
-                    <td>Davi Andrade</td>
-                    <td className="ellipsis">Exame de sangue</td>
+                    <td> {l.requested_by}</td>
+                    <td>{l.created_at}</td>
                     <td className="text-right">
                       <div className="dropdown dropdown-action">
                         <button type="button" ref={el => anchorRefs.current[l.id] = el} className="action-icon"

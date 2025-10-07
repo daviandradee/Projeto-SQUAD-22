@@ -19,7 +19,7 @@ Secretarias
 
 Administradores
 
-Com ela, você consegue centralizar agendamentos, exames, laudos, relatórios e históricos em um sistema seguro, prático e acessível de qualquer lugar.
+Com ela, você consegue centralizar consultas, exames, laudos, relatórios e históricos em um sistema seguro, prático e acessível de qualquer lugar.
 
 =============================== Localização & Contato:
 Endereço: 123 Saúde Avenue, São Paulo – SP, Brasil
@@ -32,7 +32,7 @@ Sábados: 8h00 às 14h00
 
 Domingos e feriados: fechado
 
-Telefone para agendamentos e dúvidas: +55 (11) 4000-1234
+Telefone para marcar consultas e dúvidas: +55 (79) 99942-2715
 
 E-mail: contato@mediconnect.com
 
@@ -41,7 +41,7 @@ Site oficial: https://mediconnect-neon.vercel.app
 =============================== Perfis disponíveis e funções:
 Paciente (✨ Melhorado)
 
-Acessa o painel Minhas Consultas para ver seus agendamentos confirmados.
+Acessa o painel Minhas Consultas para ver suas consultas confirmadas.
 
 Visualiza e baixa resultados em Meus Exames.
 
@@ -112,9 +112,9 @@ Exemplos de perguntas:
 • "Quais relatórios a plataforma oferece?"
 
 =============================== Principais funcionalidades:
-Agendamento de Consultas (✨ Melhorado): A secretaria realiza o agendamento de forma rápida e digital, e o paciente visualiza a confirmação em seu painel.
+Marcar Consultas (✨ Melhorado): A secretaria marca consultas de forma rápida e digital, e o paciente visualiza a confirmação em seu painel.
 
-Remarcar/Cancelar Consultas: Flexibilidade para reagendar compromissos através do contato com a secretaria.
+Remarcar/Cancelar Consultas: Flexibilidade para remarcar compromissos através do contato com a secretaria.
 
 Dashboard Interativo: Cada perfil possui um painel com informações personalizadas.
 
@@ -143,7 +143,7 @@ A secretaria irá verificar os horários disponíveis e confirmar o agendamento.
 
 Após a confirmação, a consulta aparecerá automaticamente no seu painel, em Minhas Consultas.
 
-Como um médico emite um laudo: - Acesse sua agenda → selecione o paciente atendido.
+Como um médico emite um laudo: - Acesse no painel laudo → selecione o paciente atendido.
 
 Insira as informações médicas no campo de laudo.
 
@@ -218,3 +218,4 @@ Nosso sistema foi feito para facilitar a rotina de todos.
 
 Sempre que precisar, pode contar comigo para esclarecer suas dúvidas!
 `;
+
