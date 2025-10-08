@@ -6,6 +6,7 @@ const LS_KEY = "pref_dark_mode";
 export default function AccessibilityWidget() {
   const [darkMode, setDarkMode] = useState(false);
   const [open, setOpen] = useState(false);
+  const [leituraAtiva, setLeituraAtiva] = useState(false);
 
   // Carrega a preferência salva
   useEffect(() => {
@@ -21,6 +22,40 @@ export default function AccessibilityWidget() {
     localStorage.setItem(LS_KEY, String(next));
     document.body.classList.toggle("dark-mode", next);
   };
+
+  
+  const lerTextoSelecionado = () => {
+    const texto = window.getSelection().toString().trim();
+    if (!texto) return;
+    window.speechSynthesis.cancel();
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = "pt-BR";
+    fala.rate = 1;
+    fala.pitch = 1;
+    window.speechSynthesis.speak(fala);
+  };
+
+  
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      if (!leituraAtiva) return;
+      const texto = window.getSelection().toString().trim();
+      if (texto.length > 1) {
+        lerTextoSelecionado();
+      }
+    };
+
+    if (leituraAtiva) {
+      document.addEventListener("selectionchange", handleSelectionChange);
+    } else {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+      window.speechSynthesis.cancel();
+    }
+
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, [leituraAtiva]);
 
   return (
     <>
@@ -52,6 +87,16 @@ export default function AccessibilityWidget() {
               />
               <span>Modo escuro</span>
             </label>
+          </div>
+
+          
+          <div className="acc-row">
+            <button
+              className={`acc-btn-read ${leituraAtiva ? "active" : ""}`}
+              onClick={() => setLeituraAtiva(!leituraAtiva)}
+            >
+              {leituraAtiva ? "🟢 Leitura automática ativada" : "🔊 Ativar leitura automática"}
+            </button>
           </div>
 
           <div className="acc-footer">
