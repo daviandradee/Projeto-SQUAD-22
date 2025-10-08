@@ -1128,3 +1128,28 @@ body.dark-mode .chat-body {
     color: #fff !important;
     font-size: 20px;
   }
+  
+.acc-btn-read {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f4f4f4;
+  color: #222;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-weight: 500;
+}
+
+.acc-btn-read:hover {
+  background-color: #e6e6e6;
+}
+
+
+.acc-btn-read.active {
+  background-color: #009EFB; 
+  color: white;
+  box-shadow: 0 0 8px rgb(45, 116, 207);
+  transform: scale(1.02);
+}
