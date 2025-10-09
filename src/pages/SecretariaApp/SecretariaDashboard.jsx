@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth";
 import "./../../assets/css/index.css"; 
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import DoctorCalendar from "../DoctorApp/DoctorCalendar";
+
 
 function SecretariaDashboard() {
   const [patients, setPatients] = useState([]);
@@ -13,7 +19,7 @@ function SecretariaDashboard() {
   const tokenUsuario = getAccessToken();
 
   const [currentPage1, setCurrentPage1] = useState(1);
-  const itemsPerPage1 = 4;
+  const itemsPerPage1 = 8;
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
   const currentPatients = Array.isArray(patients)
@@ -22,7 +28,7 @@ function SecretariaDashboard() {
   const totalPages1 = Math.ceil(currentPatients.length / itemsPerPage1);
 
   const [currentPage2, setCurrentPage2] = useState(1);
-  const itemsPerPage2 = 4;
+  const itemsPerPage2 = 8;
   const indexOfLastDoctor = currentPage2 * itemsPerPage2;
   const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
   const currentDoctors = Array.isArray(doctors)
@@ -31,7 +37,7 @@ function SecretariaDashboard() {
   const totalPages2 = Math.ceil(currentDoctors.length / itemsPerPage2);
 
   const [currentPage3, setCurrentPage3] = useState(1);
-  const itemsPerPage3 = 5;
+  const itemsPerPage3 = 8;
   const indexOfLastConsulta = currentPage3 * itemsPerPage3;
   const indexOfFirstConsulta = indexOfLastConsulta - itemsPerPage3;
   const currentConsulta = Array.isArray(consulta)
@@ -77,6 +83,38 @@ function SecretariaDashboard() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const events = [
+    { title: "Consulta - Maria", date: "2025-10-10" },
+    { title: "Laudo - João", date: "2025-10-12" },
+    { title: "Atendimento - Ana", date: "2025-10-15" },
+  ];
+
+  const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
+  ({ theme }) => ({
+    textTransform: 'none',
+    fontWeight: theme.typography.fontWeightRegular,
+    fontSize: theme.typography.pxToRem(15),
+    marginRight: theme.spacing(1),
+    color: "#4dabf7",
+    '&.Mui-selected': {
+      color: "#3e7bf6ff",
+    },
+    '&.Mui-focusVisible': {
+      backgroundColor: 'rgba(100, 95, 228, 0.32)',
+    },
+  }),
+);
+
+const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const TabPanel = ({ children, value, index }) => {
+  return value === index ? <div>{children}</div> : null;
+};
 
   return (
     <div className="sdc-content">
@@ -127,92 +165,286 @@ function SecretariaDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Gráfico de pizza */}
-      <div className="sdc-pie-chart-wrapper">
-        <div className="sdc-pie-chart-label">
-          {countPaciente} Pacientes<br />
-          {countMedico} Médicos
-        </div>
-      </div>
-
-      {/* Gráfico de colunas */}
-      <div className="sdc-bar-chart-wrapper">
-        <div className="sdc-bar" style={{ height: "120px" }}>
-          <span>{countMedico}</span>
-        </div>
-        <div className="sdc-bar sdc-bar-red" style={{ height: "150px" }}>
-          <span>80</span>
-        </div>
-        <div className="sdc-bar sdc-bar-orange" style={{ height: "100px" }}>
-          <span>{countPaciente}</span>
-        </div>
-        <div className="sdc-bar sdc-bar-green" style={{ height: "180px" }}>
-          <span>{countPaciente}</span>
-        </div>
-      </div>
-
-      {/* Cards Médicos */}
       <div className="row">
-        <div className="col-md-6">
-          <div className="sdc-card">
-            <div className="sdc-card-header">
-              <h4>Médicos</h4>
-              <Link
-                className="sdc-btn sdc-btn-primary float-right"
-                to="/secretaria/medicoslista"
-              >
-                Ver todos
-              </Link>
-            </div>
-            <div>
-              {currentDoctors.map((d) => (
-                <div
-                  key={d.id}
-                  className="sdc-card"
-                  style={{ marginBottom: "10px" }}
-                >
-                  <strong>{d.full_name}</strong>
-                  <br />
-                  {d.email}
-                  <br />
-                  {d.phone_mobile}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+  {/* Coluna do Calendário */}
+  <div className="col-lg-7 col-md-12">
+    <div
+      className="calendar-container"
+      style={{
+        padding: 20,
+        marginTop: 20,
+        borderRadius: 10,
+        backgroundColor: "#fff",
+        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+      }}
+    >
+      {DoctorCalendar()}
+    </div>
+  </div>
 
-        {/* Cards Pacientes */}
-        <div className="col-md-6">
-          <div className="sdc-card">
-            <div className="sdc-card-header">
-              <h4>Pacientes</h4>
-              <Link
-                className="sdc-btn sdc-btn-primary float-right"
-                to="/secretaria/pacientelista"
-              >
-                Ver todos
-              </Link>
-            </div>
-            <div>
-              {currentPatients.map((p) => (
-                <div
-                  key={p.id}
-                  className="sdc-card"
-                  style={{ marginBottom: "10px" }}
+  {/* Coluna dos Pacientes */}
+  <div className="col-lg-5 col-md-12">
+    <Box sx={{ width: '100%', bgcolor: "white" , borderRadius: 2}}>
+      <Tabs value={value} onChange={handleChange} centered>
+        <StyledTab label="Pacientes" />
+        <StyledTab label="Consultas" />
+        <StyledTab label="Médicos" />
+      </Tabs>
+    </Box>
+  <div className="card-block"
+  style={{
+    padding: "6px 8px",
+    backgroundColor: "#fff",
+    fontSize: "0.85rem",
+    lineHeight: "1.1rem",
+    boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+    height: "71vh",
+    overflowY: "auto",
+    overflowX: "hidden", 
+    wordWrap: "break-word", 
+    whiteSpace: "normal", 
+  }}
+  >
+    <div className="table-responsive"
+    style={{
+        fontSize: "0.8rem",
+      }}
+    >
+
+      {/* Aba Pacientes */}
+      <TabPanel value={value} index={0}>
+                <table className="table table-border table-striped custom-table datatable mb-0">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Telefone</th>
+                      <th>Status</th>
+                      <th className="text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentPatients.length > 0 ? (
+                      currentPatients.map((p) => (
+                        <tr key={p.id}>
+                          <td>{p.full_name}</td>
+                          <td>{p.phone_mobile}</td>
+                          <td>{p.status}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="text-center text-muted">
+                          Nenhum paciente encontrado
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
                 >
-                  <strong>{p.full_name}</strong>
-                  <br />
-                  {p.email}
-                  <br />
-                  {p.phone_mobile}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </TabPanel>
+
+        {/* Aba Consultas */}
+      <TabPanel value={value} index={1}>
+                <table className="table table-border table-striped custom-table datatable mb-0">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Data</th>
+                      <th>Hora</th>
+                      <th>Status</th>
+                      <th className="text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentPatients.length > 0 ? (
+                      currentPatients.map((c) => (
+                        <tr key={c.id}>
+                          <td>{c.full_name}</td>
+                          <td>{c.created_at}</td>
+                          <td>10:00am - 11:00am</td>
+                          <td>Ativo</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="text-center text-muted">
+                          Nenhuma consulta encontrada
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </TabPanel>
+
+        {/* Aba Prontuários */}
+      <TabPanel value={value} index={2}>
+                <table className="table table-border table-striped custom-table datatable mb-0">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Especialidade</th>
+                      <th>Cidade</th>
+                      <th className="text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {doctors.length > 0 ? (
+                      doctors.map((doctor) => (
+                        <tr key={doctor.id}>
+                          <td>{doctor.full_name}</td>
+                          <td>{doctor.specialty}</td>
+                          <td>{doctor.city}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="text-center text-muted">
+                          Nenhum médico encontrado
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
+                </button>
+              </li>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+
+              {/* Números de página */}
+
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </TabPanel>
+  </div>
+
+    </div>
+  </div>
+</div>
     </div>
   );
 }

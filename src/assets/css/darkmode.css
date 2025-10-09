@@ -1153,3 +1153,17 @@ body.dark-mode .chat-body {
   box-shadow: 0 0 8px rgb(45, 116, 207);
   transform: scale(1.02);
 }
+
+/* Calendário da Dashboard */
+.dark-mode .calendar-container{
+    background-color: #1e293b !important;
+}
+
+.dark-mode .card-block{
+    background-color: #0f172a !important;
+}
+
+/* Lista do MuiTabs */
+.dark-mode .MuiTabs-list{
+    background-color: #1e293b !important;
+}
