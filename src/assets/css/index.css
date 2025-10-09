@@ -155,3 +155,56 @@
   font-size: 0.7rem;
   min-width: 80px;
 }
+
+/* Linha separadora do dropdown */
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 8px 0;
+}
+
+/* Botão de logout destacado */
+.logout-btn {
+  background-color: #e63946;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c32f3c;
+  transform: scale(1.03);
+}
+
+/* Dropdown com leve sombra e padding */
+.dropdown-menu {
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+/* Estilo dos outros itens do dropdown */
+.dropdown-item {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}

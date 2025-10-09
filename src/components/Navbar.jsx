@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import "../assets/css/index.css"
 import { Link } from "react-router-dom";
+import { logoutUser } from "../Supabase";
+import Swal from "sweetalert2";
 
 function Navbar({ onMenuClick }) {
   const location = useLocation();
@@ -61,6 +63,41 @@ function Navbar({ onMenuClick }) {
     setOpenProfile(false);
     navigate("/patientapp");
   };
+
+  const handleLogout = async () => {
+  Swal.fire({
+    title: "Tem certeza que deseja sair?",
+    text: "Você precisará fazer login novamente para acessar o sistema.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e63946",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Sim, sair",
+    cancelButtonText: "Cancelar",
+    reverseButtons: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const success = await logoutUser();
+      if (success) {
+        Swal.fire({
+          title: "Logout realizado!",
+          text: "Você foi desconectado com sucesso.",
+          icon: "success",
+          timer: 1800,
+          showConfirmButton: false,
+        });
+        navigate("/");
+      } else {
+        Swal.fire({
+          title: "Erro!",
+          text: "Não foi possível fazer logout. Tente novamente.",
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
+      }
+    }
+  }) 
+};
 
 
   return (
@@ -140,6 +177,12 @@ function Navbar({ onMenuClick }) {
                  Secretária
                </button>
              )}
+
+            <hr className="dropdown-divider" />
+
+            <button className="dropdown-item logout-btn" onClick={handleLogout}>
+              Sair
+            </button>
           </div>
         </li>
       </ul>
