@@ -265,6 +265,7 @@ function LaudoList() {
                 onChange={e => setSearch(e.target.value)}
                 style={{ minWidth: "200px" }}
               />
+              
             </div>
 
             {/* Direita: filtros de data + botões */}
@@ -330,7 +331,7 @@ function LaudoList() {
                               onClose={()=>setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
                               
                               {/* BOTÃO VER DETALHES SUBSTITUINDO O BOTÃO LAUDO */}
-                              <button 
+                              <Link
                                 className="dropdown-item-custom" 
                                 onClick={(e) => { 
                                   e.stopPropagation(); 
@@ -339,7 +340,7 @@ function LaudoList() {
                                 }}
                               >
                                 <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                              </button>
+                              </Link>
                               
                               <button className="dropdown-item-custom dropdown-item-delete" onClick={()=>handleDelete(l.id)}>
                                 <i className="fa fa-trash-o m-r-5"></i> Excluir

@@ -266,7 +266,8 @@ function DoctorPatientList() {
                                 </Link>*/}
 
                                   
-                                <button
+                            
+                                  <Link
                                   className="dropdown-item-custom"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -275,7 +276,8 @@ function DoctorPatientList() {
                                  }}
                                >
                                 <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                               </button>
+                                </Link>
+                             
                                  <Link
                                    className="dropdown-item-custom"
                                    onClick={(e) => {

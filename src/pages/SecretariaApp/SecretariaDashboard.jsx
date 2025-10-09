@@ -219,7 +219,7 @@ const [value, setValue] = React.useState(0);
                       <th>Nome</th>
                       <th>Telefone</th>
                       <th>Status</th>
-                      <th className="text-right">Ações</th>
+                     
                     </tr>
                   </thead>
                   <tbody>
@@ -228,7 +228,7 @@ const [value, setValue] = React.useState(0);
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{p.phone_mobile}</td>
-                          <td>{p.status}</td>
+                          <td>Ativo</td>
                         </tr>
                       ))
                     ) : (
@@ -296,7 +296,6 @@ const [value, setValue] = React.useState(0);
                       <th>Data</th>
                       <th>Hora</th>
                       <th>Status</th>
-                      <th className="text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -373,7 +372,6 @@ const [value, setValue] = React.useState(0);
                       <th>Nome</th>
                       <th>Especialidade</th>
                       <th>Cidade</th>
-                      <th className="text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -269,16 +269,16 @@ function PatientList() {
                                 >
                                   <i className="fa fa-eye"></i> Ver Detalhes
                                 </Link>*/}
-                                <button
-                                  className="dropdown-item-custom"
-                                  onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewDetails(p);
-                                  setOpenDropdown(null);
-                                 }}
-                                >
-                                 <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                                </button>
+                                <Link
+                                                                  className="dropdown-item-custom"
+                                                                  onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setOpenDropdown(null);
+                                                                    handleViewDetails(p);
+                                                                 }}
+                                                               >
+                                                                <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                                                                </Link>
                                 <Link
                                   className="dropdown-item-custom"
                                   to={`/admin/editpatient/${p.id}`}

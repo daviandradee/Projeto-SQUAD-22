@@ -97,6 +97,57 @@ function LaudoList() {
       .then(result => setLaudos(Array.isArray(result) ? result : []))
       .catch(error => console.log('error', error));
   }, [])
+  const handleAdicionarLaudo = (laudo) => {
+    Swal.fire({
+      title: "Descrição do Laudo",
+      html: `
+        <div class="text-start" style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <div class="mb-3">
+            <h6 class="text-primary">Informações do Pedido</h6>
+            <p><strong>Nº Pedido:</strong></p>
+            <p><strong>Paciente ID:</strong></p>
+            <p><strong>Tipo:</strong></p>         
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Detalhes do Exame</h6>
+            <p><strong>Exame:</strong> </p>
+            <p><strong>Diagnóstico:</strong> </p>
+            <p><strong>Conclusão:</strong> </p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Responsáveis</h6>
+            <p><strong>Executante:</strong> </p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Datas</h6>
+            <p><strong>Criado em:</strong> </p>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Abrir Laudo",
+      cancelButtonText: "Fechar",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      icon: "info",
+      width: "600px",
+      draggable: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Abrir o form de laudo
+        abrirLaudo();
+      }
+    });
+  };
+
+  const abrirLaudo = () => {
+    // Navega para o form de laudo com o ID
+    window.location.href = `/doctor/laudoform`;
+  };
+
 
   const handleVerDetalhes = (laudo) => {
     Swal.fire({
@@ -278,6 +329,7 @@ function LaudoList() {
           />
         </div>
 
+
         {/* Direita: filtros de data + botões */}
         <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
 
@@ -296,6 +348,16 @@ function LaudoList() {
             <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
           </div>
         </div>
+        <Link 
+          to= "#"
+          onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation();
+          setOpenDropdown(null);
+          handleAdicionarLaudo()
+        }} className="btn btn-primary btn-rounded">
+          <i className="fa fa-plus"></i> Adicionar Laudo
+        </Link>
       </div>
 
       {/* Tabela */}
@@ -336,17 +398,17 @@ function LaudoList() {
                         <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown === l.id}
                           onClose={() => setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
                           {/* BOTÃO VER DETALHES - SUBSTITUIU O BOTÃO LAUDO */}
-                          <button 
-                            className="dropdown-item-custom" 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
+                          <Link
+                            className="dropdown-item-custom"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setOpenDropdown(null);
                               handleVerDetalhes(l);
                             }}
                           >
                             <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                          </button>
-                          
+                          </Link>
+
                           <button className="dropdown-item-custom dropdown-item-delete" onClick={() => handleDelete(l.id)}>
                             <i className="fa fa-trash-o m-r-5"></i> Excluir
                           </button>

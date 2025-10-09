@@ -90,32 +90,32 @@ function PacienteLista() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
   const [selectedPatient, setSelectedPatient] = useState(null);
- const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
- const handleViewDetails = (patient) => {
-  setSelectedPatient(patient);
-  setShowModal(true);
-};
+  const handleViewDetails = (patient) => {
+    setSelectedPatient(patient);
+    setShowModal(true);
+  };
 
-const filteredPatients = patients.filter(p => {
-  if (!p) return false;
-  const nome = (p.full_name || "").toLowerCase();
-  const cpf = (p.cpf || "").toLowerCase();
-  const email = (p.email || "").toLowerCase();
-  const q = search.toLowerCase();
-  return nome.includes(q) || cpf.includes(q) || email.includes(q);
-});
-const [itemsPerPage1] = useState(15);
-const [currentPage1, setCurrentPage1] = useState(1);
-const indexOfLastPatient = currentPage1 * itemsPerPage1;
-const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
-const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
-const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
-useEffect(() => {
-  setCurrentPage1(1);
-}, [search]);
+  const filteredPatients = patients.filter(p => {
+    if (!p) return false;
+    const nome = (p.full_name || "").toLowerCase();
+    const cpf = (p.cpf || "").toLowerCase();
+    const email = (p.email || "").toLowerCase();
+    const q = search.toLowerCase();
+    return nome.includes(q) || cpf.includes(q) || email.includes(q);
+  });
+  const [itemsPerPage1] = useState(15);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastPatient = currentPage1 * itemsPerPage1;
+  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+  const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+  const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search]);
 
-  
+
 
 
 
@@ -187,7 +187,7 @@ useEffect(() => {
     // if (error) { console.error(error); return; }
   };
 
-  
+
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -274,22 +274,22 @@ useEffect(() => {
                                   <i className="fa fa-eye"></i> Ver Detalhes
                                 </Link>*/}
 
-                           <button
-                               className="dropdown-item-custom"
-                               onClick={(e) => {
-                               e.stopPropagation();
-                               setOpenDropdown(null);
-                               handleViewDetails(p);
-                            }}
-                           >   
+                            <Link
+                              className="dropdown-item-custom"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdown(null);
+                                handleViewDetails(p);
+                              }}
+                            >
                               <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                             </button>
-                             <Link
-                                 className="dropdown-item-custom"
-                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenDropdown(null);
-                               }}
+                            </Link>
+                            <Link
+                              className="dropdown-item-custom"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdown(null);
+                              }}
                             >
                               <i className="fa fa-pencil m-r-5"></i> Editar
                             </Link>
@@ -358,67 +358,67 @@ useEffect(() => {
                   {">>"} {/* ou "Fim" */}
                 </button>
               </li>
-              
+
             </ul>
           </nav>
           {/* 🟢 ADICIONADO — modal de detalhes do paciente */}
-        {showModal && selectedPatient && (
-  <div
-    className="modal fade show"
-    style={{
-      display: "block",
-      backgroundColor: "rgba(0,0,0,0.5)",
-    }}
-  >
-    <div className="modal-dialog modal-lg modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Detalhes do Paciente</h5>
-          <button
-            type="button"
-            className="close"
-            onClick={() => setShowModal(false)}
-          >
-            <span>&times;</span>
-          </button>
-        </div>
+          {showModal && selectedPatient && (
+            <div
+              className="modal fade show"
+              style={{
+                display: "block",
+                backgroundColor: "rgba(0,0,0,0.5)",
+              }}
+            >
+              <div className="modal-dialog modal-lg modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Detalhes do Paciente</h5>
+                    <button
+                      type="button"
+                      className="close"
+                      onClick={() => setShowModal(false)}
+                    >
+                      <span>&times;</span>
+                    </button>
+                  </div>
 
-        <div className="modal-body">
-          <p className="text-muted">
-            Informações detalhadas sobre o paciente.
-          </p>
+                  <div className="modal-body">
+                    <p className="text-muted">
+                      Informações detalhadas sobre o paciente.
+                    </p>
 
-          <div className="row">
-            <div className="col-md-6">
-              <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
-              <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
-              <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
-              <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
-              <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
+                        <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
+                        <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
+                        <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
+                        <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
+                      </div>
+
+                      <div className="col-md-6">
+                        <p><strong>Email:</strong> {selectedPatient.email}</p>
+                        <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
+                        <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
+                        <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Fechar
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <div className="col-md-6">
-              <p><strong>Email:</strong> {selectedPatient.email}</p>
-              <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
-              <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
-              <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setShowModal(false)}
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-      )}
+          )}
 
         </div>
       </div>

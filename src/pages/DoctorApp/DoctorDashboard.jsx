@@ -219,7 +219,7 @@ function DoctorDashboard() {
                       <th>Nome</th>
                       <th>Telefone</th>
                       <th>Status</th>
-                      <th className="text-right">Ações</th>
+                     
                     </tr>
                   </thead>
                   <tbody>
@@ -228,7 +228,7 @@ function DoctorDashboard() {
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{p.phone_mobile}</td>
-                          <td>{p.status}</td>
+                            <td>Ativo</td>
                         </tr>
                       ))
                     ) : (
@@ -296,7 +296,7 @@ function DoctorDashboard() {
                       <th>Data</th>
                       <th>Hora</th>
                       <th>Status</th>
-                      <th className="text-right">Ações</th>
+                
                     </tr>
                   </thead>
                   <tbody>
@@ -373,7 +373,6 @@ function DoctorDashboard() {
                       <th>Nome</th>
                       <th>Telefone</th>
                       <th>Status</th>
-                      <th className="text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -382,6 +381,7 @@ function DoctorDashboard() {
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{p.phone_mobile}</td>
+                           <td>Ativo</td>
                           <td>
                             <span className={`badge ${p.status === 'ativo' ? 'bg-success' :
                             p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
