@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth"
 import Swal from 'sweetalert2';
+import '../../../assets/css/modal-details.css';
 
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
@@ -88,6 +89,13 @@ function PacienteLista() {
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const [selectedPatient, setSelectedPatient] = useState(null);
+ const [showModal, setShowModal] = useState(false);
+
+ const handleViewDetails = (patient) => {
+  setSelectedPatient(patient);
+  setShowModal(true);
+};
 
 const filteredPatients = patients.filter(p => {
   if (!p) return false;
@@ -266,13 +274,22 @@ useEffect(() => {
                                   <i className="fa fa-eye"></i> Ver Detalhes
                                 </Link>*/}
 
-                            <Link
-                              className="dropdown-item-custom"
-                              to={`/secretaria/pacienteeditar/${p.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
+                           <button
+                               className="dropdown-item-custom"
+                               onClick={(e) => {
+                               e.stopPropagation();
+                               setOpenDropdown(null);
+                               handleViewDetails(p);
+                            }}
+                           >   
+                              <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                             </button>
+                             <Link
+                                 className="dropdown-item-custom"
+                                 onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdown(null);
+                               }}
                             >
                               <i className="fa fa-pencil m-r-5"></i> Editar
                             </Link>
@@ -344,6 +361,65 @@ useEffect(() => {
               
             </ul>
           </nav>
+          {/* 🟢 ADICIONADO — modal de detalhes do paciente */}
+        {showModal && selectedPatient && (
+  <div
+    className="modal fade show"
+    style={{
+      display: "block",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    }}
+  >
+    <div className="modal-dialog modal-lg modal-dialog-centered">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Detalhes do Paciente</h5>
+          <button
+            type="button"
+            className="close"
+            onClick={() => setShowModal(false)}
+          >
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <p className="text-muted">
+            Informações detalhadas sobre o paciente.
+          </p>
+
+          <div className="row">
+            <div className="col-md-6">
+              <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
+              <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
+              <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
+              <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
+              <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
+            </div>
+
+            <div className="col-md-6">
+              <p><strong>Email:</strong> {selectedPatient.email}</p>
+              <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
+              <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
+              <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setShowModal(false)}
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+      )}
+
         </div>
       </div>
     </div>
