@@ -6,7 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import "../../assets/css/index.css";
 
-function DoctorCalendar() {
+export default function DoctorCalendar() {
   const [events, setEvents] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -367,5 +367,3 @@ function DoctorCalendar() {
     </div>
   );
 }
-
-export default DoctorCalendar;

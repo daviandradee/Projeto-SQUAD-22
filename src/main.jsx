@@ -88,8 +88,8 @@ element: <Login />
     path: "/admin",
     element: <App />,
     children: [
-      { index: true, element: <Doctorlist /> }, // Rota inicial do admin
-      {path: "dashboard", element: <Dashboard /> },
+      { index: true, element: <Dashboard /> }, // Rota inicial do admin
+      { path: "dashboard", element: <Dashboard /> },
       { path: "patient", element: <Patientform /> },
       { path: "patientlist", element: <PatientList /> },
       { path: "doctorlist", element: <Doctorlist /> },
