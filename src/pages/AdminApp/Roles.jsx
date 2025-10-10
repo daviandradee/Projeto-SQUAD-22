@@ -16,7 +16,6 @@ function Roles() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-
   const getHeaders = () => {
     const token = getAccessToken();
     return {
@@ -42,6 +41,7 @@ function Roles() {
     try {
       const headers = getHeaders();
 
+      // Buscar perfis
       const resProfiles = await fetch(
         "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/profiles",
         { method: "GET", headers }
@@ -49,6 +49,7 @@ function Roles() {
       if (!resProfiles.ok) throw new Error("Erro ao buscar perfis");
       const profiles = await resProfiles.json();
 
+      // Buscar roles dos usuários
       const resRoles = await fetch(
         "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/user_roles",
         { method: "GET", headers }
@@ -56,11 +57,14 @@ function Roles() {
       if (!resRoles.ok) throw new Error("Erro ao buscar roles");
       const roles = await resRoles.json();
 
+      // Merge profiles com roles
       const merged = profiles.map((profile) => {
-        const roleObj = roles.find((r) => r.user_id === profile.id);
+        const userRoles = roles.filter((r) => r.user_id === profile.id);
+        const cargos = userRoles.length > 0 ? userRoles.map(r => r.role).join(", ") : "Sem cargo";
+
         return {
           ...profile,
-          role: roleObj ? roleObj.role : "Sem cargo",
+          role: cargos,
         };
       });
 
@@ -95,11 +99,11 @@ function Roles() {
     setSubmitting(true);
 
     try {
-      var myHeaders = new Headers();
+      const myHeaders = new Headers();
       myHeaders.append("Authorization", `Bearer ${getAccessToken()}`);
       myHeaders.append("Content-Type", "application/json");
 
-      var raw = JSON.stringify({
+      const raw = JSON.stringify({
         email: formData.email,
         password: formData.password,
         full_name: formData.full_name,
@@ -107,7 +111,7 @@ function Roles() {
         role: formData.role
       });
 
-      var requestOptions = {
+      const requestOptions = {
         method: 'POST',
         headers: myHeaders,
         body: raw,
@@ -130,14 +134,14 @@ function Roles() {
       Swal.fire({
         title: "Sucesso!",
         html: `
-                    <div class="text-start">
-                        <p><strong>Usuário criado com sucesso!</strong></p>
-                        <p><strong>Nome:</strong> ${formData.full_name}</p>
-                        <p><strong>Email:</strong> ${formData.email}</p>
-                        <p><strong>Cargo:</strong> ${formData.role}</p>
-                        <p><strong>Telefone:</strong> ${formData.phone || 'Não informado'}</p>
-                    </div>
-                `,
+          <div class="text-start">
+            <p><strong>Usuário criado com sucesso!</strong></p>
+            <p><strong>Nome:</strong> ${formData.full_name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Cargo:</strong> ${formData.role}</p>
+            <p><strong>Telefone:</strong> ${formData.phone || 'Não informado'}</p>
+          </div>
+        `,
         icon: "success",
         draggable: true
       });
@@ -177,6 +181,7 @@ function Roles() {
       password: ""
     });
   };
+
   const filteredUsers = users.filter(p => {
     if (!p) return false;
     const nome = (p.full_name || "").toLowerCase();
@@ -185,12 +190,14 @@ function Roles() {
     const q = search.toLowerCase();
     return nome.includes(q) || cpf.includes(q) || email.includes(q);
   });
+
   const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
   const currentUsers = filteredUsers.slice(indexOfFirstPatient, indexOfLastPatient);
   const totalPages1 = Math.ceil(filteredUsers.length / itemsPerPage1);
+
   useEffect(() => {
     setCurrentPage1(1);
   }, [search]);
@@ -256,45 +263,27 @@ function Roles() {
               </table>
             </div>
             <nav className="mt-3">
-  <ul className="pagination justify-content-center">
-    {/* Primeira página */}
-    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(1)}>
-        {"<<"}
-      </button>
-    </li>
-
-    {/* Página anterior */}
-    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>
-        &lt;
-      </button>
-    </li>
-
-    {/* Número da página atual */}
-    <li className="page-item active">
-      <span className="page-link">{currentPage1}</span>
-    </li>
-
-    {/* Próxima página */}
-    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>
-        &gt;
-      </button>
-    </li>
-
-    {/* Última página */}
-    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-        {">>"}
-      </button>
-    </li>
-  </ul>
-</nav>
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(1)}>{"<<"}</button>
+                </li>
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>&lt;</button>
+                </li>
+                <li className="page-item active">
+                  <span className="page-link">{currentPage1}</span>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>&gt;</button>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>{">>"}</button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
-
 
       {showModal && (
         <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -366,8 +355,7 @@ function Roles() {
                     >
                       <option value="secretaria">Secretaria</option>
                       <option value="admin">Administrador</option>
-
-
+                      <option value="user">Paciente</option>
                     </select>
                   </div>
                 </div>
