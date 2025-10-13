@@ -53,6 +53,9 @@ import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 import PatientDashboard from "./pages/PacienteApp/PatientDashboard.jsx";
 import MeusExames from "./pages/PacienteApp/Exames.jsx";
 import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
+import MedicosDisponiveis from "./pages/PacienteApp/MedicosDisponiveis.jsx";
+import AgendarConsulta from "./pages/PacienteApp/AgendarConsultas.jsx";
+
 
 //
 
@@ -143,8 +146,8 @@ element: <Login />
       { path: "DoctorConsultaForm", element: <DoctorConsultaForm/> },
       {path: "laudolist", element: <LaudoListDoctor /> },
       {path: "laudoform", element: <LaudoFormDoctor /> },
-       { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
-      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }// Nova rota para DoctorProntuario
+       { path: "prontuariolist", element: <DoctorProntuarioList /> }, 
+      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }
     ],
   },
   // Rotas Paciente
@@ -156,6 +159,8 @@ element: <Login />
       {path: "dashboard", element: <PatientDashboard />},
       {path: "meuexame", element: <MeusExames />},
       {path: "minhasconsultas", element: <MinhasConsultas/>},
+      {path: "medicosdisponiveis", element: <MedicosDisponiveis/>},
+      {path: "agendarconsulta/:medicoId", element: <AgendarConsulta/>} 
       // Rota inicial médico
       
 

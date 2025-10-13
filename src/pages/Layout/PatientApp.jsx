@@ -4,18 +4,19 @@ import Navbar from './../../components/Navbar'
 import { useState } from "react";
 import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
-;
+
 
 export default function PatientApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
       
-          // 2. Adicione a função para alternar o estado
-          const toggleSidebar = () => {
-              setSidebarOpen(!isSidebarOpen);
-          };
-      
-          // 3. Crie a string de classe que será aplicada dinamicamente
-          const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
+  // 2. Adicione a função para alternar o estado
+  const toggleSidebar = () => {
+      setSidebarOpen(!isSidebarOpen);
+  };
+
+  // 3. Crie a string de classe que será aplicada dinamicamente
+  const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
+  
   return (
     <div className={mainWrapperClass}>
       <Navbar onMenuClick={toggleSidebar} />
@@ -38,6 +39,18 @@ export default function PatientApp() {
                   <span>Dashboard</span>
                 </NavLink>
               </li>
+              
+              {/* NOVO ITEM - AGENDAR CONSULTA */}
+              <li>
+                <NavLink
+                  to="/patientapp/medicosdisponiveis"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <i className="fa fa-calendar-plus-o"></i>
+                  <span>Agendar Consulta</span>
+                </NavLink>
+              </li>
+              
               <li>
                 <NavLink
                   to="/patientapp/meuexame"

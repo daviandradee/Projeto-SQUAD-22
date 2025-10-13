@@ -20,6 +20,7 @@
     "@fullcalendar/interaction": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
+    "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "@supabase/supabase-js": "^2.57.0",
     "@tiptap/extension-image": "^3.4.2",
