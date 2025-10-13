@@ -208,3 +208,44 @@
 .dropdown-item:hover {
   background-color: #f1f1f1;
 }
+
+
+.dm-container {
+  display: flex;
+  align-items: center;
+  margin-right: 12px; 
+}
+
+
+.dm-button {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  font-size: 20px;
+}
+
+
+.dm-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+
+.dm-button:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+
+/* Cores */
+.dm-button.light {
+  color: #fff; 
+}
+
+.dm-button.dark {
+  color: #f1f1f1; 
+}
