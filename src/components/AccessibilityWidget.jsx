@@ -1,29 +1,10 @@
 import { useEffect, useState } from "react";
 import "../assets/css/darkmode.css";
 
-const LS_KEY = "pref_dark_mode";
-
 export default function AccessibilityWidget() {
-  const [darkMode, setDarkMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [leituraAtiva, setLeituraAtiva] = useState(false);
 
-  // Carrega a preferência salva
-  useEffect(() => {
-    const saved = localStorage.getItem(LS_KEY) === "true";
-    setDarkMode(saved);
-    document.body.classList.toggle("dark-mode", saved);
-  }, []);
-
-  // Alterna modo escuro
-  const toggleDarkMode = () => {
-    const next = !darkMode;
-    setDarkMode(next);
-    localStorage.setItem(LS_KEY, String(next));
-    document.body.classList.toggle("dark-mode", next);
-  };
-
-  
   const lerTextoSelecionado = () => {
     const texto = window.getSelection().toString().trim();
     if (!texto) return;
@@ -35,7 +16,6 @@ export default function AccessibilityWidget() {
     window.speechSynthesis.speak(fala);
   };
 
-  
   useEffect(() => {
     const handleSelectionChange = () => {
       if (!leituraAtiva) return;
@@ -78,24 +58,16 @@ export default function AccessibilityWidget() {
             </button>
           </div>
 
-          <div className="acc-row">
-            <label className="acc-switch">
-              <input
-                type="checkbox"
-                checked={darkMode}
-                onChange={toggleDarkMode}
-              />
-              <span>Modo escuro</span>
-            </label>
-          </div>
+        
 
-          
           <div className="acc-row">
             <button
               className={`acc-btn-read ${leituraAtiva ? "active" : ""}`}
               onClick={() => setLeituraAtiva(!leituraAtiva)}
             >
-              {leituraAtiva ? "🟢 Leitura automática ativada" : "🔊 Ativar leitura automática"}
+              {leituraAtiva
+                ? "🟢 Leitura automática ativada"
+                : "🔊 Ativar leitura automática"}
             </button>
           </div>
 
