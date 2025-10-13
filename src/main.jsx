@@ -67,6 +67,8 @@ import EditarConsultas from "./pages/SecretariaApp/Consultas/EditarConsultas.jsx
 import AgendaMedica from "./pages/SecretariaApp/Agenda/Agendamedica.jsx";
 import AdicionarAgenda from "./pages/SecretariaApp/Agenda/AdicionarAgenda.jsx";
 import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
+import LaudoEdit from "./pages/DoctorApp/Laudos/LaudoEdit.jsx";
+import LaudoAdmEdit from "./pages/laudos/LaudoAdmEdit.jsx";
 
 
 
@@ -105,6 +107,7 @@ element: <Login />
       { path: "agendalist", element: <AgendaList />},
       { path: "laudolist", element: <LaudoList /> },
       { path: "laudo", element: <Laudo />},
+      {path: "laudoedit/:id", element: <LaudoAdmEdit/>}, // Rota para editar laudo
       { path: "roles", element: <Roles/>},
     ],
   },
@@ -143,6 +146,7 @@ element: <Login />
       { path: "DoctorConsultaForm", element: <DoctorConsultaForm/> },
       {path: "laudolist", element: <LaudoListDoctor /> },
       {path: "laudoform", element: <LaudoFormDoctor /> },
+      {path: "laudoedit/:id", element: <LaudoEdit/> }, // Rota para editar laudo
        { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
       { path: "doctorprontuario/:id", element: <DoctorProntuario /> }// Nova rota para DoctorProntuario
     ],

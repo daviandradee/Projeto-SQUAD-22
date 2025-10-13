@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom"; 
-import "../../assets/css/index.css";
+import { Link } from "react-router-dom";
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { getAccessToken } from "../../utils/auth";
 import Swal from 'sweetalert2';
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -44,7 +44,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
     const handleDocClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target) &&
-          anchorEl && !anchorEl.contains(e.target)) {
+        anchorEl && !anchorEl.contains(e.target)) {
         onClose();
       }
     };
@@ -73,84 +73,59 @@ function LaudoList() {
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [laudos, setLaudos] = useState([
-    {
-      id: 1,
-      pedido: 12345,
-      data: "2024-10-01",
-      prazo: "2024-10-05",
-      paciente: "Davi Andrade",
-      cpf: "12345678900",
-      tipo: "Radiologia",
-      status: "Pendente",
-      executante: "Dr. Silva",
-      exame: "Raio-X de Tórax"
-    },
-    {
-      id: 2,
-      pedido: 12346,
-      data: "2024-10-02",
-      prazo: "2024-10-06",
-      paciente: "Maria Souza",
-      cpf: "98765432100",
-      tipo: "Cardiologia",
-      status: "Concluído",
-      executante: "Dra. Lima",
-      exame: "Eletrocardiograma"
-    },
-    {
-      id: 3,
-      pedido: 12347,
-      data: "2024-10-03",
-      prazo: "2024-10-07",
-      paciente: "João Pereira",
-      cpf: "45678912300",
-      tipo: "Neurologia",
-      status: "Em Andamento",
-      executante: "Dr. Costa",
-      exame: "Ressonância Magnética"
-    },
-    {
-      id: 4,
-      pedido: 12348,
-      data: "2024-10-04",
-      prazo: "2024-10-08",
-      paciente: "Ana Oliveira",
-      cpf: "32165498700",
-      tipo: "Ortopedia",
-      status: "Pendente",
-      executante: "Dra. Fernandes",
-      exame: "Tomografia Computadorizada"
-    },
-  ]);                        
+  const [laudos, setLaudos] = useState([])
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const tokenUsuario = getAccessToken()
 
-  // MODAL DE VER DETALHES COM BOTÃO PARA ABRIR O LAUDO
+  var myHeaders = new Headers();
+  myHeaders.append(
+    "apikey",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"
+  );
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+
+  useEffect(() => {
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
+      .then(response => response.json())
+      .then(result => setLaudos(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
+
+
+
   const handleVerDetalhes = (laudo) => {
     Swal.fire({
       title: "Detalhes do Laudo",
       html: `
-        <div style="text-align: left; max-height: 400px; overflow-y: auto;">
-          <div style="margin-bottom: 15px;">
-            <h6 style="color: #3498db; margin-bottom: 10px;">Informações do Pedido</h6>
-            <p><strong>Nº Pedido:</strong> ${laudo.pedido || 'N/A'}</p>
-            <p><strong>Data:</strong> ${laudo.data || 'N/A'}</p>
-            <p><strong>Prazo:</strong> ${laudo.prazo || 'N/A'}</p>
-            <p><strong>Status:</strong> <span style="padding: 4px 8px; border-radius: 4px; background: ${getStatusColor(laudo.status)}; color: white;">${laudo.status || 'N/A'}</span></p>
+        <div class="text-start" style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <div class="mb-3">
+            <h6 class="text-primary">Informações do Pedido</h6>
+            <p><strong>Nº Pedido:</strong> ${laudo.order_number || 'N/A'}</p>
+            <p><strong>Paciente ID:</strong> ${laudo.patient_id || 'N/A'}</p>
+            <p><strong>Tipo:</strong> ${laudo.tipo || 'N/A'}</p>         
           </div>
           
-          <div style="margin-bottom: 15px;">
-            <h6 style="color: #3498db; margin-bottom: 10px;">Informações do Paciente</h6>
-            <p><strong>Paciente:</strong> ${laudo.paciente || 'N/A'}</p>
-            <p><strong>CPF:</strong> ${mascararCPF(laudo.cpf) || 'N/A'}</p>
+          <div class="mb-3">
+            <h6 class="text-primary">Detalhes do Exame</h6>
+            <p><strong>Exame:</strong> ${laudo.exam || 'N/A'}</p>
+            <p><strong>Diagnóstico:</strong> ${laudo.diagnosis || 'Nenhum diagnóstico'}</p>
+            <p><strong>Conclusão:</strong> ${laudo.conclusion || 'Nenhuma conclusão'}</p>
           </div>
           
-          <div style="margin-bottom: 15px;">
-            <h6 style="color: #3498db; margin-bottom: 10px;">Detalhes do Exame</h6>
-            <p><strong>Tipo:</strong> ${laudo.tipo || 'N/A'}</p>
-            <p><strong>Exame:</strong> ${laudo.exame || 'N/A'}</p>
-            <p><strong>Executante:</strong> ${laudo.executante || 'N/A'}</p>
+          <div class="mb-3">
+            <h6 class="text-primary">Responsáveis</h6>
+            <p><strong>Executante:</strong> ${laudo.requested_by || 'N/A'}</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Datas</h6>
+            <p><strong>Criado em:</strong> ${formatDate(laudo.created_at) || 'N/A'}</p>
           </div>
         </div>
       `,
@@ -165,54 +140,125 @@ function LaudoList() {
     }).then((result) => {
       if (result.isConfirmed) {
         // Abrir o form de laudo
-        window.location.href = `/admin/laudo?id=${laudo.id}`;
+        abrirFormLaudo(laudo.id);
       }
     });
   };
 
-  // FUNÇÃO AUXILIAR PARA CORES DO STATUS
-  const getStatusColor = (status) => {
+  const abrirFormLaudo = (laudoId) => {
+    // Navega para o form de laudo com o ID
+    window.location.href = `/doctor/laudoform?id=${laudoId}`;
+  };
+
+  const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'concluído': return '#28a745';
-      case 'pendente': return '#ffc107';
-      case 'em andamento': return '#17a2b8';
-      default: return '#6c757d';
+      case 'concluído':
+      case 'finalizado':
+        return 'bg-success';
+      case 'pendente':
+        return 'bg-warning';
+      case 'cancelado':
+        return 'bg-danger';
+      default:
+        return 'bg-secondary';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
     }
   };
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Tem certeza?",
-      text: "Tem certeza que deseja excluir este registro?",
+      title: "Excluir Laudo?",
+      text: "Tem certeza que deseja excluir este laudo?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Sim, excluir"
-    }).then(async (result) => {
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sim, Excluir",
+      cancelButtonText: "Cancelar",
+      draggable: true
+    }).then((result) => {
       if (result.isConfirmed) {
         setLaudos(prev => prev.filter(l => l.id !== id));
         setOpenDropdown(null);
         Swal.fire({
-          title: "Registro Excluído",
-          text: "Registro excluído com sucesso",
-          icon: "success"
+          title: "Excluído!",
+          text: "Laudo excluído com sucesso.",
+          icon: "success",
+          draggable: true
         });
       }
     });
-  }
+  };
 
+  const mascararCPF = (cpf = "") => {
+    if (cpf.length < 5) return cpf;
+    return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
+  };
+  const [pacientesMap, setPacientesMap] = useState({});
+// useEffect para atualizar todos os nomes
+ useEffect(() => {
+    if (!laudos || laudos.length === 0) return;
+
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(laudos.map((l) => l.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [laudos]);
   const filteredLaudos = laudos.filter(l => {
     const q = search.toLowerCase();
     const textMatch =
-      (l.paciente || "").toLowerCase().includes(q) ||
-      (l.cpf || "").toLowerCase().includes(q) ||
-      (l.tipo || "").toLowerCase().includes(q) ||
+      (pacientesMap[l.patient_id]?.toLowerCase() || "").includes(q) ||
       (l.status || "").toLowerCase().includes(q) ||
       (l.pedido || "").toString().toLowerCase().includes(q) ||
-      (l.prazo || "").toLowerCase().includes(q) ||
-      (l.executante || "").toLowerCase().includes(q) ||
-      (l.exame || "").toLowerCase().includes(q) ||
+      (l.exam || "").toLowerCase().includes(q) ||
       (l.data || "").toLowerCase().includes(q);
 
     let dateMatch = true;
@@ -242,126 +288,175 @@ function LaudoList() {
     return textMatch && dateMatch;
   });
 
-  const mascararCPF = (cpf = "") => {
-    if (cpf.length < 5) return cpf;
-    return `${cpf.slice(0,3)}.***.***-${cpf.slice(-2)}`;
-  };
+  const [itemsPerPage1] = useState(10);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastLaudos = currentPage1 * itemsPerPage1;
+  const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
+  const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
+  const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
 
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search]);
   return (
-    <div className="main-wrapper">
-      <div className="page-wrapper">
-        <div className="content">
-          <h4 className="page-title">Laudos</h4>
+    <div className="page-wrapper">
+    <div className="content">
+      <h4 className="page-title">Laudos</h4>
 
-          {/* Linha de pesquisa e filtros */}
-          <div className="row align-items-center mb-2">
-            {/* Esquerda: pesquisa */}
-            <div className="col d-flex align-items-center">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="🔍  Buscar laudo"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{ minWidth: "200px" }}
-              />
-              
-            </div>
+      {/* Linha de pesquisa e filtros */}
+      <div className="row align-items-center mb-2">
+        {/* Esquerda: pesquisa */}
+        <div className="col d-flex align-items-center">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="🔍  Buscar laudo"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ minWidth: "200px" }}
+          />
+        </div>
 
-            {/* Direita: filtros de data + botões */}
-            <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
-              
-              {/* Filtros de data primeiro */}
-              <div className="date-filter">
-                <label>De:</label>
-                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-                <label>Até:</label>
-                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-              </div>
 
-              {/* Botões rápidos */}
-              <div className="quick-filter">
-                <button className={`btn-filter ${period==="today"?"active":""}`} onClick={()=>setPeriod("today")}>Hoje</button>
-                <button className={`btn-filter ${period==="week"?"active":""}`} onClick={()=>setPeriod("week")}>Semana</button>
-                <button className={`btn-filter ${period==="month"?"active":""}`} onClick={()=>setPeriod("month")}>Mês</button>
-              </div>
+        {/* Direita: filtros de data + botões */}
+        <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
 
-              
-            </div>
+          {/* Filtros de data primeiro */}
+          <div className="date-filter">
+            <label>De:</label>
+            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <label>Até:</label>
+            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </div>
 
-          {/* Tabela */}
-          <div className="row">
-            <div className="col-12">
-              <div className="table-responsive">
-                <table className="table table-border table-striped custom-table datatable mb-0">
-                  <thead>
-                    <tr>
-                      <th>Pedido</th>
-                      <th>Data</th>
-                      <th>Prazo</th>
-                      <th>Paciente</th>
-                      <th>CPF</th>
-                      <th>Tipo</th>
-                      <th>Status</th>
-                      <th>Executante</th>
-                      <th>Exame</th>
-                      <th className="text-right">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLaudos.length>0 ? filteredLaudos.map(l=>(
-                      <tr key={l.id}>
-                        <td className="nowrap">{l.pedido}</td>
-                        <td className="nowrap">{l.data}</td>
-                        <td className="nowrap">{l.prazo}</td>
-                        <td>{l.paciente}</td>
-                        <td className="nowrap">{mascararCPF(l.cpf)}</td>
-                        <td>{l.tipo}</td>
-                        <td>{l.status}</td>
-                        <td>{l.executante}</td>
-                        <td className="ellipsis">{l.exame}</td>
-                        <td className="text-right">
-                          <div className="dropdown dropdown-action">
-                            <button type="button" ref={el=>anchorRefs.current[l.id]=el} className="action-icon"
-                              onClick={e=>{e.stopPropagation(); setOpenDropdown(openDropdown===l.id?null:l.id);}}>
-                              <i className="fa fa-ellipsis-v"></i>
-                            </button>
-                            <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown===l.id}
-                              onClose={()=>setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
-                              
-                              {/* BOTÃO VER DETALHES SUBSTITUINDO O BOTÃO LAUDO */}
-                              <Link
-                                className="dropdown-item-custom" 
-                                onClick={(e) => { 
-                                  e.stopPropagation(); 
-                                  setOpenDropdown(null);
-                                  handleVerDetalhes(l);
-                                }}
-                              >
-                                <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                              </Link>
-                              
-                              <button className="dropdown-item-custom dropdown-item-delete" onClick={()=>handleDelete(l.id)}>
-                                <i className="fa fa-trash-o m-r-5"></i> Excluir
-                              </button>
-                            </DropdownPortal>
-                          </div>
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {/* Botões rápidos */}
+          <div className="quick-filter">
+            <button className={`btn-filter ${period === "today" ? "active" : ""}`} onClick={() => setPeriod("today")}>Hoje</button>
+            <button className={`btn-filter ${period === "week" ? "active" : ""}`} onClick={() => setPeriod("week")}>Semana</button>
+            <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
           </div>
+        </div>
+        <Link
+          to="/admin/laudo"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenDropdown(null);
 
+
+          }} className="btn btn-primary btn-rounded">
+          <i className="fa fa-plus"></i> Adicionar Laudo
+        </Link>
+      </div>
+
+      {/* Tabela */}
+      <div className="row">
+        <div className="col-12">
+          <div className="table-responsive">
+            <table className="table table-border table-striped custom-table datatable mb-0">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Pacient ID</th>
+                  <th>Exame</th>
+                  <th>Diasgnostico</th>
+                  <th>Conclusão</th>
+                  <th>Status</th>
+                  <th>Executante</th>
+                  <th>Criado em</th>
+                  <th className="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentLaudos.length > 0 ? currentLaudos.map(l => (
+                  <tr key={l.id}>
+                    <td className="nowrap">{l.order_number}</td>
+                    <td>{pacientesMap[l.patient_id] || "Carregando..."}</td>
+                    <td>{l.exam}</td>
+                    <td>{l.diagnosis}</td>
+                    <td>{l.conclusion}</td>
+                    <td>{l.status}</td>
+                    <td> {l.requested_by}</td>
+                    <td>{formatDate(l.created_at)}</td>
+                    <td className="text-right">
+                      <div className="dropdown dropdown-action">
+                        <button type="button" ref={el => anchorRefs.current[l.id] = el} className="action-icon"
+                          onClick={e => { e.stopPropagation(); setOpenDropdown(openDropdown === l.id ? null : l.id); }}>
+                          <i className="fa fa-ellipsis-v"></i>
+                        </button>
+                        <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown === l.id}
+                          onClose={() => setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
+                          {/* BOTÃO VER DETALHES - SUBSTITUIU O BOTÃO LAUDO */}
+                          {/*<Link
+                            className="dropdown-item-custom"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenDropdown(null);
+                              handleVerDetalhes(l);
+                            }}
+                          >
+                            <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                          </Link>*/}
+                          <Link
+                            to={`/admin/laudoedit/${l.id}`}
+                            className="dropdown-item-custom"
+
+                          >
+                            <i className="fa fa-pencil m-r-5"></i> Editar
+                          </Link>
+
+                          <button className="dropdown-item-custom dropdown-item-delete" onClick={() => handleDelete(l.id)}>
+                            <i className="fa fa-trash-o m-r-5"></i> Excluir
+                          </button>
+                        </DropdownPortal>
+                      </div>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <nav className="mt-3">
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"}
+                </button>
+              </li>
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                >
+                  &lt;
+                </button>
+              </li>
+              <li className="page-item active">
+                <span className="page-link">{currentPage1}</span>
+              </li>
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                  }
+                >
+                  &gt;
+                </button>
+              </li>
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"}
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
+    </div>
     </div>
   );
 }
