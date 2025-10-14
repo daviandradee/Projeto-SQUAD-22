@@ -251,5 +251,16 @@
     .chat-footer{
         padding: 10px 15px 15px;
     }
+}/* Corrige sobreposição do calendário sobre o Chatbot */
+#chatbot-toggler,
+.container-chatbox,
+.chatbot-popup {
+  position: fixed !important;
+  z-index: 9999 !important; /* Fica acima de qualquer componente, incluindo o FullCalendar */
+}
+
+/* Garante que o popup também não fique atrás de nada */
+.chatbot-popup {
+  z-index: 9998 !important;
 }
 

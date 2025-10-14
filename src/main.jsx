@@ -27,6 +27,7 @@ import EditDoctor from "./pages/AdminApp/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/AdminApp/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/AdminApp/Doctor/DoctorProfile.jsx";
 import Roles from "./pages/AdminApp/Roles.jsx";
+import DoctorExceptions from "./pages/DoctorExceptions/DoctorExceptions.jsx";
 // paginas secretaria
 
 import SecretariaConsultaList from "./pages/SecretariaApp/Consultas/ConsultasList.jsx"
@@ -109,6 +110,7 @@ element: <Login />
       { path: "laudo", element: <Laudo />},
       {path: "laudoedit/:id", element: <LaudoAdmEdit/>}, // Rota para editar laudo
       { path: "roles", element: <Roles/>},
+      { path: "doctor-exceptions", element: <DoctorExceptions /> },
     ],
   },
    {
@@ -140,6 +142,7 @@ element: <Login />
       { index: true, element: <DoctorDashboard /> }, // Rota inicial médico
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
+      { path: "exceptions", element: <DoctorExceptions /> },
       { path: "patients", element: <DoctorPatientList /> },
       { path: "patientform", element: <DoctorPatientForm /> },
       {path: "consultas", element: <ConsultaList /> },
