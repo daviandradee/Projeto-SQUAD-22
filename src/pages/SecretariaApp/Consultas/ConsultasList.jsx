@@ -110,7 +110,7 @@ function SecretariaConsultaList() {
       redirect: 'follow'
     };
 
-    fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/", requestOptions)
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments/{id}", requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
