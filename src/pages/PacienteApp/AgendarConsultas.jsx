@@ -33,6 +33,8 @@ import {
   Sms
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const AgendarConsulta = () => {
   const { medicoId } = useParams();
@@ -47,6 +49,31 @@ const AgendarConsulta = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [enviarEmail, setEnviarEmail] = useState(true);
   const [enviarSMS, setEnviarSMS] = useState(true);
+  const [minDate, setMinDate] = useState("");
+  let [confirmationModal, setConfirmationModal] = useState(false);
+
+  confirmationModal = async () => {
+              Swal.fire({
+                title: "Consulta marcada",
+                text: `Sua consulta com ${medico.nome} foi marcada com sucesso.`,
+                icon: "success",
+                timer: 1800,
+                showConfirmButton: false,
+              });
+              setConfirmationModal(true);
+              navigate("/patientapp/minhasconsultas");
+            }
+
+  useEffect(() => {
+    const getToday = () => {
+      const today = new Date();
+      const offset = today.getTimezoneOffset();
+      today.setMinutes(today.getMinutes() - offset);
+      return today.toISOString().split("T")[0];
+    };
+
+    setMinDate(getToday());
+  }, []);
 
   // Dados mock - substitua pela sua API
   const medicoMock = {
@@ -314,122 +341,70 @@ const AgendarConsulta = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {medico.biografia}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Valor da consulta: <strong>R$ {medico.valorConsulta}</strong>
-              </Typography>
             </Box>
           </Box>
         </CardContent>
       </Card>
+      <form>
+        <hr />
+                <h3>Informações do atendimento</h3>
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Data<span className="text-danger">*</span></label>
+                      <div>
+                        <input
+                          type="date"
+                          className="form-control"
+                          min={minDate}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Horas<span className="text-danger">*</span></label>
+                      <div>
+                        <input type="time" className="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Observação</label>
+                  <textarea cols="30" rows="4" className="form-control"></textarea>
+                </div>
 
-      {/* Seleção de Data */}
-      <Typography variant="h6" gutterBottom>
-        <CalendarToday sx={{ mr: 1, verticalAlign: 'middle' }} />
-        Selecione uma Data
-      </Typography>
+                <div className="form-group">
+                  <label className="display-block">Status da consulta</label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      name="status"
+                      id="product_active"
+                      value="option1"
+                      defaultChecked
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor="product_active"
+                    >
+                      Receber confirmação por SMS
+                    </label>
+                  </div>
+                </div>
 
-      <Grid container spacing={1} sx={{ mb: 4 }}>
-        {datasDisponiveis.map((data) => (
-          <Grid item key={data}>
-            <Button
-              variant={dataSelecionada === data ? "contained" : "outlined"}
-              onClick={() => setDataSelecionada(data)}
-              sx={{ minWidth: '120px' }}
-            >
-              {new Date(data).toLocaleDateString('pt-BR', { 
-                weekday: 'short',
-                day: '2-digit',
-                month: '2-digit'
-              })}
-            </Button>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Horários Disponíveis */}
-      <Typography variant="h6" gutterBottom>
-        <AccessTime sx={{ mr: 1, verticalAlign: 'middle' }} />
-        Horários Disponíveis - {dataSelecionada && new Date(dataSelecionada).toLocaleDateString('pt-BR')}
-      </Typography>
-
-      <Grid container spacing={2}>
-        {horariosDaData.map((horario) => (
-          <Grid item xs={6} sm={4} md={3} key={horario.id}>
-            <Button
-              variant={horarioSelecionado?.id === horario.id ? "contained" : "outlined"}
-              color={horario.disponivel ? "primary" : "error"}
-              fullWidth
-              sx={{ 
-                py: 2,
-                height: '60px'
-              }}
-              onClick={() => horario.disponivel && selecionarHorario(horario)}
-              disabled={!horario.disponivel}
-            >
-              {horario.hora}
-              {!horario.disponivel && (
-                <Typography variant="caption" display="block">
-                  Indisponível
-                </Typography>
-              )}
-            </Button>
-          </Grid>
-        ))}
-      </Grid>
-
-      {horariosDaData.length === 0 && (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          Nenhum horário disponível para esta data.
-        </Alert>
-      )}
-
-      {/* Modal de Confirmação */}
-      <Dialog open={modalConfirmacao} onClose={() => setModalConfirmacao(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Typography variant="h5" component="div">
-            Confirmar Agendamento
-          </Typography>
-          <Stepper activeStep={activeStep} sx={{ mt: 2 }}>
-            <Step><StepLabel>Confirmar</StepLabel></Step>
-            <Step><StepLabel>Notificações</StepLabel></Step>
-            <Step><StepLabel>Finalizado</StepLabel></Step>
-          </Stepper>
-        </DialogTitle>
-
-        <DialogContent>
-          {renderStepContent(activeStep)}
-        </DialogContent>
-
-        <DialogActions sx={{ p: 3 }}>
-          {activeStep < 2 && (
-            <>
-              <Button onClick={() => setModalConfirmacao(false)} disabled={agendando}>
-                Cancelar
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (activeStep === 0) {
-                    setActiveStep(1);
-                  } else if (activeStep === 1) {
-                    confirmarAgendamento();
-                  }
-                }}
-                disabled={agendando}
-                startIcon={agendando ? <CircularProgress size={20} /> : null}
-              >
-                {agendando ? 'Agendando...' : activeStep === 0 ? 'Continuar' : 'Confirmar Agendamento'}
-              </Button>
-            </>
-          )}
-          
-          {activeStep === 2 && (
-            <Button variant="contained" onClick={finalizarAgendamento}>
-              Ver Minhas Consultas
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+                <div className="m-t-20 text-center">
+                    <button
+                      className="btn btn-primary submit-btn"
+                      type="button"
+                      onClick={confirmationModal}
+                      >
+                      Marcar consulta
+                    </button>
+                </div>
+      </form>
     </Container>
   );
 };

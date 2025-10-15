@@ -1167,3 +1167,22 @@ body.dark-mode .chat-body {
 .dark-mode .MuiTabs-list{
     background-color: #1e293b !important;
 }
+
+.dark-mode .MuiTabs-list{
+    background-color: #1e293b !important;
+}
+
+.dark-mode .MuiPaper-root{
+    background-color: #1e293b !important;
+}
+
+.dark-mode .MuiTypography-root{
+    color: #e8eefc !important;
+}
+
+.dark-mode .form-control{
+    background-color: #1e293b;
+    border-color: #1e293b;
+    color: #e8eefc;
+}
+
