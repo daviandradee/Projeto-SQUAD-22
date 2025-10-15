@@ -51,10 +51,10 @@ import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 
 // paginas do paciente
 import PatientDashboard from "./pages/PacienteApp/PatientDashboard.jsx";
-import MeusExames from "./pages/PacienteApp/Exames.jsx";
 import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
 import MedicosDisponiveis from "./pages/PacienteApp/MedicosDisponiveis.jsx";
 import AgendarConsulta from "./pages/PacienteApp/AgendarConsultas.jsx";
+import MeusLaudos from "./pages/PacienteApp/MeusLaudos.jsx";
 
 // Páginas Secretaria
 import PacienteLista from "./pages/SecretariaApp/Pacientes/PacienteLista.jsx";
@@ -158,10 +158,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <PatientDashboard /> },
       { path: "dashboard", element: <PatientDashboard /> },
-      { path: "meuexame", element: <MeusExames /> },
       { path: "minhasconsultas", element: <MinhasConsultas /> },
       { path: "medicosdisponiveis", element: <MedicosDisponiveis /> },
-      { path: "agendarconsulta/:medicoId", element: <AgendarConsulta /> }
+      { path: "agendarconsulta/:medicoId", element: <AgendarConsulta /> },
+      { path: "meuslaudos", element: <MeusLaudos /> }
     ],
   },
 ]);
