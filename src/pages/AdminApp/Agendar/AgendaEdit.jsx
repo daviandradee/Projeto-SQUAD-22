@@ -7,64 +7,194 @@ import Swal from "sweetalert2";
 
 function AgendaEdit() {
   const tokenUsuario = getAccessToken()
-  const { id } = useParams()
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [minDate, setMinDate] = useState("");
-  const [consultas, setConsultas] = useState([])
-  const navigate = useNavigate()
+  const [pacientes, setPacientes] = useState([]);
+  const [medicos, setMedicos] = useState([]);
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
 
-  var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-  var requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
-  // eh carregda a lista
-  useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        const consulta = result.find(c => c.id == id);
-        setConsultas(consulta || []);
-        console.log(consulta)
-      })
-      .catch(error => console.log('error', error));
-  }, [])
-
-  useEffect(() => {
-    const getToday = () => {
-      const today = new Date();
-      const offset = today.getTimezoneOffset();
-      today.setMinutes(today.getMinutes() - offset);
-      return today.toISOString().split("T")[0];
-    };
-
-    setMinDate(getToday());
-  }, []);
-
-const handleEdit = async (e) => {
-  e.preventDefault()
-  const result = await Swal.fire({
-    title: "Você deseja salvar as alterações?",
-    text: "As modificações serão salvas permanentemente.",
-    icon: "question",
-    showDenyButton: true,
-    showCancelButton: true,
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Salvar",
-    denyButtonText: "Não salvar",
+  const [formData, setFormData] = useState({
+    appointment_type: "presencial",
+    chief_complaint: "",
+    doctor_id: "",
+    duration_minutes: 30,
+    insurance_provider: "",
+    patient_id: "",
+    patient_notes: "",
+    scheduled_date: "",
+    scheduled_time: "",
   });
 
-  if (result.isConfirmed) {
-    // Caso o usuário confirme, envie os dados para o backend
-    Swal.fire("Salvo!", "Consulta atualizada com sucesso.", "success").then(() => {
-      navigate("/admin/agendalist");
-    });
-  } else if (result.isDenied) {
-    Swal.fire("Alterações descartadas", "Nenhuma alteração foi salva.", "info");
-  }
+  // 🔹 Data mínima
+  useEffect(() => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    today.setMinutes(today.getMinutes() - offset);
+    setMinDate(today.toISOString().split("T")[0]);
+  }, []);
 
+  // 🔹 Buscar dados da consulta atual
+  useEffect(() => {
+    const fetchConsulta = async () => {
+      try {
+        const res = await fetch(
+          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+          {
+            headers: {
+              apikey: "YOUR_SUPABASE_ANON_KEY",
+              Authorization: "Bearer YOUR_SUPABASE_ANON_KEY",
+            },
+          }
+        );
+        const data = await res.json();
+        if (data.length > 0) {
+          const consulta = data[0];
+          const date = consulta.scheduled_at?.split("T")[0] || "";
+          const time = consulta.scheduled_at
+            ? consulta.scheduled_at.split("T")[1].substring(0, 5)
+            : "";
+
+          setFormData({
+            appointment_type: consulta.appointment_type || "presencial",
+            chief_complaint: consulta.chief_complaint || "",
+            doctor_id: consulta.doctor_id || "",
+            duration_minutes: consulta.duration_minutes || 30,
+            insurance_provider: consulta.insurance_provider || "",
+            patient_id: consulta.patient_id || "",
+            patient_notes: consulta.patient_notes || "",
+            scheduled_date: date,
+            scheduled_time: time,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Erro", "Não foi possível carregar a consulta.", "error");
+      }
+    };
+    fetchConsulta();
+  }, [id]);
+
+  // 🔹 Buscar pacientes
+  useEffect(() => {
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
+      headers: {
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+         Authorization: `Bearer ${tokenUsuario}`,
+      },
+    })
+      .then((r) => r.json())
+      .then(setPacientes)
+      .catch((err) => console.error(err));
+  }, []);
+
+  // 🔹 Buscar médicos
+  useEffect(() => {
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors", {
+      headers: {
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        Authorization: `Bearer ${tokenUsuario}`,
+      },
+    })
+      .then((r) => r.json())
+      .then(setMedicos)
+      .catch((err) => console.error(err));
+  }, []);
+
+  // 🔹 Buscar horários disponíveis
+  const fetchHorariosDisponiveis = async (doctorId, date) => {
+    if (!doctorId || !date) return;
+    try {
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+          body: JSON.stringify({ doctor_id: doctorId, date }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setHorariosDisponiveis(data);
+      } else {
+        setHorariosDisponiveis([]);
+      }
+    } catch (error) {
+      console.error(error);
+      setHorariosDisponiveis([]);
+    }
+  };
+
+  // Atualiza horários sempre que o médico ou data mudam
+  useEffect(() => {
+    if (formData.doctor_id && formData.scheduled_date) {
+      fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date);
+    }
+  }, [formData.doctor_id, formData.scheduled_date]);
+
+  // 🔹 Handle Change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 🔹 Editar consulta
+  const handleEdit = async (e) => {
+    e.preventDefault();
+
+    const result = await Swal.fire({
+      title: "Deseja salvar as alterações?",
+      text: "As modificações serão salvas permanentemente.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Salvar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    const scheduled_at = new Date(
+      `${formData.scheduled_date}T${formData.scheduled_time}:00`
+    ).toISOString();
+
+    const updatedData = {
+      ...formData,
+      scheduled_at,
+    };
+
+    try {
+      const res = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      if (res.ok) {
+        Swal.fire("Sucesso!", "Consulta atualizada com sucesso!", "success").then(() =>
+          navigate("/admin/agendalist")
+        );
+      } else {
+        const error = await res.json();
+        console.error(error);
+        Swal.fire("Erro", "Não foi possível atualizar a consulta.", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Erro", "Falha de conexão com o servidor.", "error");
+    }
   };
 
   return (
@@ -76,185 +206,177 @@ const handleEdit = async (e) => {
           <h3>Informações do paciente</h3>
         </div>
       </div>
+
       <div className="row">
         <div className="col-lg-8 offset-lg-2">
-          <form>
+          <form onSubmit={handleEdit}>
             <div className="row">
+              {/* Paciente */}
               <div className="col-md-6">
                 <div className="form-group">
-                  <label>ID da consulta</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    value={consultas.id}
-                    readOnly
-                  />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Nome do paciente<span className="text-danger">*</span></label>
-                  <input type="text" className="form-control" value={consultas.full_name} />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>RG</label>
-                  <input type="text" className="form-control" />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>CPF<span className="text-danger">*</span></label>
-                  <input type="text" className="form-control" value={consultas.cpf} />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Email do paciente</label>
-                  <input className="form-control" type="email"  value={consultas.email}/>
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Número de telefone do paciente<span className="text-danger">*</span></label>
-                  <input className="form-control" type="text" value={consultas.phone_mobile} ref={withMask('+55 (99) 99999-9999')} />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Data de nascimento<span className="text-danger">*</span></label>
-                  <input className="form-control"  value= {consultas.birth_date}type="date" />
-                </div>
-              </div>
-              <div className="form-group gender-select col-md-6">
-                <label className="gen-label">Sexo:<span className="text-danger">*</span></label>
-                <div className="form-check-inline">
-                  <label className="form-check-label">
-                    <input type="radio" id="sex" name="sex" className="form-check-input"
-                      value={"Masculino"}
-                      checked={consultas.sex === "Masculino"}
-                      
-                    /> Masculino
+                  <label>
+                    Nome do paciente<span className="text-danger">*</span>
                   </label>
-                </div>
-                <div className="form-check-inline">
-                  <label className="form-check-label">
-                    <input type="radio" id="sex" name="sex" className="form-check-input"
-                      value={"Feminino"}
-                      checked={consultas.sex === "Feminino"}
-                      
-                    /> Feminino
-                  </label>
-                </div>
-                <div className="form-check-inline">
-                  <label className="form-check-label">
-                    <input type="radio" id="sex" name="sex" className="form-check-input"
-                      value={"Outro"}
-                      checked={consultas.sex === "Outro"}
-                      
-                    /> Outro
-                  </label>
-                </div>
-              </div>
-            </div>
-            <hr />
-            <h3>Informações do atendimento</h3>
-            <div className="row">
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Especialidade<span className="text-danger">*</span></label>
-                  <select className="select form-control">
-                    <option>Selecione</option>
-                    <option>Cardiologia</option>
-                    <option>Pediatria</option>
-                    <option>Dermatologia</option>
-                    <option>Ginecologia</option>
-                    <option>Neurologia</option>
-                    <option>Psiquiatria</option>
-                    <option>Ortopedia</option>
+                  <select
+                    className="select form-control"
+                    name="patient_id"
+                    value={formData.patient_id}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Selecione o paciente</option>
+                    {pacientes.map((p) => {
+                      const nomePaciente =
+                        p.name ||
+                        p.nome ||
+                        p.full_name ||
+                        p.paciente_nome ||
+                        `Paciente #${p.id}`;
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {nomePaciente}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
 
+              {/* Tipo */}
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Tipo da consulta</label>
+                  <select
+                    className="select form-control"
+                    name="appointment_type"
+                    value={formData.appointment_type}
+                    onChange={handleChange}
+                  >
+                    <option value="presencial">Presencial</option>
+                    <option value="telemedicina">Telemedicina</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <hr />
+            <h3>Informações do atendimento</h3>
+
+            {/* Médico */}
+            <div className="row">
               <div className="col-md-6">
                 <div className="form-group">
                   <label>Médico<span className="text-danger">*</span></label>
-                  <select className="select form-control">
-                    <option>Selecione</option>
-                    <option>Davi Andrade</option>
-                    <option>Caio Pereira</option>
-                    <option>Paulo Lucas</option>
+                  <select
+                    className="select form-control"
+                    name="doctor_id"
+                    value={formData.doctor_id}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Selecione o médico</option>
+                    {medicos.map((m) => {
+                      const nomeMedico =
+                        m.name ||
+                        m.nome ||
+                        m.full_name ||
+                        m.doctor_name ||
+                        `Médico #${m.id}`;
+                      return (
+                        <option key={m.id} value={m.id}>
+                          {nomeMedico}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
+
+              {/* Convênio */}
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Convênio</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="insurance_provider"
+                    value={formData.insurance_provider || ""}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Motivo */}
+            <div className="form-group">
+              <label>Motivo / Queixa principal</label>
+              <input
+                type="text"
+                className="form-control"
+                name="chief_complaint"
+                value={formData.chief_complaint || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Data e horário */}
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Data</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    min={minDate}
+                    name="scheduled_date"
+                    value={formData.scheduled_date || ""}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Horário</label>
+                  <select
+                    className="select form-control"
+                    name="scheduled_time"
+                    value={formData.scheduled_time || ""}
+                    onChange={handleChange}
+                    required
+                    disabled={!horariosDisponiveis.length}
+                  >
+                    <option value="">
+                      {horariosDisponiveis.length
+                        ? "Selecione um horário"
+                        : "Nenhum horário disponível"}
+                    </option>
+                    {horariosDisponiveis.map((hora) => (
+                      <option key={hora} value={hora}>
+                        {hora}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
             </div>
 
-            <div className="row">
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Data<span className="text-danger">*</span></label>
-                  <div>
-                    <input
-                      type="date"
-                      className="form-control"
-                      min={minDate}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Horas<span className="text-danger">*</span></label>
-                  <div>
-                    <input type="time" className="form-control" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Notas */}
             <div className="form-group">
-              <label>Observação</label>
-              <textarea cols="30" rows="4" className="form-control"></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="display-block">Status da consulta</label>
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="status"
-                  id="product_active"
-                  value="option1"
-                  defaultChecked
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="product_active"
-                >
-                  Ativo
-                </label>
-              </div>
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="status"
-                  id="product_inactive"
-                  value="option2"
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="product_inactive"
-                >
-                  Inativo
-                </label>
-              </div>
+              <label>Anotações do paciente</label>
+              <textarea
+                cols="30"
+                rows="4"
+                className="form-control"
+                name="patient_notes"
+                value={formData.patient_notes || ""}
+                onChange={handleChange}
+              ></textarea>
             </div>
 
             <div className="m-t-20 text-center">
-              <button className="btn btn-primary submit-btn" type="button" onClick={handleEdit}>
-                Salvar
+              <button className="btn btn-primary submit-btn" type="submit">
+                Salvar alterações
               </button>
             </div>
           </form>
@@ -263,4 +385,5 @@ const handleEdit = async (e) => {
     </div>
   );
 }
+
 export default AgendaEdit;

@@ -85,6 +85,11 @@ function SecretariaConsultaList() {
   const [search, setSearch] = useState("");
   const tokenUsuario = getAccessToken()
 
+  const headers = {
+    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+    Authorization: `Bearer ${tokenUsuario}`,
+    "Content-Type": "application/json",
+  };
 
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
@@ -102,25 +107,44 @@ function SecretariaConsultaList() {
   }, [])
 
   const handleDelete = async (id) => {
-    const confirmDel = window.confirm("Tem certeza que deseja excluir este paciente?");
-    if (!confirmDel) return;
+    const confirm = await Swal.fire({
+      title: "Tem certeza?",
+      text: "Deseja realmente excluir esta consulta? Essa ação não poderá ser desfeita.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sim, excluir!",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
 
-    const requestOptions = {
-      method: 'DELETE',
-      redirect: 'follow'
-    };
+    if (!confirm.isConfirmed) return;
 
-    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments/{id}", requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
+    try {
+      const response = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
+      if (response.ok) {
+        setConsultas((prev) => prev.filter((c) => c.id !== id));
+        setOpenDropdown(null);
 
-    // Se quiser apagar no supabase, faça a chamada aqui.
-    // const { error } = await supabase.from("Patient").delete().eq("id", id);
-    // if (error) { console.error(error); return; }
-
-    setConsultas((prev) => prev.filter((c) => c.id !== id));
-    setOpenDropdown(null);
+        Swal.fire({
+          title: "Excluída!",
+          text: "A consulta foi removida com sucesso.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire("Erro", "Falha ao excluir a consulta. Tente novamente.", "error");
+      }
+    } catch (error) {
+      console.error("Erro ao deletar:", error);
+      Swal.fire("Erro", "Não foi possível conectar ao servidor.", "error");
+    }
   };
 
   const filteredConsultas = consulta.filter(p => {
