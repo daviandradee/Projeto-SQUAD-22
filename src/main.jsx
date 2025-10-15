@@ -7,10 +7,10 @@ import "./assets/css/index.css";
 
 //Login
 import Login from "./pages/Login/Login.jsx";
-
+import MagicLink from "./pages/Login/Acessounico.jsx"
 // Layouts
 import App from "./pages/Layout/AdminApp.jsx";           // Layout Admin
-import DoctorApp from "./pages/Layout/DoctorApp.jsx"; 
+import DoctorApp from "./pages/Layout/DoctorApp.jsx";
 import PatientApp from "./pages/Layout/PatientApp.jsx";
 import SecretariaApp from "./pages/Layout/SecretariaApp.jsx";
 
@@ -27,6 +27,7 @@ import EditDoctor from "./pages/AdminApp/Doctor/DoctorEdit.jsx";
 import PatientEdit from "./pages/AdminApp/Patient/PatientEdit.jsx";
 import DoctorProfile from "./pages/AdminApp/Doctor/DoctorProfile.jsx";
 import Roles from "./pages/AdminApp/Roles.jsx";
+import DoctorExceptions from "./pages/DoctorExceptions/DoctorExceptions.jsx";
 // paginas secretaria
 
 import SecretariaConsultaList from "./pages/SecretariaApp/Consultas/ConsultasList.jsx"
@@ -77,14 +78,18 @@ import LaudoAdmEdit from "./pages/laudos/LaudoAdmEdit.jsx";
 
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
-   
-  // Rotas Admin
-  { 
-path: "/",
-element: <Login />
+
+  // Rotas Login
+  {
+    path: "/",
+    element: <Login />
 
   },
-  
+ {
+    path: "/AcessoUnico",
+    element: <MagicLink/>
+  },
+
   // Rotas Admin - todas com prefixo /admin/
   {
     path: "/admin",
@@ -102,33 +107,34 @@ element: <Login />
       { path: "profiledoctor/:id", element: <DoctorProfile /> },
       { path: "editdoctor/:id", element: <EditDoctor /> },
       { path: "editpatient/:id", element: <PatientEdit /> },
-      { path: "agendaform", element: <AgendaForm />},
-      { path: "agendaedit/:id", element: <AgendaEdit />},
-      { path: "agendalist", element: <AgendaList />},
+      { path: "agendaform", element: <AgendaForm /> },
+      { path: "agendaedit/:id", element: <AgendaEdit /> },
+      { path: "agendalist", element: <AgendaList /> },
       { path: "laudolist", element: <LaudoList /> },
-      { path: "laudo", element: <Laudo />},
-      {path: "laudoedit/:id", element: <LaudoAdmEdit/>}, // Rota para editar laudo
-      { path: "roles", element: <Roles/>},
+      { path: "laudo", element: <Laudo /> },
+      { path: "laudoedit/:id", element: <LaudoAdmEdit /> }, // Rota para editar laudo
+      { path: "roles", element: <Roles /> },
+      { path: "doctor-exceptions", element: <DoctorExceptions /> },
     ],
   },
-   {
+  {
     path: "/secretaria",
     element: <SecretariaApp />,
     children: [
-      { index: true, element: <SecretariaDashboard/> },
-      { path: "secretariaconsultalist", element: <SecretariaConsultaList/>},
-      { path: "adicionarconsulta", element: <AdicionarConsulta/>},
-      { path: "editarconsulta/:id", element: <EditarConsultas/>},
-      { path: "pacientelista", element: <PacienteLista/>},
-      { path: "pacienteform", element: <PacienteForm/>},
-      { path: "pacienteeditar/:id", element: <PacienteEditar/>},
-      { path: "medicoslista", element: <MedicosLista/>},
-      { path: "medicosform", element: <MedicosForm/>},
-      { path: "medicoseditar/:id", element: <MedicosEditar/>},
-      { path: "agendamedica", element: <AgendaMedica/>},
-      { path: "adicionaragenda", element: <AdicionarAgenda/>},
-      { path: "secretariadashboard", element: <SecretariaDashboard/>},
-      { path: "medicosprofile/:id", element: <MedicosProfile/>}
+      { index: true, element: <SecretariaDashboard /> },
+      { path: "secretariaconsultalist", element: <SecretariaConsultaList /> },
+      { path: "adicionarconsulta", element: <AdicionarConsulta /> },
+      { path: "editarconsulta/:id", element: <EditarConsultas /> },
+      { path: "pacientelista", element: <PacienteLista /> },
+      { path: "pacienteform", element: <PacienteForm /> },
+      { path: "pacienteeditar/:id", element: <PacienteEditar /> },
+      { path: "medicoslista", element: <MedicosLista /> },
+      { path: "medicosform", element: <MedicosForm /> },
+      { path: "medicoseditar/:id", element: <MedicosEditar /> },
+      { path: "agendamedica", element: <AgendaMedica /> },
+      { path: "adicionaragenda", element: <AdicionarAgenda /> },
+      { path: "secretariadashboard", element: <SecretariaDashboard /> },
+      { path: "medicosprofile/:id", element: <MedicosProfile /> }
       // Rota inicial do admin
     ],
   },
@@ -140,14 +146,15 @@ element: <Login />
       { index: true, element: <DoctorDashboard /> }, // Rota inicial médico
       { path: "dashboard", element: <DoctorDashboard /> },
       { path: "calendar", element: <DoctorCalendar /> },
+      { path: "exceptions", element: <DoctorExceptions /> },
       { path: "patients", element: <DoctorPatientList /> },
       { path: "patientform", element: <DoctorPatientForm /> },
-      {path: "consultas", element: <ConsultaList /> },
-      { path: "DoctorConsultaForm", element: <DoctorConsultaForm/> },
-      {path: "laudolist", element: <LaudoListDoctor /> },
-      {path: "laudoform", element: <LaudoFormDoctor /> },
-      {path: "laudoedit/:id", element: <LaudoEdit/> }, // Rota para editar laudo
-       { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
+      { path: "consultas", element: <ConsultaList /> },
+      { path: "DoctorConsultaForm", element: <DoctorConsultaForm /> },
+      { path: "laudolist", element: <LaudoListDoctor /> },
+      { path: "laudoform", element: <LaudoFormDoctor /> },
+      { path: "laudoedit/:id", element: <LaudoEdit /> }, // Rota para editar laudo
+      { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
       { path: "doctorprontuario/:id", element: <DoctorProntuario /> }// Nova rota para DoctorProntuario
     ],
   },
@@ -156,12 +163,12 @@ element: <Login />
     path: "/patientapp",
     element: <PatientApp />,
     children: [
-      { index: true, element: <PatientDashboard/> }, 
-      {path: "dashboard", element: <PatientDashboard />},
-      {path: "meuexame", element: <MeusExames />},
-      {path: "minhasconsultas", element: <MinhasConsultas/>},
+      { index: true, element: <PatientDashboard /> },
+      { path: "dashboard", element: <PatientDashboard /> },
+      { path: "meuexame", element: <MeusExames /> },
+      { path: "minhasconsultas", element: <MinhasConsultas /> },
       // Rota inicial médico
-      
+
 
     ],
   },
