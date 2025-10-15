@@ -40,7 +40,7 @@ export default function PatientApp() {
                 </NavLink>
               </li>
               
-              {/* NOVO ITEM - AGENDAR CONSULTA */}
+              
               <li>
                 <NavLink
                   to="/patientapp/medicosdisponiveis"
@@ -50,16 +50,17 @@ export default function PatientApp() {
                   <span>Agendar Consulta</span>
                 </NavLink>
               </li>
-              
+
               <li>
                 <NavLink
-                  to="/patientapp/meuexame"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  <i className="fa fa-stethoscope"></i>
-                  <span>Meus exames</span>
-                </NavLink>
+                 to="/patientapp/meuslaudos"
+                 className={({ isActive }) => (isActive ? "active" : "")}
+  >
+                <i className="fa fa-file-text"></i>
+                 <span>Meus Laudos</span>
+               </NavLink>
               </li>
+
               <li>
                 <NavLink
                   to="/patientapp/minhasconsultas"

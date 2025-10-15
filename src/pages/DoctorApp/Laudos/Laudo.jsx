@@ -97,56 +97,7 @@ function LaudoList() {
       .then(result => setLaudos(Array.isArray(result) ? result : []))
       .catch(error => console.log('error', error));
   }, [])
-  const handleAdicionarLaudo = (laudo) => {
-    Swal.fire({
-      title: "Descrição do Laudo",
-      html: `
-        <div class="text-start" style="text-align: left; max-height: 400px; overflow-y: auto;">
-          <div class="mb-3">
-            <h6 class="text-primary">Informações do Pedido</h6>
-            <p><strong>Nº Pedido:</strong></p>
-            <p><strong>Paciente ID:</strong></p>
-            <p><strong>Tipo:</strong></p>         
-          </div>
-          
-          <div class="mb-3">
-            <h6 class="text-primary">Detalhes do Exame</h6>
-            <p><strong>Exame:</strong> </p>
-            <p><strong>Diagnóstico:</strong> </p>
-            <p><strong>Conclusão:</strong> </p>
-          </div>
-          
-          <div class="mb-3">
-            <h6 class="text-primary">Responsáveis</h6>
-            <p><strong>Executante:</strong> </p>
-          </div>
-          
-          <div class="mb-3">
-            <h6 class="text-primary">Datas</h6>
-            <p><strong>Criado em:</strong> </p>
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: "Abrir Laudo",
-      cancelButtonText: "Fechar",
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#6c757d",
-      icon: "info",
-      width: "600px",
-      draggable: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Abrir o form de laudo
-        abrirLaudo();
-      }
-    });
-  };
 
-  const abrirLaudo = () => {
-    // Navega para o form de laudo com o ID
-    window.location.href = `/doctor/laudoform`;
-  };
 
 
   const handleVerDetalhes = (laudo) => {
@@ -255,62 +206,125 @@ function LaudoList() {
     });
   };
 
-  const filteredLaudos = laudos.filter(l => {
-    const q = search.toLowerCase();
-    const textMatch =
-      (l.full_name || "").toLowerCase().includes(q) ||
-      (l.cpf || "").toLowerCase().includes(q) ||
-      (l.tipo || "").toLowerCase().includes(q) ||
-      (l.status || "").toLowerCase().includes(q) ||
-      (l.pedido || "").toString().toLowerCase().includes(q) ||
-      (l.prazo || "").toLowerCase().includes(q) ||
-      (l.requested_by || "").toLowerCase().includes(q) ||
-      (l.exam || "").toLowerCase().includes(q) ||
-      (l.data || "").toLowerCase().includes(q);
-
-    let dateMatch = true;
-    const today = new Date();
-    const laudoDate = new Date(l.data);
-
-    if (period === "today") {
-      dateMatch = laudoDate.toDateString() === today.toDateString();
-    } else if (period === "week") {
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
-    } else if (period === "month") {
-      dateMatch = laudoDate.getMonth() === today.getMonth() && laudoDate.getFullYear() === today.getFullYear();
-    }
-
-    if (startDate && endDate) {
-      dateMatch = dateMatch && l.data >= startDate && l.data <= endDate;
-    } else if (startDate) {
-      dateMatch = dateMatch && l.data >= startDate;
-    } else if (endDate) {
-      dateMatch = dateMatch && l.data <= endDate;
-    }
-
-    return textMatch && dateMatch;
-  });
-
-  const [itemsPerPage1] = useState(10);
-  const [currentPage1, setCurrentPage1] = useState(1);
-  const indexOfLastLaudos = currentPage1 * itemsPerPage1;
-  const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
-  const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
-  const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
-
-  useEffect(() => {
-    setCurrentPage1(1);
-  }, [search]);
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
     return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
   };
+  const [pacientesMap, setPacientesMap] = useState({});
+  const buscarPacientePorId = async (id) => {
+  try {
+    var myHeaders = new Headers();
+      myHeaders.append(
+    "apikey",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"
+  );
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions);
+     const data = await response.json(); 
+    return { id, full_name: data.full_name };
+
+  } catch (error) {
+    console.log("Erro ao buscar paciente:", error);
+    return { id, full_name: "Nome não encontrado" };
+  }
+};
+
+// useEffect para atualizar todos os nomes
+ useEffect(() => {
+    if (!laudos || laudos.length === 0) return;
+
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(laudos.map((l) => l.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [laudos]);
+    const filteredLaudos = laudos.filter(l => {
+      const q = search.toLowerCase();
+      const textMatch =
+        (pacientesMap[l.patient_id]?.toLowerCase() || "").includes(q) ||
+        (l.status || "").toLowerCase().includes(q) ||
+        (l.pedido || "").toString().toLowerCase().includes(q) ||
+        (l.exam || "").toLowerCase().includes(q) ||
+        (l.data || "").toLowerCase().includes(q);
+  
+      let dateMatch = true;
+      const today = new Date();
+      const laudoDate = new Date(l.data);
+  
+      if (period === "today") {
+        dateMatch = laudoDate.toDateString() === today.toDateString();
+      } else if (period === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
+      } else if (period === "month") {
+        dateMatch = laudoDate.getMonth() === today.getMonth() && laudoDate.getFullYear() === today.getFullYear();
+      }
+  
+      if (startDate && endDate) {
+        dateMatch = dateMatch && l.data >= startDate && l.data <= endDate;
+      } else if (startDate) {
+        dateMatch = dateMatch && l.data >= startDate;
+      } else if (endDate) {
+        dateMatch = dateMatch && l.data <= endDate;
+      }
+  
+      return textMatch && dateMatch;
+    });
+  
+    const [itemsPerPage1] = useState(10);
+    const [currentPage1, setCurrentPage1] = useState(1);
+    const indexOfLastLaudos = currentPage1 * itemsPerPage1;
+    const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
+    const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
+    const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
+  
+    useEffect(() => {
+      setCurrentPage1(1);
+    }, [search]);
   return (
     <div className="content">
       <h4 className="page-title">Laudos</h4>
@@ -348,14 +362,14 @@ function LaudoList() {
             <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
           </div>
         </div>
-        <Link 
-          to= "#"
+        <Link
+          to="/doctor/laudoform"
           onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation();
-          setOpenDropdown(null);
-          handleAdicionarLaudo()
-        }} className="btn btn-primary btn-rounded">
+            e.stopPropagation();
+            setOpenDropdown(null);
+
+
+          }} className="btn btn-primary btn-rounded">
           <i className="fa fa-plus"></i> Adicionar Laudo
         </Link>
       </div>
@@ -382,13 +396,13 @@ function LaudoList() {
                 {currentLaudos.length > 0 ? currentLaudos.map(l => (
                   <tr key={l.id}>
                     <td className="nowrap">{l.order_number}</td>
-                    <td>{l.patient_id}</td>
+                    <td>{pacientesMap[l.patient_id] || "Carregando..."}</td>
                     <td>{l.exam}</td>
                     <td>{l.diagnosis}</td>
                     <td>{l.conclusion}</td>
                     <td>{l.status}</td>
                     <td> {l.requested_by}</td>
-                    <td>{l.created_at}</td>
+                    <td>{formatDate(l.created_at)}</td>
                     <td className="text-right">
                       <div className="dropdown dropdown-action">
                         <button type="button" ref={el => anchorRefs.current[l.id] = el} className="action-icon"
@@ -398,7 +412,7 @@ function LaudoList() {
                         <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown === l.id}
                           onClose={() => setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
                           {/* BOTÃO VER DETALHES - SUBSTITUIU O BOTÃO LAUDO */}
-                          <Link
+                          {/*<Link
                             className="dropdown-item-custom"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -407,6 +421,13 @@ function LaudoList() {
                             }}
                           >
                             <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                          </Link>*/}
+                          <Link
+                            to={`/doctor/laudoedit/${l.id}`}
+                            className="dropdown-item-custom"
+
+                          >
+                            <i className="fa fa-pencil m-r-5"></i> Editar
                           </Link>
 
                           <button className="dropdown-item-custom dropdown-item-delete" onClick={() => handleDelete(l.id)}>
