@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./assets/css/index.css";
 
-
 //Login
 import Login from "./pages/Login/Login.jsx";
 import MagicLink from "./pages/Login/Acessounico.jsx"
@@ -52,11 +51,12 @@ import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
 
 // paginas do paciente
 import PatientDashboard from "./pages/PacienteApp/PatientDashboard.jsx";
-import MeusExames from "./pages/PacienteApp/Exames.jsx";
 import MinhasConsultas from "./pages/PacienteApp/MinhasConsultas.jsx";
+import MedicosDisponiveis from "./pages/PacienteApp/MedicosDisponiveis.jsx";
+import AgendarConsulta from "./pages/PacienteApp/AgendarConsultas.jsx";
+import MeusLaudos from "./pages/PacienteApp/MeusLaudos.jsx";
 
-//
-
+// Páginas Secretaria
 import PacienteLista from "./pages/SecretariaApp/Pacientes/PacienteLista.jsx";
 import PacienteForm from "./pages/SecretariaApp/Pacientes/PacienteForm.jsx";
 import PacienteEditar from "./pages/SecretariaApp/Pacientes/PacienteEditar.jsx";
@@ -71,11 +71,6 @@ import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
 import LaudoEdit from "./pages/DoctorApp/Laudos/LaudoEdit.jsx";
 import LaudoAdmEdit from "./pages/laudos/LaudoAdmEdit.jsx";
 
-
-
-
-
-
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
 
@@ -83,9 +78,8 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />
-
   },
- {
+  {
     path: "/AcessoUnico",
     element: <MagicLink/>
   },
@@ -135,7 +129,6 @@ const router = createBrowserRouter([
       { path: "adicionaragenda", element: <AdicionarAgenda /> },
       { path: "secretariadashboard", element: <SecretariaDashboard /> },
       { path: "medicosprofile/:id", element: <MedicosProfile /> }
-      // Rota inicial do admin
     ],
   },
   // Rotas Médico
@@ -154,8 +147,8 @@ const router = createBrowserRouter([
       { path: "laudolist", element: <LaudoListDoctor /> },
       { path: "laudoform", element: <LaudoFormDoctor /> },
       { path: "laudoedit/:id", element: <LaudoEdit /> }, // Rota para editar laudo
-      { path: "prontuariolist", element: <DoctorProntuarioList /> }, // :white_check_mark: Rota corrigida
-      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }// Nova rota para DoctorProntuario
+      { path: "prontuariolist", element: <DoctorProntuarioList /> },
+      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }
     ],
   },
   // Rotas Paciente
@@ -165,11 +158,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <PatientDashboard /> },
       { path: "dashboard", element: <PatientDashboard /> },
-      { path: "meuexame", element: <MeusExames /> },
       { path: "minhasconsultas", element: <MinhasConsultas /> },
-      // Rota inicial médico
-
-
+      { path: "medicosdisponiveis", element: <MedicosDisponiveis /> },
+      { path: "agendarconsulta/:medicoId", element: <AgendarConsulta /> },
+      { path: "meuslaudos", element: <MeusLaudos /> }
     ],
   },
 ]);
