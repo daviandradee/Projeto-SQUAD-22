@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { setUserId, setUserEmail, setUserRole } from "../../utils/userInfo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -71,19 +72,42 @@ export default function Login() {
       }
 
       const userInfo = await userInfoRes.json();
-      console.log(" Dados retornados da API /user-info:", userInfo);
+      console.log(" Dados completos do usuário:", userInfo);
 
-      const role = userInfo.roles?.[0];
-      console.log(" Role detectado:", role);
+      
+      const userData = {
+        id: userInfo.profile?.id,
+        email: userInfo.user?.email,
+        role: userInfo.roles || [] 
+      };
 
-      if (role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (role === "secretaria") {
-        navigate("/secretaria/secretariadashboard");
-      } else if (role === "medico") {
-        navigate("/doctor/dashboard");
-      } else if (role === "user" || role === "paciente") {
-        navigate("/patientapp");
+      if (userData.id) {
+        setUserId(userData.id);
+        setUserEmail(userData.email);
+        console.log(" User info salva:", userData.id, userData.email, userData.role);
+      } else {
+        console.warn(" Não foi possível salvar userInfo, id não encontrado", userInfo);
+      }
+
+      
+      
+      
+      const roles = userData.role;
+
+      const rolePriority = [
+        { role: "admin", path: "/admin/dashboard" },
+        { role: "secretaria", path: "/secretaria/secretariadashboard" },
+        { role: "medico", path: "/doctor/dashboard" },
+        { role: "user", path: "/patientapp" },
+        { role: "paciente", path: "/patientapp" },
+      ];
+
+      const matchedRole = rolePriority.find(r => roles.includes(r.role));
+
+      if (matchedRole) {
+        setUserRole(matchedRole.role); 
+        console.log("Role detectada:", matchedRole.role);
+        navigate(matchedRole.path);
       } else {
         alert("Usuário sem função atribuída. Contate o administrador.");
         console.warn("⚠️ Role não reconhecido:", userInfo);
@@ -119,7 +143,6 @@ export default function Login() {
             style={styles.input}
           />
 
-          
           <button
             type="button"
             onClick={() => navigate("/AcessoUnico")}
@@ -162,7 +185,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "15px",
-    alignItems: "center", // 🔹 centraliza o botão de acesso único
+    alignItems: "center",
   },
   input: {
     padding: "12px",
@@ -191,5 +214,3 @@ const styles = {
     marginBottom: "5px",
   },
 };
-
-
