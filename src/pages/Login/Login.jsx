@@ -76,6 +76,8 @@ export default function Login() {
       const userInfo = await userInfoRes.json();
       console.log(" Dados retornados da API /user-info:", userInfo);
 
+      localStorage.setItem("user_id", userInfo.id);
+
       // 3) Pegar role do array roles
       const role = userInfo.roles?.[0];
       console.log(" Role detectado:", role);
