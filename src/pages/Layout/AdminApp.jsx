@@ -34,7 +34,7 @@ function Sidebar() {
                                         <i className="fa fa-bar-chart" /> <span>Dashboard</span>
                                     </Link>
                                 </li>
-                                
+
                                 <li>
                                     <Link to="/admin/doctorlist">
                                         <i className="fa fa-user-md" /> <span>Médicos</span>
@@ -73,10 +73,15 @@ function Sidebar() {
                                 </li>
                                 <li>
                                     <Link to="/admin/roles">
-                                    <i className="fa fa-users" /><span> Usuários</span>
+                                        <i className="fa fa-users" /><span> Usuários</span>
                                     </Link>
 
 
+                                </li>
+                                <li>
+                                    <Link to="/admin/doctor-exceptions">
+                                        <i className="fa fa-calendar-times-o" /> <span>Exceções do Médico</span>
+                                    </Link>
                                 </li>
 
                                 {/*<li>
@@ -89,10 +94,10 @@ function Sidebar() {
                     </div>
                 </div>
             </div>
-                <Outlet />
-                <AccessibilityWidget />
-                
-                <Chatbox />
+            <Outlet />
+            <AccessibilityWidget />
+
+            <Chatbox />
         </div>
     );
 }

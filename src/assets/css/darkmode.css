@@ -989,16 +989,20 @@ body.dark-mode .dash-widget {
    AJUSTE FINAL - widget-title2
    ============ */
 
-   body.dark-mode .widget-title2,
-   body.dark-mode .widget-title2 *,
-   body.dark-mode .dash-widget h3,
-   body.dark-mode h3.widget-title2 {
-     color: #ffffff !important;      /* branco puro */
-     font-weight: 800 !important;    /* texto mais encorpado */
-     text-shadow: 0 0 4px rgba(255, 255, 255, 0.08); /* brilho suave */
-     letter-spacing: 0.3px;
-     opacity: 1 !important;          /* evita cinza translúcido */
-   }
+body.dark-mode .widget-title2,
+body.dark-mode .widget-title2 *,
+body.dark-mode .dash-widget h3,
+body.dark-mode h3.widget-title2 {
+    color: #ffffff !important;
+    /* branco puro */
+    font-weight: 800 !important;
+    /* texto mais encorpado */
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.08);
+    /* brilho suave */
+    letter-spacing: 0.3px;
+    opacity: 1 !important;
+    /* evita cinza translúcido */
+}
 
 /* Subtítulos e spans */
 body.dark-mode .dash-widget span,
@@ -1021,95 +1025,117 @@ body.dark-mode .dash-widget:hover {
     background-color: #24324a !important;
     box-shadow: 0 0 12px rgba(96, 165, 250, 0.3);
     transform: translateY(-2px);
-}/* ============
+}
+
+/* ============
    DOC CARD HEADER (modo escuro limpo)
    ============ */
 body.dark-mode .doc-card-header {
-    background: transparent !important; /* remove o fundo escuro */
-    border-bottom: 1px solid #334155 !important; /* linha discreta */
-    color: #ffffff !important; /* texto branco visível */
+    background: transparent !important;
+    /* remove o fundo escuro */
+    border-bottom: 1px solid #334155 !important;
+    /* linha discreta */
+    color: #ffffff !important;
+    /* texto branco visível */
     box-shadow: none !important;
-  }
-  
-  /* Ajuste dos títulos dentro do header */
-  body.dark-mode .doc-card-header h3,
-  body.dark-mode .doc-card-header span,
-  body.dark-mode .doc-card-header strong {
-    color: #ffffff !important; /* texto 100% branco */
+}
+
+/* Ajuste dos títulos dentro do header */
+body.dark-mode .doc-card-header h3,
+body.dark-mode .doc-card-header span,
+body.dark-mode .doc-card-header strong {
+    color: #ffffff !important;
+    /* texto 100% branco */
     font-weight: 700;
-  }
-  
-  /* Se tiver botões dentro do header */
-  body.dark-mode .doc-card-header button,
-  body.dark-mode .doc-card-header a {
-    background: #2563eb !important; /* azul consistente */
+}
+
+/* Se tiver botões dentro do header */
+body.dark-mode .doc-card-header button,
+body.dark-mode .doc-card-header a {
+    background: #2563eb !important;
+    /* azul consistente */
     color: #fff !important;
     border: none !important;
     transition: background 0.3s ease;
-  }
-  
-  body.dark-mode .doc-card-header button:hover,
-  body.dark-mode .doc-card-header a:hover {
-    background: #3b82f6 !important; /* azul mais claro ao passar o mouse */
-  }/* ============
+}
+
+body.dark-mode .doc-card-header button:hover,
+body.dark-mode .doc-card-header a:hover {
+    background: #3b82f6 !important;
+    /* azul mais claro ao passar o mouse */
+}
+
+/* ============
    CHATBOT (modo escuro)
    ============ */
 
 /* Corpo do chat */
 body.dark-mode .chat-body {
-    background-color: #0f172a !important; /* fundo escuro principal */
-    color: #f1f5f9 !important; /* texto claro */
+    background-color: #0f172a !important;
+    /* fundo escuro principal */
+    color: #f1f5f9 !important;
+    /* texto claro */
     border-top: 1px solid #334155 !important;
     border-bottom: 1px solid #334155 !important;
-    scrollbar-color: #475569 #1e293b; /* cores da barra de rolagem */
-  }
-  
-  /* Mensagens do usuário e do bot */
-  body.dark-mode .chat-body .message-text {
-    color: #f1f5f9 !important; /* texto claro legível */
-  }
-  
-  body.dark-mode .chat-body .user-message .message-text {
-    background-color: #2563eb !important; /* azul consistente */
+    scrollbar-color: #475569 #1e293b;
+    /* cores da barra de rolagem */
+}
+
+/* Mensagens do usuário e do bot */
+body.dark-mode .chat-body .message-text {
+    color: #f1f5f9 !important;
+    /* texto claro legível */
+}
+
+body.dark-mode .chat-body .user-message .message-text {
+    background-color: #2563eb !important;
+    /* azul consistente */
     color: #ffffff !important;
     border-radius: 10px 10px 0 10px;
-  }
-  
-  body.dark-mode .chat-body .bot-message .message-text {
-    background-color: #1e293b !important; /* cinza azulado escuro */
+}
+
+body.dark-mode .chat-body .bot-message .message-text {
+    background-color: #1e293b !important;
+    /* cinza azulado escuro */
     color: #e2e8f0 !important;
     border-radius: 10px 10px 10px 0;
-  }
-  
-  /* Rodapé (área de digitação) */
-  body.dark-mode .chat-footer {
-    background-color: #1e293b !important; /* mesmo tom do restante */
+}
+
+/* Rodapé (área de digitação) */
+body.dark-mode .chat-footer {
+    background-color: #1e293b !important;
+    /* mesmo tom do restante */
     border-top: 1px solid #334155 !important;
     padding: 10px;
-  }
-  
-  /* Campo de entrada de mensagem */
-  body.dark-mode .message-input {
-    background-color: #0f172a !important; /* fundo escuro */
-    color: #ffffff !important; /* texto branco */
-    border: 1px solid #3b82f6 !important; /* azul no contorno */
+}
+
+/* Campo de entrada de mensagem */
+body.dark-mode .message-input {
+    background-color: #0f172a !important;
+    /* fundo escuro */
+    color: #ffffff !important;
+    /* texto branco */
+    border: 1px solid #3b82f6 !important;
+    /* azul no contorno */
     border-radius: 8px;
     padding: 8px 12px;
     transition: all 0.2s ease;
-  }
-  
-  body.dark-mode .message-input::placeholder {
-    color: #94a3b8 !important; /* placeholder cinza claro */
-  }
-  
-  body.dark-mode .message-input:focus {
+}
+
+body.dark-mode .message-input::placeholder {
+    color: #94a3b8 !important;
+    /* placeholder cinza claro */
+}
+
+body.dark-mode .message-input:focus {
     outline: none;
-    border-color: #60a5fa !important; /* azul mais claro ao focar */
+    border-color: #60a5fa !important;
+    /* azul mais claro ao focar */
     box-shadow: 0 0 6px rgba(96, 165, 250, 0.4);
-  }
-  
-  /* Botão de envio */
-  body.dark-mode .chat-footer button {
+}
+
+/* Botão de envio */
+body.dark-mode .chat-footer button {
     background-color: #2563eb !important;
     color: #fff !important;
     border: none !important;
@@ -1117,14 +1143,14 @@ body.dark-mode .chat-body {
     padding: 8px 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  body.dark-mode .chat-footer button:hover {
+}
+
+body.dark-mode .chat-footer button:hover {
     background-color: #3b82f6 !important;
-  }
-  
-  /* Ícone do botão (seta) */
-  body.dark-mode .chat-footer button .material-symbols-rounded {
+}
+
+/* Ícone do botão (seta) */
+body.dark-mode .chat-footer button .material-symbols-rounded {
     color: #fff !important;
     font-size: 20px;
   }
@@ -1144,6 +1170,24 @@ body.dark-mode .chat-body {
 
 .acc-btn-read:hover {
   background-color: #e6e6e6;
+
+}
+
+.acc-btn-read {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    color: #222;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-weight: 500;
+}
+
+.acc-btn-read:hover {
+    background-color: #e6e6e6;
 }
 
 
@@ -1160,10 +1204,282 @@ body.dark-mode .chat-body {
 }
 
 .dark-mode .card-block{
+    background-color: #009EFB;
+    color: white;
+    box-shadow: 0 0 8px rgb(45, 116, 207);
+    transform: scale(1.02);
+}
+
+/* Calendário da Dashboard */
+.dark-mode .calendar-container {
+    background-color: #1e293b !important;
+}
+
+.dark-mode .card-block {
     background-color: #0f172a !important;
 }
 
 /* Lista do MuiTabs */
 .dark-mode .MuiTabs-list{
     background-color: #1e293b !important;
+
+}
+
+/* ============
+   SWITCH MODERNO (Modo Escuro)
+   ============ */
+.acc-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.acc-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* O trilho do botão */
+.acc-slider {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    background-color: #d1d5db;
+    /* cinza claro */
+    border-radius: 34px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.15);
+}
+
+/* A bolinha */
+.acc-slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    top: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Quando ativado */
+.acc-switch input:checked+.acc-slider {
+    background-color: #2563eb;
+    /* azul principal */
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
+}
+
+.acc-switch input:checked+.acc-slider::before {
+    transform: translateX(20px);
+}
+
+/* Legenda ao lado */
+.acc-label {
+    font-size: 15px;
+    color: #111827;
+    transition: color 0.3s ease;
+}
+
+/* Modo escuro */
+body.dark-mode .acc-label {
+    color: #e2e8f0;
+}
+
+/* ============
+   MODO DALTÔNICO (versão visual aprimorada)
+   ============ */
+body.daltonism-mode {
+    --blue-safe: #1e90ff;
+    /* Azul forte e seguro */
+    --green-safe: #1fab89;
+    /* Verde água legível */
+    --yellow-safe: #f4c542;
+    /* Amarelo quente */
+    --red-safe: #d64550;
+    /* Vermelho claro e não saturado */
+    --bg-safe: #f8fbff;
+    /* Fundo neutro */
+    --text-safe: #0f172a;
+    /* Texto escuro visível */
+    --card-safe: #ffffff;
+    --border-safe: #cfd9e4;
+
+    background-color: var(--bg-safe);
+    color: var(--text-safe);
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* 🔹 Mantém cartões e áreas brancas legíveis */
+body.daltonism-mode .card,
+body.daltonism-mode .card-box,
+body.daltonism-mode .profile-widget,
+body.daltonism-mode .acc-panel {
+    background-color: var(--card-safe);
+    border: 1px solid var(--border-safe);
+    color: var(--text-safe);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* 🔹 Links, botões e ações primárias */
+body.daltonism-mode a,
+body.daltonism-mode button,
+body.daltonism-mode .btn,
+body.daltonism-mode .acc-btn {
+    background-color: var(--blue-safe) !important;
+    color: #fff !important;
+    border: none !important;
+    transition: all 0.25s ease;
+}
+
+body.daltonism-mode a:hover,
+body.daltonism-mode button:hover,
+body.daltonism-mode .btn:hover {
+    background-color: #4aa4ff !important;
+}
+
+/* 🔹 Status e alertas */
+body.daltonism-mode .status-green,
+body.daltonism-mode .custom-badge.status-green {
+    background-color: var(--green-safe) !important;
+    color: #fff !important;
+}
+
+body.daltonism-mode .status-yellow {
+    background-color: var(--yellow-safe) !important;
+    color: #000 !important;
+}
+
+body.daltonism-mode .status-red,
+body.daltonism-mode .custom-badge.status-red {
+    background-color: var(--red-safe) !important;
+    color: #fff !important;
+}
+
+/* 🔹 Títulos e cabeçalhos */
+body.daltonism-mode h1,
+body.daltonism-mode h2,
+body.daltonism-mode h3,
+body.daltonism-mode h4,
+body.daltonism-mode h5,
+body.daltonism-mode h6,
+body.daltonism-mode .widget-title2,
+body.daltonism-mode .card-title,
+body.daltonism-mode .title,
+body.daltonism-mode th {
+    color: var(--text-safe) !important;
+    font-weight: 600;
+}
+
+/* 🔹 Tabelas */
+body.daltonism-mode table {
+    background-color: var(--card-safe);
+    border-collapse: collapse;
+    border: 1px solid var(--border-safe);
+}
+
+body.daltonism-mode th,
+body.daltonism-mode td {
+    border: 1px solid var(--border-safe);
+    color: var(--text-safe);
+    background-color: #ffffff;
+}
+
+body.daltonism-mode thead {
+    background-color: #e6f0ff;
+}
+
+/* 🔹 Ícones e detalhes */
+body.daltonism-mode i,
+body.daltonism-mode svg {
+    color: var(--blue-safe);
+}
+
+/* 🔹 Sidebar e menu */
+body.daltonism-mode .sidebar,
+body.daltonism-mode .sidebar-inner {
+    background-color: #f4f8ff !important;
+}
+
+body.daltonism-mode .menu-title,
+body.daltonism-mode .nav-link,
+body.daltonism-mode .sidebar a {
+    color: var(--text-safe) !important;
+}
+
+/* 🔹 Inputs e formulários */
+body.daltonism-mode input,
+body.daltonism-mode select,
+body.daltonism-mode textarea {
+    background-color: #ffffff;
+    color: var(--text-safe);
+    border: 1px solid var(--border-safe);
+}
+
+body.daltonism-mode input:focus,
+body.daltonism-mode select:focus,
+body.daltonism-mode textarea:focus {
+    outline: 2px solid var(--blue-safe);
+}
+
+/* 🔹 Chatbot */
+body.daltonism-mode .chat-body,
+body.daltonism-mode .chat-footer {
+    background-color: #f9fbff;
+    border-top: 1px solid var(--border-safe);
+}
+
+body.daltonism-mode .message.bot-message {
+    background-color: #e6f2ff;
+    color: var(--text-safe);
+}
+
+body.daltonism-mode .message.user-message {
+    background-color: #d0ebff;
+    color: var(--text-safe);
+}
+
+body.daltonism-mode .message-input {
+    background-color: #ffffff;
+    color: var(--text-safe);
+    border: 1px solid var(--border-safe);
+}
+
+/* ============
+     CONTROLE DE FONTE
+     ============ */
+.acc-font-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.acc-font-controls button {
+    background-color: #3399ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 5px 9px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.acc-font-controls button:hover {
+    background-color: #4da6ff;
+}
+
+body.dark-mode .acc-font-controls button {
+    background-color: #2563eb;
+}
+
+body.dark-mode .acc-font-controls button:hover {
+    background-color: #3b82f6;
 }

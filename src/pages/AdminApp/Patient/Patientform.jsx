@@ -56,17 +56,46 @@ function Patientform() {
             [name]: value
         }));
     };
+    const estados = {
+        AC: "Acre",
+        AL: "Alagoas",
+        AP: "Amapá",
+        AM: "Amazonas",
+        BA: "Bahia",
+        CE: "Ceará",
+        DF: "Distrito Federal",
+        ES: "Espírito Santo",
+        GO: "Goiás",
+        MA: "Maranhão",
+        MT: "Mato Grosso",
+        MS: "Mato Grosso do Sul",
+        MG: "Minas Gerais",
+        PA: "Pará",
+        PB: "Paraíba",
+        PR: "Paraná",
+        PE: "Pernambuco",
+        PI: "Piauí",
+        RJ: "Rio de Janeiro",
+        RN: "Rio Grande do Norte",
+        RS: "Rio Grande do Sul",
+        RO: "Rondônia",
+        RR: "Roraima",
+        SC: "Santa Catarina",
+        SP: "São Paulo",
+        SE: "Sergipe",
+        TO: "Tocantins"
+    };
     // aqui esta sentando os valores nos inputs 
     const setValuesFromCep = (data) => {
-        document.getElementById('street').value = data.logradouro || '';
-        document.getElementById('neighborhood').value = data.bairro || '';
-        document.getElementById('city').value = data.localidade || '';
-        document.getElementById('state').value = data.uf || '';
+        document.getElementById('street').value = data.street || '';
+        document.getElementById('neighborhood').value = data.neighborhood || '';
+        document.getElementById('city').value = data.city || '';
+        document.getElementById('state').value = data.state || '';
     }
     const buscarCep = (e) => {
         const cep = patientData.cep.replace(/\D/g, '');
         console.log(cep);
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data)
@@ -75,10 +104,10 @@ function Patientform() {
                 // estou salvando os valoeres no patientData
                 setpatientData((prev) => ({
                     ...prev,
-                    city: data.localidade || '',
-                    street: data.logradouro || '',
-                    neighborhood: data.bairro || '',
-                    state: data.estado || ''
+                    city: data.city || '',
+                    street: data.street || '',
+                    neighborhood: data.neighborhood || '',
+                    state: estados[data.state] || data.state
                 }));
             })
     }
@@ -643,7 +672,7 @@ function Patientform() {
                                     <input className="form-control" type="text"
                                         id="state"
                                         name="state"
-                                        value={patientData.estado}
+                                        value={patientData.state}
                                         onChange={handleChange}
                                     />
                                 </div>
