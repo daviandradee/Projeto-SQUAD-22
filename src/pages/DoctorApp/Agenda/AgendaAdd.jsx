@@ -1,11 +1,11 @@
-import "../../../assets/css/index.css"
+import "../../../assets/css/index.css"  
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 
 
-function AddSchedule() {
-  const [doctors, setDoctors] = useState([]);
+function AgendaAdd() {
+   const [doctors, setDoctors] = useState([]);
   const [doctorId, setDoctorId] = useState("");
   const [weekday, setWeekday] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -97,7 +97,7 @@ function AddSchedule() {
       })
       .then(() => {
         alert("✅ Agenda criada com sucesso!");
-        navigate("/admin/doctorschedule");
+        navigate("/doctor/doctoragenda");
       })
       .catch((err) => {
         console.error("❌ Erro ao criar agenda:", err);
@@ -106,7 +106,6 @@ function AddSchedule() {
   };
 
   return (
-    <div className="page-wrapper">
     <div className="content">
       <div className="row">
         <div className="col-lg-8 offset-lg-2">
@@ -239,8 +238,7 @@ function AddSchedule() {
         </div>
       </div>
     </div>
-    </div>
   );
 }
 
-export default AddSchedule;
+export default AgendaAdd;

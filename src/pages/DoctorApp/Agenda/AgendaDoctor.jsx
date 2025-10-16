@@ -1,9 +1,10 @@
+import "../../../assets/css/index.css"
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth";
-import "../../../assets/css/index.css";
+import { Link } from "react-router-dom";
 
+// Componente para o dropdown portal
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
   const [stylePos, setStylePos] = useState({
@@ -14,22 +15,26 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
     zIndex: 1000,
   });
 
+  // Posiciona o menu após renderar (medir tamanho do menu)
   useLayoutEffect(() => {
-    if (!isOpen || !anchorEl || !menuRef.current) return;
+    if (!isOpen) return;
+    if (!anchorEl || !menuRef.current) return;
 
     const anchorRect = anchorEl.getBoundingClientRect();
     const menuRect = menuRef.current.getBoundingClientRect();
     const scrollY = window.scrollY || window.pageYOffset;
     const scrollX = window.scrollX || window.pageXOffset;
 
+    // tenta alinhar à direita do botão (como dropdown-menu-right)
     let left = anchorRect.right + scrollX - menuRect.width;
     let top = anchorRect.bottom + scrollY;
 
+    // evita sair da esquerda da tela
     if (left < 0) left = scrollX + 4;
+    // se extrapolar bottom, abre para cima
     if (top + menuRect.height > window.innerHeight + scrollY) {
       top = anchorRect.top + scrollY - menuRect.height;
     }
-
     setStylePos({
       position: "absolute",
       top: `${Math.round(top)}px`,
@@ -39,27 +44,21 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
     });
   }, [isOpen, anchorEl, children]);
 
+  // fecha ao clicar fora / ao rolar
   useEffect(() => {
     if (!isOpen) return;
-
     function handleDocClick(e) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target) &&
-        anchorEl &&
-        !anchorEl.contains(e.target)
-      ) {
+      const menu = menuRef.current;
+      if (menu && !menu.contains(e.target) && anchorEl && !anchorEl.contains(e.target)) {
         onClose();
       }
     }
-
     function handleScroll() {
       onClose();
     }
-
     document.addEventListener("mousedown", handleDocClick);
+    // captura scroll em qualquer elemento (true)
     document.addEventListener("scroll", handleScroll, true);
-
     return () => {
       document.removeEventListener("mousedown", handleDocClick);
       document.removeEventListener("scroll", handleScroll, true);
@@ -67,11 +66,10 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   }, [isOpen, onClose, anchorEl]);
 
   if (!isOpen) return null;
-
   return createPortal(
     <div
       ref={menuRef}
-      className={className}
+      className={className} // mantém as classes que você já usa no CSS
       style={stylePos}
       onClick={(e) => e.stopPropagation()}
     >
@@ -81,7 +79,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   );
 }
 
-function AgendaMedica() {
+function AgendaDoctor() {
   const [agenda, setAgenda] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -253,7 +251,7 @@ function AgendaMedica() {
           />
         </div>
         <div className="col-sm-6 col-9 text-right m-b-20">
-          <Link to="/secretaria/adicionaragenda" className="btn btn-primary btn-rounded">
+          <Link to="/doctor/doctoragendaadd" className="btn btn-primary btn-rounded">
             <i className="fa fa-plus"></i> Adicionar agenda
           </Link>
         </div>
@@ -492,5 +490,4 @@ function AgendaMedica() {
     </div>
   );
 }
-
-export default AgendaMedica;
+export default AgendaDoctor;

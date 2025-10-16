@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import "../../assets/css/index.css";
-import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect, use } from "react";
 import { createPortal } from "react-dom";
 import Swal from 'sweetalert2';
+import { getAccessToken } from "../../utils/auth";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -44,7 +45,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
     const handleDocClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target) &&
-          anchorEl && !anchorEl.contains(e.target)) {
+        anchorEl && !anchorEl.contains(e.target)) {
         onClose();
       }
     };
@@ -73,99 +74,30 @@ function LaudoList() {
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [laudos, setLaudos] = useState([
-    {
-      id: 1,
-      pedido: "REP-2025-00001",
-      pacienteId: "abd2d250-bedb-4feb-9c73-6df15f8a7ad",
-      exame: "1",
-      diagnostico: "1",
-      conclusao: "aaaaa",
-      status: "draft",
-      executante: "RiseUp Popcode",
-      criadoEm: "2025-10-03T14:31:23.914774+00:00"
-    },
-    {
-      id: 2,
-      pedido: "REP-2025-00002",
-      pacienteId: "abd2d250-bedb-4feb-9c73-6df15f8a7ad",
-      exame: "Radiografia",
-      diagnostico: "Lindo e cheiroso",
-      conclusao: "findo",
-      status: "draft",
-      executante: "RiseUp Popcode",
-      criadoEm: "2025-10-06T23:11:52.278889+00:00"
-    },
-    {
-      id: 3,
-      pedido: "REP-2025-00003",
-      pacienteId: "47902ada-7d04-480a-a759-bae8a71973a",
-      exame: "exame de sangue",
-      diagnostico: "",
-      conclusao: "Só precisa se atentar com a alimentação",
-      status: "draft",
-      executante: "fulano",
-      criadoEm: "2025-10-08T15:04:08.909372+00:00"
-    },
-    {
-      id: 4,
-      pedido: "REP-2025-00040",
-      pacienteId: "ab039e66-7271-4187-a719-e2769c6d15b3",
-      exame: "falta de potassio",
-      diagnostico: "",
-      conclusao: "",
-      status: "draft",
-      executante: "Dr. Smith",
-      criadoEm: "2025-10-11T15:33:21.368022+00:00"
-    },
-    {
-      id: 5,
-      pedido: "REP-2025-00043",
-      pacienteId: "abb0de4d-9dfa-4fb5-ac30-cdcb82c4974e",
-      exame: "teste3",
-      diagnostico: "teste3",
-      conclusao: "",
-      status: "draft",
-      executante: "4d17554a-7804-4cf9-a075-db42c99974e",
-      criadoEm: "2025-10-12T04:21:32.283131+00:00"
-    },
-    {
-      id: 6,
-      pedido: "REP-2025-00046",
-      pacienteId: "abb0de4d-9dfa-4fb5-ac30-cdcb82c4974e",
-      exame: "teste6",
-      diagnostico: "teste6",
-      conclusao: "",
-      status: "draft",
-      executante: "4d17554a-7804-4cf9-a075-db42c99974e",
-      criadoEm: "2025-10-12T04:30:04.181972+00:00"
-    },
-    {
-      id: 7,
-      pedido: "REP-2025-00049",
-      pacienteId: "ab039e66-7271-4187-a719-e2769c6d15b3",
-      exame: "exame de sangue",
-      diagnostico: "Fala de ferro",
-      conclusao: "Precisa obter pela alimentação",
-      status: "draft",
-      executante: "Dr.Davi",
-      criadoEm: "2025-10-13T05:31:22.398291+00:00"
-    },
-    {
-      id: 8,
-      pedido: "REP-2025-00052",
-      pacienteId: "ab039e66-7271-4187-a719-e2769c6d15b3",
-      exame: "rabo x",
-      diagnostico: "Quebrou o radio",
-      conclusao: "fratura distal do radio",
-      status: "draft",
-      executante: "Dr.Davi",
-      criadoEm: "2025-10-13T18:10:23.056779+00:00"
-    }
-  ]);                        
+  const [laudos, setLaudos] = useState([])
+
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
+  const patient_id ="a8039e6d-7271-4187-a719-e27d9c6d15b3"; // Substitua pelo ID real do paciente
+  const tokenUsuario = getAccessToken()
+  var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  useEffect(() => {
+  fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${patient_id}&select=*`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      setLaudos(result)
+      console.log(result)
+    })
+    .catch(error => console.log('error', error));
+}, [])
   // FUNÇÃO AUXILIAR PARA CORES DO STATUS
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -212,13 +144,13 @@ function LaudoList() {
   const filteredLaudos = laudos.filter(l => {
     const q = search.toLowerCase();
     const textMatch =
-      (l.pedido || "").toLowerCase().includes(q) ||
-      (l.pacienteId || "").toLowerCase().includes(q) ||
-      (l.exame || "").toLowerCase().includes(q) ||
-      (l.diagnostico || "").toLowerCase().includes(q) ||
-      (l.conclusao || "").toLowerCase().includes(q) ||
+      (l.order_number || "").toLowerCase().includes(q) ||
+      (l.patient_id || "").toLowerCase().includes(q) ||
+      (l.exam || "").toLowerCase().includes(q) ||
+      (l.diagnosis || "").toLowerCase().includes(q) ||
+      (l.conclusion || "").toLowerCase().includes(q) ||
       (l.status || "").toLowerCase().includes(q) ||
-      (l.executante || "").toLowerCase().includes(q);
+      (l.requested_by || "").toLowerCase().includes(q);
 
     let dateMatch = true;
     if (startDate && endDate) {
@@ -236,7 +168,7 @@ function LaudoList() {
     <div className="main-wrapper" style={styles.mainWrapper}>
       <div className="page-wrapper" style={styles.pageWrapper}>
         <div className="content" style={styles.content}>
-          
+
           {/* CABEÇALHO FIXO */}
           <div style={styles.headerFixed}>
             <h4 className="page-title" style={styles.pageTitle}>Laudos</h4>
@@ -257,42 +189,42 @@ function LaudoList() {
 
               {/* Filtros de data e botões rápidos */}
               <div className="col-auto d-flex align-items-center" style={styles.filtersContainer}>
-                
+
                 {/* Filtros de data */}
                 <div style={styles.dateFilter}>
                   <label style={styles.filterLabel}>De:</label>
-                  <input 
-                    type="date" 
-                    value={startDate} 
-                    onChange={e => setStartDate(e.target.value)} 
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
                     style={styles.dateInput}
                   />
                   <label style={styles.filterLabel}>Até:</label>
-                  <input 
-                    type="date" 
-                    value={endDate} 
-                    onChange={e => setEndDate(e.target.value)} 
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
                     style={styles.dateInput}
                   />
                 </div>
 
                 {/* Botões rápidos */}
                 <div style={styles.quickFilter}>
-                  <button 
+                  <button
                     style={period === "today" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={()=>setPeriod("today")}
+                    onClick={() => setPeriod("today")}
                   >
                     Hoje
                   </button>
-                  <button 
+                  <button
                     style={period === "week" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={()=>setPeriod("week")}
+                    onClick={() => setPeriod("week")}
                   >
                     Semana
                   </button>
-                  <button 
+                  <button
                     style={period === "month" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={()=>setPeriod("month")}
+                    onClick={() => setPeriod("month")}
                   >
                     Mês
                   </button>
@@ -319,10 +251,10 @@ function LaudoList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLaudos.length>0 ? filteredLaudos.map(l=>(
+                  {filteredLaudos.length > 0 ? filteredLaudos.map(l => (
                     <tr key={l.id}>
                       <td style={styles.tableCell}>{l.pedido}</td>
-                      <td style={{...styles.tableCell, ...styles.patientId}}>{l.pacienteId}</td>
+                      <td style={{ ...styles.tableCell, ...styles.patientId }}>{l.pacienteId}</td>
                       <td style={styles.tableCell}>{l.exame}</td>
                       <td style={styles.tableCell}>{l.diagnostico || '-'}</td>
                       <td style={styles.tableCell}>{l.conclusao || '-'}</td>
@@ -337,7 +269,7 @@ function LaudoList() {
                       <td style={styles.tableCell}>{l.executante}</td>
                       <td style={styles.tableCell}>{formatarData(l.criadoEm)}</td>
                       <td style={styles.tableCell}>
-                        <button 
+                        <button
                           style={styles.detailsButton}
                           onClick={() => handleVerLaudo(l)}
                           title="Abrir formulário do laudo"
