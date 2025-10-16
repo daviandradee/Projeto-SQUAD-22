@@ -73,6 +73,8 @@ import LaudoAdmEdit from "./pages/laudos/LaudoAdmEdit.jsx";
 import AgendaDoctor from "./pages/DoctorApp/Agenda/AgendaDoctor.jsx";
 import AgendaAdd from "./pages/DoctorApp/Agenda/AgendaAdd.jsx";
 import Doctorexceçao from "./pages/DoctorApp/Doctorexceçao.jsx";
+import VerLaudo from "./pages/PacienteApp/VerLaudo.jsx";
+import MarcarConsulta from "./pages/PacienteApp/MarcarConsulta.jsx";
 
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
@@ -167,7 +169,10 @@ const router = createBrowserRouter([
       { path: "minhasconsultas", element: <MinhasConsultas /> },
       { path: "medicosdisponiveis", element: <MedicosDisponiveis /> },
       { path: "agendarconsulta/:medicoId", element: <AgendarConsulta /> },
-      { path: "meuslaudos", element: <MeusLaudos /> }
+      { path: "meuslaudos", element: <MeusLaudos /> },
+        { path: "verlaudo/:id", element: <VerLaudo /> },
+      { path: "marcarconsulta", element: <MarcarConsulta /> },
+
     ],
   },
 ]);

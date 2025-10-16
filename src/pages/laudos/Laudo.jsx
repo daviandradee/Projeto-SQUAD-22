@@ -173,7 +173,6 @@ const orderNumber = gerarOrderNumber();
 		status: "draft",
 		requested_by: "Dr.Davi",
 		content_html: "",
-		order_number: orderNumber
 	});
 	const handlePacienteChange = (selected) => {
 		setLaudos(prev => ({

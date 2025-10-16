@@ -75,30 +75,74 @@ function ConsultaList() {
   const [currentPage, setCurrentPage] = useState(1);
   const tokenUsuario = getAccessToken();
   const navigate = useNavigate();
-
+  const [pacientesMap, setPacientesMap] = useState({});
+  
   const ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
-  const medicoId = localStorage.getItem("user_id");
+  const doctor_id = 	"7c395cb2-1681-4e45-9e42-03b9907e378f";
 
   // 🔹 Listar consultas do médico logado
   useEffect(() => {
-    if (!medicoId) return;
-    const headers = new Headers({
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${tokenUsuario}`,
-      "Content-Type": "application/json",
-    });
+    var myHeaders = new Headers();
+  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
 
     fetch(
-      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${medicoId}&select=*`,
-      { method: "GET", headers }
+      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${doctor_id}`, requestOptions
+
     )
       .then((res) => res.json())
       .then((result) => setConsultas(Array.isArray(result) ? result : []))
       .catch((err) => console.error("Erro ao buscar consultas:", err));
-  }, [medicoId, tokenUsuario]);
+  }, [doctor_id, tokenUsuario]);
+  useEffect(() => {
+    if (!consultas || consultas.length === 0) return;
 
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [consultas]);
   // 👁️ Ver detalhes da consulta
   const handleView = async (id) => {
     const headers = new Headers({
@@ -123,7 +167,7 @@ function ConsultaList() {
       Swal.fire({
         title: "Detalhes da Consulta",
         html: `
-          <b>Paciente:</b> ${consulta.patient_name || "—"}<br/>
+          <b>Paciente:</b> ${consulta.patient_id || "—"}<br/>
           <b>Médico:</b> ${consulta.doctor_name || "—"}<br/>
           <b>Especialidade:</b> ${consulta.specialty || "—"}<br/>
           <b>Data:</b> ${consulta.date || "—"}<br/>
@@ -197,7 +241,21 @@ function ConsultaList() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
 
   useEffect(() => setCurrentPage(1), [search]);
-
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
   return (
     <div className="content">
       <div className="row">
@@ -227,10 +285,10 @@ function ConsultaList() {
               <thead>
                 <tr>
                   <th>Paciente</th>
-                  <th>Médico</th>
-                  <th>Especialidade</th>
-                  <th>Data</th>
-                  <th>Hora</th>
+                  <th>Agendado</th>
+                  <th>Queixa Principal</th>
+                  <th>Duração</th>
+                  <th>Modo</th>
                   <th>Status</th>
                   <th className="text-right">Ações</th>
                 </tr>
@@ -239,11 +297,11 @@ function ConsultaList() {
                 {current.length > 0 ? (
                   current.map((c) => (
                     <tr key={c.id}>
-                      <td>{c.patient_name || "—"}</td>
-                      <td>{c.doctor_name || "—"}</td>
-                      <td>{c.specialty || "—"}</td>
-                      <td>{c.date || "—"}</td>
-                      <td>{c.time || "—"}</td>
+                      <td>{pacientesMap[c.patient_id] || "—"}</td>
+                      <td>{formatDate(c.scheduled_at)|| "—"}</td> 
+                      <td>{c.chief_complaint || "—"}</td>
+                      <td>{c.duration_minutes} min</td>
+                      <td>{c.appointment_type || "—"}</td>
                       <td>
                         <span
                           className={`custom-badge ${

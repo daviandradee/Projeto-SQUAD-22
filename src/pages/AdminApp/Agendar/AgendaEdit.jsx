@@ -14,6 +14,10 @@ function AgendaEdit() {
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
+  const [apiResponse, setApiResponse] = useState(null);
+  
+  // Dados do formulário
 
   const [formData, setFormData] = useState({
     appointment_type: "presencial",
@@ -23,8 +27,7 @@ function AgendaEdit() {
     insurance_provider: "",
     patient_id: "",
     patient_notes: "",
-    scheduled_date: "",
-    scheduled_time: "",
+    scheduled_at:"",
   });
 
   // Define a data mínima
@@ -59,15 +62,14 @@ function AgendaEdit() {
             : "";
 
           setFormData({
-            appointment_type: consulta.appointment_type,
-            chief_complaint: consulta.chief_complaint,
-            doctor_id: consulta.doctor_id,
-            duration_minutes: consulta.duration_minutes,
-            insurance_provider: consulta.insurance_provider,
-            patient_id: consulta.patient_id,
-            patient_notes: consulta.patient_notes,
-            scheduled_date: date,
-            scheduled_time: time,
+            appointment_type: consulta.appointment_type || "presencial",
+            chief_complaint: consulta.chief_complaint || "",
+            doctor_id: consulta.doctor_id || "",
+            duration_minutes: consulta.duration_minutes || 30,
+            insurance_provider: consulta.insurance_provider || "",
+            patient_id: consulta.patient_id || "",
+            patient_notes: consulta.patient_notes || "",
+            scheduled_at: consulta.scheduled_at   || "",
           });
         }
       } catch (err) {
@@ -104,33 +106,62 @@ function AgendaEdit() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Busca horários disponíveis
-  const fetchHorariosDisponiveis = async (doctorId, date) => {
-    if (!doctorId || !date) return;
-
-    try {
-      const res = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-            Authorization: `Bearer ${tokenUsuario}`,
-          },
-          body: JSON.stringify({ doctor_id: doctorId, date }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setHorariosDisponiveis(data);
-      } else {
+  // 🔹 Buscar horários disponíveis
+  const fetchHorariosDisponiveis = async (doctorId, date, appointmentType) => {
+      if (!doctorId || !date) {
         setHorariosDisponiveis([]);
+        setApiResponse(null);
+        return;
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  
+      setCarregandoHorarios(true);
+  
+      const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
+      const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+  
+      const payload = {
+        doctor_id: doctorId,
+        start_date: startDate,
+        end_date: endDate,
+        appointment_type: appointmentType || "presencial",
+      };
+  
+      console.log("Payload get-available-slots:", payload);
+  
+      try {
+        const response = await fetch(
+          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey:
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+              Authorization: `Bearer ${tokenUsuario}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+  
+        const data = await response.json();
+        setApiResponse(data);
+  
+        if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
+  
+        const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+        setHorariosDisponiveis(slotsDisponiveis);
+  
+        if (slotsDisponiveis.length === 0)
+          Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
+      } catch (error) {
+        console.error("Erro ao buscar horários disponíveis:", error);
+        setHorariosDisponiveis([]);
+        setApiResponse(null);
+        Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
+      } finally {
+        setCarregandoHorarios(false);
+      }
+    };
 
   // Atualiza lista de horários quando médico ou data muda
   useEffect(() => {
@@ -339,29 +370,31 @@ function AgendaEdit() {
                   </div>
                 </div>
 
-                <div className="col-md-6">
-                  <div className="form-group">
-                    <label>Horário</label>
-                    <select
-                      className="select form-control"
-                      name="scheduled_time"
-                      value={formData.scheduled_time || ""}
-                      onChange={handleChange}
-                      required
-                      disabled={!horariosDisponiveis.length}
-                    >
-                      <option value="">
-                        {horariosDisponiveis.length
-                          ? "Selecione um horário"
-                          : "Nenhum horário disponível"}
-                      </option>
-                      {horariosDisponiveis.map((hora) => (
-                        <option key={hora} value={hora}>
-                          {hora}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Horário</label>
+                  <select
+                    className="select form-control"
+                    name="scheduled_time"
+                    value={formData.scheduled_time || ""}
+                    onChange={handleChange}
+                    required
+                    disabled={!horariosDisponiveis.length}
+                  >
+                    <option value="">
+                      {horariosDisponiveis.length
+                        ? "Selecione um horário"
+                        : "Nenhum horário disponível"}
+                    </option>
+                    {horariosDisponiveis.map((slot) => {
+      const time = slot.datetime.split("T")[1].substring(0, 5);
+      return (
+        <option key={slot.datetime} value={time}>
+          {time}
+        </option>
+      );
+    })}
+  </select>
                 </div>
               </div>
 

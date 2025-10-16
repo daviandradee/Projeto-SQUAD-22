@@ -18,80 +18,80 @@ function Chatbox() {
     const chatBodyRef = useRef()
     const [disponibilidadeMedicos, setDisponibilidadeMedicos] = useState([]);
     const [MedicosMap, setMedicosMap] = useState({});
-     // 1) Buscar doctor_availability UMA ÚNICA VEZ quando o componente montar
-  useEffect(() => {
-    const buscarDisponibilidade = async () => {
-      try {
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ", // MINÚSCULO
+    // 1) Buscar doctor_availability UMA ÚNICA VEZ quando o componente montar
+    useEffect(() => {
+        const buscarDisponibilidade = async () => {
+            try {
+                const headers = {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ", // MINÚSCULO
+                };
+
+                const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability`, {
+                    method: "GET",
+                    headers,
+                });
+
+                if (!res.ok) {
+                    console.error("Erro ao buscar disponibilidade:", res.status, await res.text());
+                    setDisponibilidadeMedicos([]);
+                    return;
+                }
+
+                const result = await res.json();
+                setDisponibilidadeMedicos(Array.isArray(result) ? result : []);
+            } catch (err) {
+                console.error("Erro na requisição de disponibilidade:", err);
+                setDisponibilidadeMedicos([]);
+            }
         };
 
-        const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability`, {
-          method: "GET",
-          headers,
-        });
+        buscarDisponibilidade();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // roda só uma vez
 
-        if (!res.ok) {
-          console.error("Erro ao buscar disponibilidade:", res.status, await res.text());
-          setDisponibilidadeMedicos([]);
-          return;
-        }
+    // 2) Quando disponibilidadeMedicos chegar, buscar nomes dos doctors (evita fetch por item repetido)
+    useEffect(() => {
+        if (!Array.isArray(disponibilidadeMedicos) || disponibilidadeMedicos.length === 0) return;
 
-        const result = await res.json();
-        setDisponibilidadeMedicos(Array.isArray(result) ? result : []);
-      } catch (err) {
-        console.error("Erro na requisição de disponibilidade:", err);
-        setDisponibilidadeMedicos([]);
-      }
-    };
+        const buscarMedicos = async () => {
+            try {
+                const idsUnicos = [...new Set(disponibilidadeMedicos.map((d) => d.doctor_id).filter(Boolean))];
+                if (idsUnicos.length === 0) return;
 
-    buscarDisponibilidade();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // roda só uma vez
+                const headers = {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                };
 
-  // 2) Quando disponibilidadeMedicos chegar, buscar nomes dos doctors (evita fetch por item repetido)
-  useEffect(() => {
-    if (!Array.isArray(disponibilidadeMedicos) || disponibilidadeMedicos.length === 0) return;
+                const promises = idsUnicos.map(async (id) => {
+                    try {
+                        const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
+                            method: "GET",
+                            headers,
+                        });
+                        if (!res.ok) return { id, full_name: "Nome não encontrado" };
+                        const data = await res.json();
+                        return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+                    } catch {
+                        return { id, full_name: "Nome não encontrado" };
+                    }
+                });
 
-    const buscarMedicos = async () => {
-      try {
-        const idsUnicos = [...new Set(disponibilidadeMedicos.map((d) => d.doctor_id).filter(Boolean))];
-        if (idsUnicos.length === 0) return;
-
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                const results = await Promise.all(promises);
+                const map = {};
+                results.forEach((r) => (map[r.id] = r.full_name));
+                setMedicosMap(map);
+            } catch (err) {
+                console.error("Erro ao buscar nomes dos médicos:", err);
+            }
         };
 
-        const promises = idsUnicos.map(async (id) => {
-          try {
-            const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
-              method: "GET",
-              headers,
-            });
-            if (!res.ok) return { id, full_name: "Nome não encontrado" };
-            const data = await res.json();
-            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
-          } catch {
-            return { id, full_name: "Nome não encontrado" };
-          }
-        });
-
-        const results = await Promise.all(promises);
-        const map = {};
-        results.forEach((r) => (map[r.id] = r.full_name));
-        setMedicosMap(map);
-      } catch (err) {
-        console.error("Erro ao buscar nomes dos médicos:", err);
-      }
-    };
-
-    buscarMedicos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disponibilidadeMedicos]);
+        buscarMedicos();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [disponibilidadeMedicos]);
 
     const intents = [
         {
@@ -184,6 +184,54 @@ function Chatbox() {
                     updateHistory(`Erro: ${error.message}`, true);
                 }
             }
+        },
+        {
+            name: "cadastrarPaciente",
+            keywords: [
+                "cadastrar paciente",
+                "criar paciente",
+                "adicionar paciente",
+                "novo paciente",
+                "registrar paciente",
+            ],
+            action: async (lastMessage, updateHistory) => {
+                updateHistory(
+                    "Beleza! 🩺 Me envie os dados do paciente assim:\n\n👉 nome: João; cpf: 12345678900; telefone: 11999999999; email: joao@email.com"
+                );
+            },
+        },
+        {
+            name: "salvarPaciente",
+            condition: (text) => text.includes("nome:") && text.includes("cpf:"),
+            action: async (lastMessage, updateHistory) => {
+                try {
+                    const nome = lastMessage.match(/nome:\s*([^;]+)/)?.[1]?.trim();
+                    const cpf = lastMessage.match(/cpf:\s*([^;]+)/)?.[1]?.trim();
+                    const telefone = lastMessage.match(/telefone:\s*([^;]+)/)?.[1]?.trim();
+                    const email = lastMessage.match(/email:\s*([^;]+)/)?.[1]?.trim();
+
+                    const response = await fetch("https://SEU_URL_SUPABASE/rest/v1/patients", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            apikey: import.meta.env.VITE_SUPABASE_KEY,
+                            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_KEY}`,
+                        },
+                        body: JSON.stringify({
+                            name: nome,
+                            cpf,
+                            phone: telefone,
+                            email,
+                        }),
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao cadastrar paciente 😢");
+
+                    updateHistory(`Paciente ${nome} cadastrado com sucesso! 🩺✨`);
+                } catch (error) {
+                    updateHistory(error.message, true);
+                }
+            },
         },
 
     ]
