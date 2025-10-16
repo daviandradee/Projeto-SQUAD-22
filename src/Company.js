@@ -20,7 +20,16 @@ Secretarias
 Administradores
 
 Com ela, você consegue centralizar consultas, exames, laudos, relatórios e históricos em um sistema seguro, prático e acessível de qualquer lugar.
-
+=============================== Principais funcionalidades:
+✨ Marcar e Gerenciar Consultas  
+✨ Listar Pacientes Cadastrados ("listar pacientes")  
+✨ Listar Médicos Cadastrados ("listar médicos")  
+✨ Verificar Horários Disponíveis de Médicos ("listar horários médicos")  
+✨ Dashboard Interativo por Perfil  
+✨ Emissão de Laudos Digitais  
+✨ Acesso a Exames e Histórico Clínico  
+✨ Relatórios Administrativos  
+✨ Notificações e lembretes automáticos  
 =============================== Localização & Contato:
 Endereço: 123 Saúde Avenue, São Paulo – SP, Brasil
 

@@ -5,7 +5,7 @@ import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 
-function AgendaEdit() {
+function Editconsulta() {
   const tokenUsuario = getAccessToken()
   const { id } = useParams();
   const navigate = useNavigate();
@@ -14,10 +14,6 @@ function AgendaEdit() {
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
-  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
-  const [apiResponse, setApiResponse] = useState(null);
-  
-  // Dados do formulário
 
   const [formData, setFormData] = useState({
     appointment_type: "presencial",
@@ -27,7 +23,8 @@ function AgendaEdit() {
     insurance_provider: "",
     patient_id: "",
     patient_notes: "",
-    scheduled_at:"",
+    scheduled_date: "",
+    scheduled_time: "",
   });
 
   // 🔹 Data mínima
@@ -46,8 +43,8 @@ function AgendaEdit() {
           `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
           {
             headers: {
-              apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-              Authorization: `Bearer ${tokenUsuario}`,
+              apikey: "YOUR_SUPABASE_ANON_KEY",
+              Authorization: "Bearer YOUR_SUPABASE_ANON_KEY",
             },
           }
         );
@@ -67,7 +64,8 @@ function AgendaEdit() {
             insurance_provider: consulta.insurance_provider || "",
             patient_id: consulta.patient_id || "",
             patient_notes: consulta.patient_notes || "",
-            scheduled_at: consulta.scheduled_at   || "",
+            scheduled_date: date,
+            scheduled_time: time,
           });
         }
       } catch (error) {
@@ -105,61 +103,32 @@ function AgendaEdit() {
   }, []);
 
   // 🔹 Buscar horários disponíveis
-  const fetchHorariosDisponiveis = async (doctorId, date, appointmentType) => {
-      if (!doctorId || !date) {
-        setHorariosDisponiveis([]);
-        setApiResponse(null);
-        return;
-      }
-  
-      setCarregandoHorarios(true);
-  
-      const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
-      const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
-  
-      const payload = {
-        doctor_id: doctorId,
-        start_date: startDate,
-        end_date: endDate,
-        appointment_type: appointmentType || "presencial",
-      };
-  
-      console.log("Payload get-available-slots:", payload);
-  
-      try {
-        const response = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey:
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-              Authorization: `Bearer ${tokenUsuario}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
-  
+  const fetchHorariosDisponiveis = async (doctorId, date) => {
+    if (!doctorId || !date) return;
+    try {
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+          body: JSON.stringify({ doctor_id: doctorId, date }),
+        }
+      );
+      if (response.ok) {
         const data = await response.json();
-        setApiResponse(data);
-  
-        if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
-  
-        const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
-        setHorariosDisponiveis(slotsDisponiveis);
-  
-        if (slotsDisponiveis.length === 0)
-          Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
-      } catch (error) {
-        console.error("Erro ao buscar horários disponíveis:", error);
+        setHorariosDisponiveis(data);
+      } else {
         setHorariosDisponiveis([]);
-        setApiResponse(null);
-        Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
-      } finally {
-        setCarregandoHorarios(false);
       }
-    };
+    } catch (error) {
+      console.error(error);
+      setHorariosDisponiveis([]);
+    }
+  };
 
   // Atualiza horários sempre que o médico ou data mudam
   useEffect(() => {
@@ -215,7 +184,7 @@ function AgendaEdit() {
 
       if (res.ok) {
         Swal.fire("Sucesso!", "Consulta atualizada com sucesso!", "success").then(() =>
-          navigate("/admin/agendalist")
+          navigate("/patientapp/minhasconsultas")
         );
       } else {
         const error = await res.json();
@@ -383,15 +352,12 @@ function AgendaEdit() {
                         ? "Selecione um horário"
                         : "Nenhum horário disponível"}
                     </option>
-                    {horariosDisponiveis.map((slot) => {
-      const time = slot.datetime.split("T")[1].substring(0, 5);
-      return (
-        <option key={slot.datetime} value={time}>
-          {time}
-        </option>
-      );
-    })}
-  </select>
+                    {horariosDisponiveis.map((hora) => (
+                      <option key={hora} value={hora}>
+                        {hora}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -422,4 +388,4 @@ function AgendaEdit() {
   );
 }
 
-export default AgendaEdit;
+export default Editconsulta;

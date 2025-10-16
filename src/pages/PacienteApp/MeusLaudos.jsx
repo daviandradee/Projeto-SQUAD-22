@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import "../../assets/css/index.css";
 import React, { useState, useRef, useLayoutEffect, useEffect, use } from "react";
 import { createPortal } from "react-dom";
 import Swal from 'sweetalert2';
 import { getAccessToken } from "../../utils/auth";
-
+import { useNavigate } from "react-router-dom";
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
   const [stylePos, setStylePos] = useState({
@@ -90,7 +90,7 @@ function LaudoList() {
     redirect: 'follow'
   };
   useEffect(() => {
-  fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${patient_id}&select=*`, requestOptions)
+  fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?patient_id=eq.${patient_id}&select=*`, requestOptions)
     .then(response => response.json())
     .then(result => {
       setLaudos(result)
@@ -134,11 +134,11 @@ function LaudoList() {
       return dataString;
     }
   };
-
+  let navigate = useNavigate();
   // FUNÇÃO PARA ABRIR O FORM DE LAUDO
   const handleVerLaudo = (laudo) => {
     // Redireciona para o form de laudo com o ID
-    window.location.href = `/admin/laudo?id=${laudo.id}`;
+    navigate = `/patientapp/verlaudo?id=${laudo.id}`;
   };
 
   const filteredLaudos = laudos.filter(l => {
@@ -154,11 +154,11 @@ function LaudoList() {
 
     let dateMatch = true;
     if (startDate && endDate) {
-      dateMatch = l.criadoEm >= startDate && l.criadoEm <= endDate;
+      dateMatch =l.created_at >= startDate &&l.created_at <= endDate;
     } else if (startDate) {
-      dateMatch = l.criadoEm >= startDate;
+      dateMatch =l.created_at >= startDate;
     } else if (endDate) {
-      dateMatch = l.criadoEm <= endDate;
+      dateMatch =l.created_at <= endDate;
     }
 
     return textMatch && dateMatch;
@@ -240,7 +240,6 @@ function LaudoList() {
                 <thead>
                   <tr>
                     <th style={styles.tableHeader}>Pedido</th>
-                    <th style={styles.tableHeader}>Pacient ID</th>
                     <th style={styles.tableHeader}>Exame</th>
                     <th style={styles.tableHeader}>Diagnostico</th>
                     <th style={styles.tableHeader}>Conclusão</th>
@@ -253,11 +252,10 @@ function LaudoList() {
                 <tbody>
                   {filteredLaudos.length > 0 ? filteredLaudos.map(l => (
                     <tr key={l.id}>
-                      <td style={styles.tableCell}>{l.pedido}</td>
-                      <td style={{ ...styles.tableCell, ...styles.patientId }}>{l.pacienteId}</td>
-                      <td style={styles.tableCell}>{l.exame}</td>
-                      <td style={styles.tableCell}>{l.diagnostico || '-'}</td>
-                      <td style={styles.tableCell}>{l.conclusao || '-'}</td>
+                      <td style={styles.tableCell}>{l.order_number}</td>
+                      <td style={styles.tableCell}>{l.exam}</td>
+                      <td style={styles.tableCell}>{l.diagnosis || '-'}</td>
+                      <td style={styles.tableCell}>{l.conclusion || '-'}</td>
                       <td style={styles.tableCell}>
                         <span style={{
                           ...styles.statusBadge,
@@ -266,16 +264,16 @@ function LaudoList() {
                           {traduzirStatus(l.status)}
                         </span>
                       </td>
-                      <td style={styles.tableCell}>{l.executante}</td>
-                      <td style={styles.tableCell}>{formatarData(l.criadoEm)}</td>
+                      <td style={styles.tableCell}>{l.requested_by}</td>
+                      <td style={styles.tableCell}>{formatarData(l.created_at)}</td>
                       <td style={styles.tableCell}>
-                        <button
+                        <Link
                           style={styles.detailsButton}
-                          onClick={() => handleVerLaudo(l)}
-                          title="Abrir formulário do laudo"
+                          to={`/patientapp/verlaudo/${l.id}`}
+                          
                         >
                           Ver Laudo
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   )) : (
