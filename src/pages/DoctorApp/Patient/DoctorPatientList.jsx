@@ -113,54 +113,11 @@ function DoctorPatientList() {
       .catch(error => console.log('error', error));
   }, [])
 
-  const handleDelete = async (id) => {
-    Swal.fire({
-          title: "Tem certeza?",
-          text: "Tem certeza que deseja excluir este registro?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Sim, excluir"
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-                var myHeaders = new Headers();
-                myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-                myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-    
-                var requestOptions = {
-                method: 'DELETE',
-                headers: myHeaders,
-                redirect: 'follow'
-                };
-    
-                const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
-    
-                if (response.ok) {
-                setPatients(prev => prev.filter(l => l.id !== id));
-                setOpenDropdown(null);
-                Swal.fire({
-                title: "Registro Excluído",
-                text: "Registro excluído com sucesso",
-                icon: "success"
-                })
-    
-            } else {
-              Swal.fire("Error saving changes", "", "error");
-            }
-          }
-            catch (error) {
-              Swal.fire("Something went wrong", "", "error");
-              console.error(error);
-            }
-          }
-        });
-
+  
     // Se quiser apagar no supabase, faça a chamada aqui.
     // const { error } = await supabase.from("Patient").delete().eq("id", id);
     // if (error) { console.error(error); return; }
-  };
+  
 
    const filteredPatients = patients.filter(p => {
       if (!p) return false;
@@ -201,11 +158,7 @@ function DoctorPatientList() {
                 />
                 <br />
             </div>
-            <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/doctor/patientform" className="btn btn-primary btn-rounded">
-                <i className="fa fa-plus"></i> Adicionar Paciente
-              </Link>
-            </div>
+
           </div>
 
           <div className="row">
@@ -278,22 +231,9 @@ function DoctorPatientList() {
                                 <i className="fa fa-eye m-r-5"></i> Ver Detalhes
                                 </Link>
                              
-                                 <Link
-                                   className="dropdown-item-custom"
-                                   onClick={(e) => {
-                                   e.stopPropagation();
-                                   setOpenDropdown(null);
-                                  }}
-                                 >
-                                  <i className="fa fa-pencil m-r-5"></i> Editar
-                                 </Link>
+                                 
 
-                                <button
-                                  className="dropdown-item-custom dropdown-item-delete"
-                                  onClick={() => handleDelete(p.id)}
-                                >
-                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                </button>
+                                
                               </DropdownPortal>
                             </div>
                           </td>

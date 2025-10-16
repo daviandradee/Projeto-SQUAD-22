@@ -70,6 +70,9 @@ import AdicionarAgenda from "./pages/SecretariaApp/Agenda/AdicionarAgenda.jsx";
 import SecretariaDashboard from "./pages/SecretariaApp/SecretariaDashboard.jsx";
 import LaudoEdit from "./pages/DoctorApp/Laudos/LaudoEdit.jsx";
 import LaudoAdmEdit from "./pages/laudos/LaudoAdmEdit.jsx";
+import AgendaDoctor from "./pages/DoctorApp/Agenda/AgendaDoctor.jsx";
+import AgendaAdd from "./pages/DoctorApp/Agenda/AgendaAdd.jsx";
+import Doctorexceçao from "./pages/DoctorApp/Doctorexceçao.jsx";
 
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
@@ -148,7 +151,10 @@ const router = createBrowserRouter([
       { path: "laudoform", element: <LaudoFormDoctor /> },
       { path: "laudoedit/:id", element: <LaudoEdit /> }, // Rota para editar laudo
       { path: "prontuariolist", element: <DoctorProntuarioList /> },
-      { path: "doctorprontuario/:id", element: <DoctorProntuario /> }
+      { path: "doctorprontuario/:id", element: <DoctorProntuario /> },
+      { path: "doctoragenda", element: <AgendaDoctor /> },
+      { path: "doctoragendaadd", element: <AgendaAdd /> },
+      { path: "doctorexceçao", element: <Doctorexceçao /> }
     ],
   },
   // Rotas Paciente

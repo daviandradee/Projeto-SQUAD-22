@@ -85,8 +85,13 @@ function DoctorApp() {
                 </NavLink>
               </li>
               <li>
-                <Link to="/doctor/exceptions">
+                <Link to="/doctor/doctorexceçao">
                   <i className="fa fa-calendar-times-o" /> <span>Exceções</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/doctor/doctoragenda">
+                  <i className="fa fa-calendar" /> <span>Minha Agenda</span>
                 </Link>
               </li>
             </ul>

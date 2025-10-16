@@ -198,6 +198,7 @@ function AgendaEdit() {
   };
 
   return (
+    <div className="page-wrapper">
     <div className="content">
       <div className="row">
         <div className="col-lg-8 offset-lg-2">
@@ -382,6 +383,7 @@ function AgendaEdit() {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 }

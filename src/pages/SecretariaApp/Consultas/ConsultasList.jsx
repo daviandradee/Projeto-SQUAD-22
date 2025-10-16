@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth";
+import Swal from "sweetalert2";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -84,7 +85,9 @@ function SecretariaConsultaList() {
   const [consulta, setConsultas] = useState([]);
   const [search, setSearch] = useState("");
   const tokenUsuario = getAccessToken()
-
+  const [pacientesMap, setPacientesMap] = useState({});
+  const [medicosMap, setMedicosMap] = useState({});
+  const consultaid = consulta.id;
   const headers = {
     apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
     Authorization: `Bearer ${tokenUsuario}`,
@@ -100,7 +103,7 @@ function SecretariaConsultaList() {
     redirect: 'follow'
   };
   useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments`, requestOptions)
       .then(response => response.json())
       .then(result => setConsultas(Array.isArray(result) ? result : []))
       .catch(error => console.log('error', error));
@@ -124,7 +127,7 @@ function SecretariaConsultaList() {
         `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
         {
           method: "DELETE",
-          headers,
+          headers: myHeaders,
         }
       );
       if (response.ok) {
@@ -149,7 +152,7 @@ function SecretariaConsultaList() {
 
   const filteredConsultas = consulta.filter(p => {
     if (!p) return false;
-    const nome = (p.full_name || "").toLowerCase();
+    const nome = (pacientesMap[p.patient_id] || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
     const q = search.toLowerCase();
@@ -164,7 +167,102 @@ function SecretariaConsultaList() {
   useEffect(() => {
     setCurrentPage1(1);
   }, [search]);
+useEffect(() => {
+    if (!consulta || consulta.length === 0) return;
 
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(consulta.map((c) => c.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [consulta]);
+  useEffect(() => {
+    if (!Array.isArray(consulta) || consulta.length === 0) return;
+
+    const buscarMedicos = async () => {
+      try {
+        const idsUnicos = [...new Set(consulta.map((c) => c.doctor_id).filter(Boolean))];
+        if (idsUnicos.length === 0) return;
+
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenUsuario}`,
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        };
+
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
+              method: "GET",
+              headers,
+            });
+            if (!res.ok) return { id, full_name: "Nome não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setMedicosMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar nomes dos médicos:", err);
+      }
+    };
+
+    buscarMedicos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consulta]);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
   return (
     <div className="content">
       <div className="row">
@@ -192,12 +290,13 @@ function SecretariaConsultaList() {
             <table className="table table-striped custom-table">
               <thead>
                 <tr>
+                  <th>Pedido</th>
                   <th>Nome do Paciente</th>
-                  <th>Data de Nascimento</th>
-                  <th>Nome do médico</th>
-                  <th>Especialidade</th>
-                  <th>Data da consulta</th>
-                  <th>Hora da consulta</th>
+                  <th>Nome do Médico</th>
+                  <th>Agendado</th>
+                  <th>
+Duração</th>
+                  <th>Modo</th>
                   <th>Status</th>
                   <th className="text-right">Ação</th>
                 </tr>
@@ -206,16 +305,14 @@ function SecretariaConsultaList() {
                 {currentConsultas.length > 0 ? (
                   currentConsultas.map((c) => (
                     <tr key={c.id}>
-                      <td>{c.full_name}</td>
-                      <td>{c.birth_date}</td>
-                      <td>Davi Andrade</td>
-                      <td>Cardiologista</td>
-                      <td>{c.created_at}</td>
-                      <td>10:00am - 11:00am</td>
+                      <td>{c.order_number}</td>
+                      <td>{pacientesMap[c.patient_id] || "Carregando..."}</td>
+                      <td>{medicosMap[c.doctor_id] || "Carregando..."}</td>
+                      <td>{formatDate(c.scheduled_at)}</td>
+                      <td>{c.duration_minutes} min</td>
+                      <td>{c.appointment_type}</td>
                       <td>
-                        <span className="custom-badge status-green">
-                          Ativo
-                        </span>
+                       {c.status}
                       </td>
                       <td className="text-right">
                         <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
