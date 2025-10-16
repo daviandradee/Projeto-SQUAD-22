@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
+import { getUserId } from "../../../utils/userInfo";
 
 function AdicionarConsulta() {
   const [minDate, setMinDate] = useState("");
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+  const [apiResponse, setApiResponse] = useState(null);
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const tokenUsuario = getAccessToken();
 
   const [formData, setFormData] = useState({
@@ -90,8 +93,26 @@ function AdicionarConsulta() {
   }, []);
 
   // 🔹 Buscar horários disponíveis
-  const fetchHorariosDisponiveis = async (doctorId, date) => {
-    if (!doctorId || !date) return;
+  const fetchHorariosDisponiveis = async (doctorId, date, appointmentType) => {
+    if (!doctorId || !date) {
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      return;
+    }
+
+    setCarregandoHorarios(true);
+
+    const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
+    const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+
+    const payload = {
+      doctor_id: doctorId,
+      start_date: startDate,
+      end_date: endDate,
+      appointment_type: appointmentType || "presencial",
+    };
+
+    console.log("Payload enviado para get-available-slots:", payload);
 
     try {
       const response = await fetch(
@@ -103,20 +124,27 @@ function AdicionarConsulta() {
             apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
             Authorization: `Bearer ${tokenUsuario}`,
           },
-          body: JSON.stringify({ doctor_id: doctorId, date }),
+          body: JSON.stringify(payload),
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        setHorariosDisponiveis(data || []);
-      } else {
-        setHorariosDisponiveis([]);
-        Swal.fire("Erro", "Erro ao buscar horários disponíveis", "error");
-      }
+      const data = await response.json();
+      setApiResponse(data);
+
+      if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
+
+      const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+      setHorariosDisponiveis(slotsDisponiveis);
+
+      if (slotsDisponiveis.length === 0)
+        Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
     } catch (error) {
-      console.error("Erro:", error);
-      Swal.fire("Erro", "Não foi possível conectar ao servidor", "error");
+      console.error("Erro ao buscar horários disponíveis:", error);
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
+    } finally {
+      setCarregandoHorarios(false);
     }
   };
 
@@ -129,9 +157,13 @@ function AdicionarConsulta() {
   // 🔹 Atualiza horários quando médico ou data mudam
   useEffect(() => {
     if (formData.doctor_id && formData.scheduled_date) {
-      fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date);
+      fetchHorariosDisponiveis(
+        formData.doctor_id,
+        formData.scheduled_date,
+        formData.appointment_type
+      );
     }
-  }, [formData.doctor_id, formData.scheduled_date]);
+  }, [formData.doctor_id, formData.scheduled_date, formData.appointment_type]);
 
   // 🔹 Envia formulário
   const handleSubmit = async (e) => {
@@ -143,13 +175,22 @@ function AdicionarConsulta() {
     }
 
     const scheduled_at = new Date(
-      `${formData.scheduled_date}T${formData.scheduled_time}:00`
+      `${formData.scheduled_date}T${formData.scheduled_time}-03:00`
     ).toISOString();
 
-    const formattedData = {
-      ...formData,
+    const payload = {
+      patient_id: formData.patient_id,
+      doctor_id: formData.doctor_id,
       scheduled_at,
+      duration_minutes: formData.duration_minutes,
+      appointment_type: formData.appointment_type,
+      chief_complaint: formData.chief_complaint,
+      patient_notes: formData.patient_notes,
+      insurance_provider: formData.insurance_provider,
+      created_by: getUserId(),
     };
+
+    console.log("Payload criar consulta:", payload);
 
     try {
       const response = await fetch(
@@ -162,7 +203,7 @@ function AdicionarConsulta() {
             Authorization: `Bearer ${tokenUsuario}`,
             Prefer: "return=representation",
           },
-          body: JSON.stringify(formattedData),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -251,7 +292,7 @@ function AdicionarConsulta() {
             <hr />
             <h3>Informações do atendimento</h3>
 
-            {/* Médico */}
+            {/* Médico e Convênio */}
             <div className="row">
               <div className="col-md-6">
                 <div className="form-group">
@@ -283,7 +324,6 @@ function AdicionarConsulta() {
                 </div>
               </div>
 
-              {/* Convênio */}
               <div className="col-md-6">
                 <div className="form-group">
                   <label>Convênio</label>
@@ -332,30 +372,40 @@ function AdicionarConsulta() {
               <div className="col-md-6">
                 <div className="form-group">
                   <label>Horário</label>
+
                   <select
                     className="select form-control"
                     name="scheduled_time"
                     value={formData.scheduled_time}
                     onChange={handleChange}
                     required
-                    disabled={!horariosDisponiveis.length}
+                    disabled={carregandoHorarios || !horariosDisponiveis.length}
                   >
                     <option value="">
-                      {horariosDisponiveis.length
+                      {carregandoHorarios
+                        ? "Carregando horários..."
+                        : horariosDisponiveis.length
                         ? "Selecione um horário"
                         : "Nenhum horário disponível"}
                     </option>
-                    {horariosDisponiveis.map((hora) => (
-                      <option key={hora} value={hora}>
-                        {hora}
-                      </option>
-                    ))}
+                    {horariosDisponiveis.map((slot) => {
+                      const dateObj = new Date(slot.datetime);
+                      const hora = dateObj.toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+                      return (
+                        <option key={slot.datetime} value={hora}>
+                          {hora}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* Notas */}
+            
             <div className="form-group">
               <label>Anotações do paciente</label>
               <textarea

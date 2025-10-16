@@ -23,7 +23,6 @@ export default function Login() {
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
     try {
-      // 1) Login
       const loginResp = await fetch(
         "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/token?grant_type=password",
         {
@@ -49,11 +48,9 @@ export default function Login() {
         return;
       }
 
-      // salvar tokens
       localStorage.setItem("access_token", loginResult.access_token);
       localStorage.setItem("refresh_token", loginResult.refresh_token);
 
-      // 2) Chamada da função /user-info
       const userInfoRes = await fetch(
         "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/user-info",
         {
@@ -120,9 +117,6 @@ export default function Login() {
       console.error("❌ Erro no processo de login/user-info:", error);
       alert("Erro ao conectar ao servidor. Veja console para mais detalhes.");
     }
-
-    localStorage.setItem("user_id", userInfo.id);
-
   };
 
   return (
@@ -198,6 +192,7 @@ const styles = {
     borderRadius: "8px",
     border: "1px solid #ccc",
     fontSize: "16px",
+    width: "100%",
   },
   button: {
     padding: "12px",
@@ -207,5 +202,15 @@ const styles = {
     color: "#fff",
     fontSize: "16px",
     cursor: "pointer",
+    width: "100%",
+  },
+  magicButton: {
+    background: "none",
+    border: "none",
+    color: "#1976d2",
+    fontSize: "14px",
+    cursor: "pointer",
+    textDecoration: "underline",
+    marginBottom: "5px",
   },
 };
