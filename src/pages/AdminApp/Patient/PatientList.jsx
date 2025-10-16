@@ -116,12 +116,13 @@ function PatientList() {
   const handleDelete = async (id) => {
     Swal.fire({
       title: "Tem certeza?",
-      text: "Tem certeza que deseja excluir este registro?",
+      text: "Tem certeza que deseja excluir este paciente?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Sim, excluir"
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Excluir!",
+      cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {

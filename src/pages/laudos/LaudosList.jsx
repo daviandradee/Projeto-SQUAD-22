@@ -182,15 +182,14 @@ function LaudoList() {
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Excluir Laudo?",
+      title: "Tem certeza?",
       text: "Tem certeza que deseja excluir este laudo?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sim, Excluir",
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Excluir!",
       cancelButtonText: "Cancelar",
-      draggable: true
     }).then((result) => {
       if (result.isConfirmed) {
         setLaudos(prev => prev.filter(l => l.id !== id));
