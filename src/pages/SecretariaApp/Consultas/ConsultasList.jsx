@@ -115,9 +115,10 @@ function SecretariaConsultaList() {
       text: "Deseja realmente excluir esta consulta? Essa ação não poderá ser desfeita.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sim, excluir!",
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Excluir!",
       cancelButtonText: "Cancelar",
-      reverseButtons: true,
     });
 
     if (!confirm.isConfirmed) return;

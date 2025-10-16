@@ -64,9 +64,8 @@ function Navbar({ onMenuClick }) {
       showCancelButton: true,
       confirmButtonColor: "#e63946",
       cancelButtonColor: "#6c757d",
-      confirmButtonText: "Sim, sair",
+      confirmButtonText: "Sair",
       cancelButtonText: "Cancelar",
-      reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         const success = await logoutUser();
