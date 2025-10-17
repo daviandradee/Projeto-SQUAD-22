@@ -1,22 +1,34 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAccessToken } from "../../utils/auth";
 
 export default function MagicLink() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-
+  const tokenUsuario =getAccessToken()
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      //  endpoint  do link mágico
-      const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/otp",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+      const myHeaders = new Headers();
+      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+      myHeaders.append("Content-Type", "application/json");
+      var raw = JSON.stringify({
+        email: email,
+        options: {
+          emailRedirectTo: "https://mediconnect-neon.vercel.app/"
         }
+      });
+      
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      };
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/otp", requestOptions
       );
 
       const result = await response.json();

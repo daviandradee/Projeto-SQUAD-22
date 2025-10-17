@@ -16,7 +16,7 @@ function AgendaEdit() {
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
   const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
-  
+
   // Dados do formulário
 
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ function AgendaEdit() {
     insurance_provider: "",
     patient_id: "",
     patient_notes: "",
-    scheduled_at:"",
+    scheduled_at: "",
   });
 
   // 🔹 Data mínima
@@ -67,7 +67,7 @@ function AgendaEdit() {
             insurance_provider: consulta.insurance_provider || "",
             patient_id: consulta.patient_id || "",
             patient_notes: consulta.patient_notes || "",
-            scheduled_at: consulta.scheduled_at   || "",
+            scheduled_at: consulta.scheduled_at || "",
           });
         }
       } catch (error) {
@@ -83,7 +83,7 @@ function AgendaEdit() {
     fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
       headers: {
         apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-         Authorization: `Bearer ${tokenUsuario}`,
+        Authorization: `Bearer ${tokenUsuario}`,
       },
     })
       .then((r) => r.json())
@@ -106,60 +106,60 @@ function AgendaEdit() {
 
   // 🔹 Buscar horários disponíveis
   const fetchHorariosDisponiveis = async (doctorId, date, appointmentType) => {
-      if (!doctorId || !date) {
-        setHorariosDisponiveis([]);
-        setApiResponse(null);
-        return;
-      }
-  
-      setCarregandoHorarios(true);
-  
-      const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
-      const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
-  
-      const payload = {
-        doctor_id: doctorId,
-        start_date: startDate,
-        end_date: endDate,
-        appointment_type: appointmentType || "presencial",
-      };
-  
-      console.log("Payload get-available-slots:", payload);
-  
-      try {
-        const response = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey:
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-              Authorization: `Bearer ${tokenUsuario}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
-  
-        const data = await response.json();
-        setApiResponse(data);
-  
-        if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
-  
-        const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
-        setHorariosDisponiveis(slotsDisponiveis);
-  
-        if (slotsDisponiveis.length === 0)
-          Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
-      } catch (error) {
-        console.error("Erro ao buscar horários disponíveis:", error);
-        setHorariosDisponiveis([]);
-        setApiResponse(null);
-        Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
-      } finally {
-        setCarregandoHorarios(false);
-      }
+    if (!doctorId || !date) {
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      return;
+    }
+
+    setCarregandoHorarios(true);
+
+    const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
+    const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+
+    const payload = {
+      doctor_id: doctorId,
+      start_date: startDate,
+      end_date: endDate,
+      appointment_type: appointmentType || "presencial",
     };
+
+    console.log("Payload get-available-slots:", payload);
+
+    try {
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+      setApiResponse(data);
+
+      if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
+
+      const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+      setHorariosDisponiveis(slotsDisponiveis);
+
+      if (slotsDisponiveis.length === 0)
+        Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
+    } catch (error) {
+      console.error("Erro ao buscar horários disponíveis:", error);
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
+    } finally {
+      setCarregandoHorarios(false);
+    }
+  };
 
   // Atualiza horários sempre que o médico ou data mudam
   useEffect(() => {
@@ -230,194 +230,194 @@ function AgendaEdit() {
 
   return (
     <div className="page-wrapper">
-    <div className="content">
-      <div className="row">
-        <div className="col-lg-8 offset-lg-2">
-          <h1>Editar consulta</h1>
-          <hr />
-          <h3>Informações do paciente</h3>
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="col-lg-8 offset-lg-2">
-          <form onSubmit={handleEdit}>
-            <div className="row">
-              {/* Paciente */}
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>
-                    Nome do paciente<span className="text-danger">*</span>
-                  </label>
-                  <select
-                    className="select form-control"
-                    name="patient_id"
-                    value={formData.patient_id}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Selecione o paciente</option>
-                    {pacientes.map((p) => {
-                      const nomePaciente =
-                        p.name ||
-                        p.nome ||
-                        p.full_name ||
-                        p.paciente_nome ||
-                        `Paciente #${p.id}`;
-                      return (
-                        <option key={p.id} value={p.id}>
-                          {nomePaciente}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </div>
-
-              {/* Tipo */}
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Tipo da consulta</label>
-                  <select
-                    className="select form-control"
-                    name="appointment_type"
-                    value={formData.appointment_type}
-                    onChange={handleChange}
-                  >
-                    <option value="presencial">Presencial</option>
-                    <option value="telemedicina">Telemedicina</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
+      <div className="content">
+        <div className="row">
+          <div className="col-lg-8 offset-lg-2">
+            <h1>Editar consulta</h1>
             <hr />
-            <h3>Informações do atendimento</h3>
+            <h3>Informações do paciente</h3>
+          </div>
+        </div>
 
-            {/* Médico */}
-            <div className="row">
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Médico<span className="text-danger">*</span></label>
-                  <select
-                    className="select form-control"
-                    name="doctor_id"
-                    value={formData.doctor_id}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Selecione o médico</option>
-                    {medicos.map((m) => {
-                      const nomeMedico =
-                        m.name ||
-                        m.nome ||
-                        m.full_name ||
-                        m.doctor_name ||
-                        `Médico #${m.id}`;
-                      return (
-                        <option key={m.id} value={m.id}>
-                          {nomeMedico}
-                        </option>
-                      );
-                    })}
-                  </select>
+        <div className="row">
+          <div className="col-lg-8 offset-lg-2">
+            <form onSubmit={handleEdit}>
+              <div className="row">
+                {/* Paciente */}
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>
+                      Nome do paciente<span className="text-danger">*</span>
+                    </label>
+                    <select
+                      className="select form-control"
+                      name="patient_id"
+                      value={formData.patient_id}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Selecione o paciente</option>
+                      {pacientes.map((p) => {
+                        const nomePaciente =
+                          p.name ||
+                          p.nome ||
+                          p.full_name ||
+                          p.paciente_nome ||
+                          `Paciente #${p.id}`;
+                        return (
+                          <option key={p.id} value={p.id}>
+                            {nomePaciente}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Tipo */}
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Tipo da consulta</label>
+                    <select
+                      className="select form-control"
+                      name="appointment_type"
+                      value={formData.appointment_type}
+                      onChange={handleChange}
+                    >
+                      <option value="presencial">Presencial</option>
+                      <option value="telemedicina">Telemedicina</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* Convênio */}
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Convênio</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="insurance_provider"
-                    value={formData.insurance_provider || ""}
-                    onChange={handleChange}
-                  />
+              <hr />
+              <h3>Informações do atendimento</h3>
+
+              {/* Médico */}
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Médico<span className="text-danger">*</span></label>
+                    <select
+                      className="select form-control"
+                      name="doctor_id"
+                      value={formData.doctor_id}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Selecione o médico</option>
+                      {medicos.map((m) => {
+                        const nomeMedico =
+                          m.name ||
+                          m.nome ||
+                          m.full_name ||
+                          m.doctor_name ||
+                          `Médico #${m.id}`;
+                        return (
+                          <option key={m.id} value={m.id}>
+                            {nomeMedico}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Convênio */}
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Convênio</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="insurance_provider"
+                      value={formData.insurance_provider || ""}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Motivo */}
-            <div className="form-group">
-              <label>Motivo / Queixa principal</label>
-              <input
-                type="text"
-                className="form-control"
-                name="chief_complaint"
-                value={formData.chief_complaint || ""}
-                onChange={handleChange}
-              />
-            </div>
+              {/* Motivo */}
+              <div className="form-group">
+                <label>Motivo / Queixa principal</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="chief_complaint"
+                  value={formData.chief_complaint || ""}
+                  onChange={handleChange}
+                />
+              </div>
 
-            {/* Data e horário */}
-            <div className="row">
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Data</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    min={minDate}
-                    name="scheduled_date"
-                    value={formData.scheduled_date || ""}
-                    onChange={handleChange}
-                  />
+              {/* Data e horário */}
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Data</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      min={minDate}
+                      name="scheduled_date"
+                      value={formData.scheduled_date || ""}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Horário</label>
+                    <select
+                      className="select form-control"
+                      name="scheduled_time"
+                      value={formData.scheduled_time || ""}
+                      onChange={handleChange}
+                      required
+                      disabled={!horariosDisponiveis.length}
+                    >
+                      <option value="">
+                        {horariosDisponiveis.length
+                          ? "Selecione um horário"
+                          : "Nenhum horário disponível"}
+                      </option>
+                      {horariosDisponiveis.map((slot) => {
+                        const time = slot.datetime.split("T")[1].substring(0, 5);
+                        return (
+                          <option key={slot.datetime} value={time}>
+                            {time}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Horário</label>
-                  <select
-                    className="select form-control"
-                    name="scheduled_time"
-                    value={formData.scheduled_time || ""}
-                    onChange={handleChange}
-                    required
-                    disabled={!horariosDisponiveis.length}
-                  >
-                    <option value="">
-                      {horariosDisponiveis.length
-                        ? "Selecione um horário"
-                        : "Nenhum horário disponível"}
-                    </option>
-                    {horariosDisponiveis.map((slot) => {
-      const time = slot.datetime.split("T")[1].substring(0, 5);
-      return (
-        <option key={slot.datetime} value={time}>
-          {time}
-        </option>
-      );
-    })}
-  </select>
-                </div>
+              {/* Notas */}
+              <div className="form-group">
+                <label>Anotações do paciente</label>
+                <textarea
+                  cols="30"
+                  rows="4"
+                  className="form-control"
+                  name="patient_notes"
+                  value={formData.patient_notes || ""}
+                  onChange={handleChange}
+                ></textarea>
               </div>
-            </div>
 
-            {/* Notas */}
-            <div className="form-group">
-              <label>Anotações do paciente</label>
-              <textarea
-                cols="30"
-                rows="4"
-                className="form-control"
-                name="patient_notes"
-                value={formData.patient_notes || ""}
-                onChange={handleChange}
-              ></textarea>
-            </div>
-
-            <div className="m-t-20 text-center">
-              <button className="btn btn-primary submit-btn" type="submit">
-                Salvar alterações
-              </button>
-            </div>
-          </form>
+              <div className="m-t-20 text-center">
+                <button className="btn btn-primary submit-btn" type="submit">
+                  Salvar alterações
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
