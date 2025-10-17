@@ -30,7 +30,7 @@ function AgendaEdit() {
     scheduled_at: "",
   });
 
-  // 🔹 Data mínima
+  // Define a data mínima
   useEffect(() => {
     const today = new Date();
     const offset = today.getTimezoneOffset();
@@ -38,7 +38,7 @@ function AgendaEdit() {
     setMinDate(today.toISOString().split("T")[0]);
   }, []);
 
-  // 🔹 Buscar dados da consulta atual
+  // Busca consulta existente
   useEffect(() => {
     const fetchConsulta = async () => {
       try {
@@ -54,7 +54,9 @@ function AgendaEdit() {
         const data = await res.json();
         if (data.length > 0) {
           const consulta = data[0];
-          const date = consulta.scheduled_at?.split("T")[0] || "";
+          const date = consulta.scheduled_at
+            ? consulta.scheduled_at.split("T")[0]
+            : "";
           const time = consulta.scheduled_at
             ? consulta.scheduled_at.split("T")[1].substring(0, 5)
             : "";
@@ -70,15 +72,15 @@ function AgendaEdit() {
             scheduled_at: consulta.scheduled_at || "",
           });
         }
-      } catch (error) {
-        console.error(error);
-        Swal.fire("Erro", "Não foi possível carregar a consulta.", "error");
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Erro", "Falha ao carregar os dados da consulta.", "error");
       }
     };
     fetchConsulta();
   }, [id]);
 
-  // 🔹 Buscar pacientes
+  // Busca pacientes
   useEffect(() => {
     fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
       headers: {
@@ -91,7 +93,7 @@ function AgendaEdit() {
       .catch((err) => console.error(err));
   }, []);
 
-  // 🔹 Buscar médicos
+  // Busca médicos
   useEffect(() => {
     fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors", {
       headers: {
@@ -168,13 +170,12 @@ function AgendaEdit() {
     }
   }, [formData.doctor_id, formData.scheduled_date]);
 
-  // 🔹 Handle Change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔹 Editar consulta
+  // Atualiza consulta
   const handleEdit = async (e) => {
     e.preventDefault();
 
@@ -222,8 +223,8 @@ function AgendaEdit() {
         console.error(error);
         Swal.fire("Erro", "Não foi possível atualizar a consulta.", "error");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       Swal.fire("Erro", "Falha de conexão com o servidor.", "error");
     }
   };
