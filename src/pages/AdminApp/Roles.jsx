@@ -3,6 +3,7 @@ import { getAccessToken } from "../../utils/auth";
 import Swal from 'sweetalert2';
 
 function Roles() {
+  const tokenUsuario = getAccessToken()
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +102,7 @@ function Roles() {
     try {
       const myHeaders = new Headers();
       myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-      myHeaders.append("Authorization", `Bearer ${getAccessToken()}`);
+      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       myHeaders.append("Content-Type", "application/json");
 
       const raw = JSON.stringify({
@@ -109,7 +110,8 @@ function Roles() {
         password: formData.password,
         full_name: formData.full_name,
         phone: formData.phone,
-        role: formData.role
+        role: "secretaria",
+        redirect_url: ""
       });
 
       const requestOptions = {
@@ -120,7 +122,7 @@ function Roles() {
       };
 
       const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/create-user`,
+        `https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user`,
         requestOptions
       );
 

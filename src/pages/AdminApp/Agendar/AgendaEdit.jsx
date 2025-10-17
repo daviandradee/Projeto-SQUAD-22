@@ -16,7 +16,7 @@ function AgendaEdit() {
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
   const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
-  
+
   // Dados do formulário
 
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ function AgendaEdit() {
     insurance_provider: "",
     patient_id: "",
     patient_notes: "",
-    scheduled_at:"",
+    scheduled_at: "",
   });
 
   // Define a data mínima
@@ -69,7 +69,7 @@ function AgendaEdit() {
             insurance_provider: consulta.insurance_provider || "",
             patient_id: consulta.patient_id || "",
             patient_notes: consulta.patient_notes || "",
-            scheduled_at: consulta.scheduled_at   || "",
+            scheduled_at: consulta.scheduled_at || "",
           });
         }
       } catch (err) {
@@ -108,62 +108,62 @@ function AgendaEdit() {
 
   // 🔹 Buscar horários disponíveis
   const fetchHorariosDisponiveis = async (doctorId, date, appointmentType) => {
-      if (!doctorId || !date) {
-        setHorariosDisponiveis([]);
-        setApiResponse(null);
-        return;
-      }
-  
-      setCarregandoHorarios(true);
-  
-      const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
-      const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
-  
-      const payload = {
-        doctor_id: doctorId,
-        start_date: startDate,
-        end_date: endDate,
-        appointment_type: appointmentType || "presencial",
-      };
-  
-      console.log("Payload get-available-slots:", payload);
-  
-      try {
-        const response = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey:
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-              Authorization: `Bearer ${tokenUsuario}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
-  
-        const data = await response.json();
-        setApiResponse(data);
-  
-        if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
-  
-        const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
-        setHorariosDisponiveis(slotsDisponiveis);
-  
-        if (slotsDisponiveis.length === 0)
-          Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
-      } catch (error) {
-        console.error("Erro ao buscar horários disponíveis:", error);
-        setHorariosDisponiveis([]);
-        setApiResponse(null);
-        Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
-      } finally {
-        setCarregandoHorarios(false);
-      }
+    if (!doctorId || !date) {
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      return;
+    }
+
+    setCarregandoHorarios(true);
+
+    const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
+    const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+
+    const payload = {
+      doctor_id: doctorId,
+      start_date: startDate,
+      end_date: endDate,
+      appointment_type: appointmentType || "presencial",
     };
 
-  // Atualiza lista de horários quando médico ou data muda
+    console.log("Payload get-available-slots:", payload);
+
+    try {
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+      setApiResponse(data);
+
+      if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
+
+      const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+      setHorariosDisponiveis(slotsDisponiveis);
+
+      if (slotsDisponiveis.length === 0)
+        Swal.fire("Atenção", "Nenhum horário disponível para este dia.", "info");
+    } catch (error) {
+      console.error("Erro ao buscar horários disponíveis:", error);
+      setHorariosDisponiveis([]);
+      setApiResponse(null);
+      Swal.fire("Erro", "Não foi possível obter os horários disponíveis.", "error");
+    } finally {
+      setCarregandoHorarios(false);
+    }
+  };
+
+  // Atualiza horários sempre que o médico ou data mudam
   useEffect(() => {
     if (formData.doctor_id && formData.scheduled_date) {
       fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date);
@@ -299,9 +299,7 @@ function AgendaEdit() {
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>
-                      Médico<span className="text-danger">*</span>
-                    </label>
+                    <label>Médico<span className="text-danger">*</span></label>
                     <select
                       className="select form-control"
                       name="doctor_id"
@@ -354,7 +352,7 @@ function AgendaEdit() {
                 />
               </div>
 
-              {/* Data e hora */}
+              {/* Data e horário */}
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
@@ -370,31 +368,32 @@ function AgendaEdit() {
                   </div>
                 </div>
 
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Horário</label>
-                  <select
-                    className="select form-control"
-                    name="scheduled_time"
-                    value={formData.scheduled_time || ""}
-                    onChange={handleChange}
-                    required
-                    disabled={!horariosDisponiveis.length}
-                  >
-                    <option value="">
-                      {horariosDisponiveis.length
-                        ? "Selecione um horário"
-                        : "Nenhum horário disponível"}
-                    </option>
-                    {horariosDisponiveis.map((slot) => {
-      const time = slot.datetime.split("T")[1].substring(0, 5);
-      return (
-        <option key={slot.datetime} value={time}>
-          {time}
-        </option>
-      );
-    })}
-  </select>
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Horário</label>
+                    <select
+                      className="select form-control"
+                      name="scheduled_time"
+                      value={formData.scheduled_time || ""}
+                      onChange={handleChange}
+                      required
+                      disabled={!horariosDisponiveis.length}
+                    >
+                      <option value="">
+                        {horariosDisponiveis.length
+                          ? "Selecione um horário"
+                          : "Nenhum horário disponível"}
+                      </option>
+                      {horariosDisponiveis.map((slot) => {
+                        const time = slot.datetime.split("T")[1].substring(0, 5);
+                        return (
+                          <option key={slot.datetime} value={time}>
+                            {time}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
                 </div>
               </div>
 
