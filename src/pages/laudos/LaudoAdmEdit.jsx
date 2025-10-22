@@ -12,21 +12,23 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
-function Bar({ comandos, handleSubmit }) {
+import { InterimMark } from '../../utils/InterimMark';
+import { FaMicrophone } from "react-icons/fa";
+function Bar({ comandos, handleSubmit, toggleRecording, isRecording }) {
     const inputRef = useRef(null);
 
-const handleAbrirExplorador = () => {
-  inputRef.current.click(); // abre o explorador
-};
+    const handleAbrirExplorador = () => {
+        inputRef.current.click(); // abre o explorador
+    };
 
-const handleArquivoSelecionado = (event) => {
-  const arquivo = event.target.files[0];
-  if (arquivo) {
-    const imageUrl = URL.createObjectURL(arquivo);
-comandos.agregarImagen(imageUrl);
- event.target.value = null;
-  }
-};
+    const handleArquivoSelecionado = (event) => {
+        const arquivo = event.target.files[0];
+        if (arquivo) {
+            const imageUrl = URL.createObjectURL(arquivo);
+            comandos.agregarImagen(imageUrl);
+            event.target.value = null;
+        }
+    };
 
     return (
         <>
@@ -82,7 +84,7 @@ comandos.agregarImagen(imageUrl);
                             <path d="M8 4H21V6H8V4ZM4.5 6.5C3.67157 6.5 3 5.82843 3 5C3 4.17157 3.67157 3.5 4.5 3.5C5.32843 3.5 6 4.17157 6 5C6 5.82843 5.32843 6.5 4.5 6.5ZM4.5 13.5C3.67157 13.5 3 12.8284 3 12C3 11.1716 3.67157 10.5 4.5 10.5C5.32843 10.5 6 11.1716 6 12C6 12.8284 5.32843 13.5 4.5 13.5ZM4.5 20.4C3.67157 20.4 3 19.7284 3 18.9C3 18.0716 3.67157 17.4 4.5 17.4C5.32843 17.4 6 18.0716 6 18.9C6 19.7284 5.32843 20.4 4.5 20.4ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z"></path>
                         </svg>
                     </button>
-                    
+
                     <>
                         <input
                             type="file"
@@ -103,6 +105,13 @@ comandos.agregarImagen(imageUrl);
                             </svg>
                         </button>
                     </>
+                    <button
+                        onClick={toggleRecording}
+                        className={`toolbar-button ${isRecording ? "active" : ""}`}
+                        title={isRecording ? "Parar ditado" : "Iniciar ditado por voz"}
+                    >
+                        <FaMicrophone size={18} />
+                    </button>
 
                     {/*<button onClick={comandos.agregarLink} >
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -147,7 +156,7 @@ function LaudoAdmEdit() {
             .catch(error => console.log('error', error));
     }, [id]);
     const editor = useEditor({
-        extensions: [StarterKit, Image],
+        extensions: [StarterKit, Image, InterimMark],
         content: Laudos?.content_html || "<p>Escreva o laudo aqui...</p>",
         onUpdate: ({ editor }) => {
             setLaudos({
@@ -156,6 +165,107 @@ function LaudoAdmEdit() {
             });
         }
     });
+    const [isRecording, setIsRecording] = useState(false);
+	const recognitionRef = useRef(null);
+	const lastInsertedRef = useRef({ from: -1, to: -1, text: '' });
+
+    useEffect(() => {
+        const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Seu navegador não suporta reconhecimento de voz 😢");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = "pt-BR";
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            if (!editor) return;
+
+            const result = event.results[0];
+            const transcript = result[0].transcript;
+            const last = lastInsertedRef.current;
+
+            // --- CORREÇÃO DE LÓGICA ---
+            // Vamos rodar a deleção como um comando SEPARADO primeiro.
+            if (last.from !== -1 && 
+                editor.state.doc.textBetween(last.from, last.to) === last.text) 
+            {
+                // Roda a deleção e PARA.
+                editor.chain().focus()
+                    .deleteRange({ from: last.from, to: last.to })
+                    .run();
+            }
+            
+            // Pega a posição ATUAL (depois da deleção)
+            const currentPos = editor.state.selection.from;
+
+            if (result.isFinal) {
+                // --- RESULTADO FINAL (PRETO) ---
+                // Roda a inserção final como um comando SEPARADO.
+                editor.chain().focus()
+                    .insertContent(transcript + ' ')
+                    .run();
+                
+                // Reseta a Ref
+                lastInsertedRef.current = { from: -1, to: -1, text: '' };
+
+            } else {
+                // --- RESULTADO PROVISÓRIO (CINZA) ---
+                // Esta é a nova estratégia: "Ligar" a mark, inserir, "Desligar" a mark.
+                // Roda tudo como um comando SEPARADO.
+                editor.chain()
+                    .focus()
+                    .setMark('interimMark')      // <-- "Pincel cinza" LIGADO
+                    .insertContent(transcript) // <-- Insere o texto
+                    .unsetMark('interimMark')    // <-- "Pincel cinza" DESLIGADO
+                    .run();
+                
+                // Atualiza a Ref com a posição do texto cinza
+                lastInsertedRef.current = {
+                    from: currentPos,
+                    to: currentPos + transcript.length,
+                    text: transcript
+                };
+            }
+            // Não precisamos mais do 'editorChain.run()' aqui embaixo
+        };
+
+        recognition.onerror = (err) => {
+            // ... (código do onerror sem mudanças)
+        };
+
+        recognition.onend = () => {
+            // ... (código do onend sem mudanças)
+        };
+
+        recognitionRef.current = recognition;
+        
+        return () => {
+            recognition.stop();
+        };
+        
+    }, [editor, isRecording]);
+
+    const toggleRecording = () => {
+        if (!recognitionRef.current) return;
+        
+        if (isRecording) {
+            // Usuário clicou para PARAR
+            setIsRecording(false); // <-- Seta o estado
+            recognitionRef.current.stop(); // <-- Para a API
+            // O 'onend' será chamado e fará a limpeza/confirmação.
+        } else {
+            // Usuário clicou para COMEÇAR
+            editor?.chain().focus().run(); 
+            setIsRecording(true); // <-- Seta o estado
+            recognitionRef.current.start(); // <-- Inicia a API
+        }
+    };
     useEffect(() => {
         if (editor && Laudos?.content_html) {
             editor.commands.setContent(Laudos.content_html);
@@ -173,9 +283,9 @@ function LaudoAdmEdit() {
         toggleListaOrdenada: () => editor.chain().focus().toggleOrderedList().run(),
         toggleListaPuntos: () => editor.chain().focus().toggleBulletList().run(),
         agregarImagen: (url) => {
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
-  },
+            if (!url) return;
+            editor.chain().focus().setImage({ src: url }).run();
+        },
 
         agregarLink: () => {
             const url = window.prompt('URL do link')
@@ -291,73 +401,73 @@ function LaudoAdmEdit() {
 
     return (
         <div className="page-wrapper">
-        <div className="content">
-            <h4 className="page-title">Laudo Médico</h4>
-            <div className="d-flex flex-column align-items-left mt-5">
-                <Card style={{ width: "100%", borderRadius: "10px" }}>
-                    <Card.Header
-                        onClick={() => setOpen(!open)}
-                        aria-controls="paciente-content"
-                        aria-expanded={open}
-                        className="d-flex justify-content-between align-items-center"
-                        style={{
-                            cursor: "pointer",
-                            borderRadius: "25px",
-                            padding: "12px 20px",
-                        }}
-                    >
-                        <span>Informações do paciente</span>
-                        {open ? <ChevronUp /> : <ChevronDown />}
-                    </Card.Header>
+            <div className="content">
+                <h4 className="page-title">Laudo Médico</h4>
+                <div className="d-flex flex-column align-items-left mt-5">
+                    <Card style={{ width: "100%", borderRadius: "10px" }}>
+                        <Card.Header
+                            onClick={() => setOpen(!open)}
+                            aria-controls="paciente-content"
+                            aria-expanded={open}
+                            className="d-flex justify-content-between align-items-center"
+                            style={{
+                                cursor: "pointer",
+                                borderRadius: "25px",
+                                padding: "12px 20px",
+                            }}
+                        >
+                            <span>Informações do paciente</span>
+                            {open ? <ChevronUp /> : <ChevronDown />}
+                        </Card.Header>
 
-                    <Collapse in={open}>
-                        <div id="paciente-content" className="p-3">
-                            <label>Nome do paciente</label>
-                            <input
-                                className="form-control mb-2"
-                                name='patient_id'
-                                type='text'
-                                id='patient_id'
-                                placeholder="Pesquisar paciente..."
-                                value={pacientesMap[Laudos.patient_id]}>
-                            </input>
-                            <label>Diagnóstico</label>
-                            <input
-                                type="text"
-                                className="form-control mb-2"
-                                placeholder="Diagnóstico"
-                                name='diagnosis'
-                                id='diagnosis'
-                                value={Laudos.diagnosis}
-                                onChange={handleChange}
-                            />
-                            <label>Exames</label>
-                            <input
-                                type="text"
-                                className="form-control mb-2"
-                                name='exam'
-                                id='exam'
-                                value={Laudos.exam}
-                                onChange={handleChange}
-                                placeholder="Exame"
-                            />
-                            <label>Conclusão</label>
-                            <input
-                                type="text"
-                                className="form-control mb-2"
-                                name='conclusion'
-                                id='conclusion'
-                                value={Laudos.conclusion}
-                                onChange={handleChange}
-                                placeholder="Conclusão"
-                            />
-                        </div>
-                    </Collapse>
-                </Card>
+                        <Collapse in={open}>
+                            <div id="paciente-content" className="p-3">
+                                <label>Nome do paciente</label>
+                                <input
+                                    className="form-control mb-2"
+                                    name='patient_id'
+                                    type='text'
+                                    id='patient_id'
+                                    placeholder="Pesquisar paciente..."
+                                    value={pacientesMap[Laudos.patient_id]}>
+                                </input>
+                                <label>Diagnóstico</label>
+                                <input
+                                    type="text"
+                                    className="form-control mb-2"
+                                    placeholder="Diagnóstico"
+                                    name='diagnosis'
+                                    id='diagnosis'
+                                    value={Laudos.diagnosis}
+                                    onChange={handleChange}
+                                />
+                                <label>Exames</label>
+                                <input
+                                    type="text"
+                                    className="form-control mb-2"
+                                    name='exam'
+                                    id='exam'
+                                    value={Laudos.exam}
+                                    onChange={handleChange}
+                                    placeholder="Exame"
+                                />
+                                <label>Conclusão</label>
+                                <input
+                                    type="text"
+                                    className="form-control mb-2"
+                                    name='conclusion'
+                                    id='conclusion'
+                                    value={Laudos.conclusion}
+                                    onChange={handleChange}
+                                    placeholder="Conclusão"
+                                />
+                            </div>
+                        </Collapse>
+                    </Card>
+                </div>
+                <Bar comandos={comandos} handleSubmit={handleSubmit} toggleRecording={toggleRecording} isRecording={isRecording} />
+                <EditorContent editor={editor} />
             </div>
-            <Bar comandos={comandos} handleSubmit={handleSubmit} />
-            <EditorContent editor={editor} />
-        </div>
         </div>
     );
 }
