@@ -7,7 +7,6 @@ import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
 import Swal from "sweetalert2";
-import { useResponsive } from '../../../utils/useResponsive';
 function Patientform() {
     const tokenUsuario = getAccessToken()
     const [patientData, setpatientData] = useState({
@@ -159,7 +158,7 @@ function Patientform() {
             };
 
             const response = await fetch(
-                "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
+                "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-patient",
                 requestOptions
             );
 
@@ -169,45 +168,8 @@ function Patientform() {
 
             const text = await response.text();
             console.log("✅ Paciente criado:", text || "Sem conteúdo (provável sucesso)");
-
-
-            // === 3️⃣ CRIA USUÁRIO APÓS PACIENTE ===
-            const myHeadersUser = new Headers();
-            myHeadersUser.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-            myHeadersUser.append("Authorization", `Bearer ${tokenUsuario}`);
-            myHeadersUser.append("Content-Type", "application/json");
-
-            const rawUser = JSON.stringify({
-                email: patientData.email,
-                password: patientData.password, // <- certifique-se que patientData tem esse campo
-                full_name: patientData.full_name,
-                phone: patientData.phone_mobile,
-                role: "secretaria",
-                redirect_url: "https://mediconnect-neon.vercel.app/"
-            });
-
-            const requestOptionsUser = {
-                method: "POST",
-                headers: myHeadersUser,
-                body: rawUser,
-                redirect: "follow"
-            };
-
-            const resUser = await fetch(
-                `https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user`,
-                requestOptionsUser
-            );
-
-            if (!resUser.ok) {
-                throw new Error("Erro ao criar usuário no Supabase");
-            }
-
-            const usuarioCriado = await resUser.text();
-            console.log("👤 Usuário criado:", usuarioCriado);
-
-            // === 4️⃣ ALERTA DE SUCESSO ===
             Swal.fire({
-                title: "Paciente e usuário criados com sucesso!",
+                title: "Paciente cadastrado com sucesso!",
                 icon: "success",
                 draggable: true
             });

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth"; // pega token do usuário
-import { useResponsive } from '../../../utils/useResponsive';
 
 function DoctorForm() {
   const [doctorData, setDoctorData] = useState({
@@ -43,7 +42,13 @@ function DoctorForm() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-"full_name",     // Nome completo
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // === 1️⃣ VALIDA CAMPOS OBRIGATÓRIOS ===
+    const requiredFields = [
+      "full_name",     // Nome completo
       "cpf",           // CPF
       "email",         // Email
       "phone_mobile",  // Telefone
@@ -56,120 +61,63 @@ function DoctorForm() {
       "number",        // Número
       "neighborhood",  // Bairro
       "city",          // Cidade
-      "state" 
-      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors"
-   const handleSubmit = async (e) => {
-          e.preventDefault();
-  
-          // === 1️⃣ VALIDA CAMPOS OBRIGATÓRIOS ===
-          const requiredFields = [
-              "full_name",     // Nome completo
-      "cpf",           // CPF
-      "email",         // Email
-      "phone_mobile",  // Telefone
-      "crm",           // CRM
-      "crm_uf",        // CRM - UF
-      "specialty",     // Especialidade
-      "birth_date",    // Data de nascimento
-      "cep",           // CEP
-      "street",        // Logradouro
-      "number",        // Número
-      "neighborhood",  // Bairro
-      "city",          // Cidade
-      "state" 
-          ];
-  
-          const missingFields = requiredFields.filter(
-              (field) => !doctorData[field] || doctorData[field].toString().trim() === ""
-          );
-  
-          if (missingFields.length > 0) {
-              alert("Por favor, preencha todos os campos obrigatórios.");
-              return;
-          }
-  
-          try {
-              // === 2️⃣ CRIA PACIENTE ===
-              const myHeaders = new Headers();
-              myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-              myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-              myHeaders.append("Content-Type", "application/json");
-  
-              const raw = JSON.stringify(doctorData);
-  
-              const requestOptions = {
-                  method: "POST",
-                  headers: myHeaders,
-                  body: raw,
-                  redirect: "follow"
-              };
-  
-              const response = await fetch(
-                  "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors",
-                  requestOptions
-              );
-  
-              if (!response.ok) {
-                  throw new Error("Erro ao cadastrar médico");
-              }
-  
-              const text = await response.text();
-              console.log("✅ Médico criado:", text || "Sem conteúdo (provável sucesso)");
-  
-  
-              // === 3️⃣ CRIA USUÁRIO APÓS PACIENTE ===
-              const myHeadersUser = new Headers();
-              myHeadersUser.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-              myHeadersUser.append("Authorization", `Bearer ${tokenUsuario}`);
-              myHeadersUser.append("Content-Type", "application/json");
-  
-              const rawUser = JSON.stringify({
-                  email: doctorData.email,
-                  password: doctorData.password, // <- certifique-se que doctorData tem esse campo
-                  full_name: doctorData.full_name,
-                  phone: doctorData.phone_mobile,
-                  role: "medico",
-                  redirect_url: "https://mediconnect-neon.vercel.app/"
-              });
-  
-              const requestOptionsUser = {
-                  method: "POST",
-                  headers: myHeadersUser,
-                  body: rawUser,
-                  redirect: "follow"
-              };
-  
-              const resUser = await fetch(
-                  `https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user`,
-                  requestOptionsUser
-              );
-  
-              if (!resUser.ok) {
-                  throw new Error("Erro ao criar usuário no Supabase");
-              }
-  
-              const usuarioCriado = await resUser.text();
-              console.log("👤 Usuário criado:", usuarioCriado);
-  
-              // === 4️⃣ ALERTA DE SUCESSO ===
-              Swal.fire({
-                  title: "Médico e usuário criados com sucesso!",
-                  icon: "success",
-                  draggable: true
-              });
-  
-              navigate("/admin/doctorlist");
-              console.log(doctorData);
-  
-          } catch (error) {
-              console.error("❌ Erro:", error);
-              Swal.fire({
-                  title: "Erro ao cadastrar",
-                  text: error.message,
-                  icon: "error"
-              });
-          }
+      "state"
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !doctorData[field] || doctorData[field].toString().trim() === ""
+    );
+
+    if (missingFields.length > 0) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      // === 2️⃣ CRIA PACIENTE ===
+      const myHeaders = new Headers();
+      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+      myHeaders.append("Content-Type", "application/json");
+
+      const raw = JSON.stringify(doctorData);
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
       };
+
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-doctor",
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao cadastrar médico");
+      }
+
+      const text = await response.text();
+      console.log("✅ Médico criado:", text || "Sem conteúdo (provável sucesso)");
+      Swal.fire({
+        title: "Médico cadastrado com sucesso!",
+        icon: "success",
+        draggable: true
+      });
+
+      navigate("/admin/doctorlist");
+      console.log(doctorData);
+
+    } catch (error) {
+      console.error("❌ Erro:", error);
+      Swal.fire({
+        title: "Erro ao cadastrar",
+        text: error.message,
+        icon: "error"
+      });
+    }
+  };
   const estados = {
     AC: "Acre",
     AL: "Alagoas",

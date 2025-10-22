@@ -11,25 +11,26 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import { FaMicrophone } from "react-icons/fa";
+import { InterimMark } from '../../utils/InterimMark'; // <-- Verifique se esse caminho está certo!
+console.log("DEBUG: A InterimMark foi importada?", InterimMark);
 
+function Bar({ comandos, handleSubmit, toggleRecording, isRecording }) {
+	const inputRef = useRef(null);
 
-
-function Bar({ comandos, handleSubmit }) {
-	   const inputRef = useRef(null);
-	
 	const handleAbrirExplorador = () => {
-	  inputRef.current.click(); // abre o explorador
+		inputRef.current.click(); // abre o explorador
 	};
-	
+
 	const handleArquivoSelecionado = (event) => {
-	  const arquivo = event.target.files[0];
-	  if (arquivo) {
-		const imageUrl = URL.createObjectURL(arquivo);
-	comandos.agregarImagen(imageUrl);
-	 event.target.value = null;
-	  }
+		const arquivo = event.target.files[0];
+		if (arquivo) {
+			const imageUrl = URL.createObjectURL(arquivo);
+			comandos.agregarImagen(imageUrl);
+			event.target.value = null;
+		}
 	};
-	
+
 	return (
 		<>
 			<div className="toolbar">
@@ -50,10 +51,10 @@ function Bar({ comandos, handleSubmit }) {
 						</svg>
 					</button>
 					{/*<button onClick={comandos.toggleCodeBlock} >
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M23 12L15.9289 19.0711L14.5147 17.6569L20.1716 12L14.5147 6.34317L15.9289 4.92896L23 12ZM3.82843 12L9.48528 17.6569L8.07107 19.0711L1 12L8.07107 4.92896L9.48528 6.34317L3.82843 12Z"></path>
-						</svg>
-					</button> */}
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M23 12L15.9289 19.0711L14.5147 17.6569L20.1716 12L14.5147 6.34317L15.9289 4.92896L23 12ZM3.82843 12L9.48528 17.6569L8.07107 19.0711L1 12L8.07107 4.92896L9.48528 6.34317L3.82843 12Z"></path>
+							</svg>
+						</button> */}
 					<button onClick={comandos.toggleH1}	 >
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M13 20H11V13H4V20H2V4H4V11H11V4H13V20ZM21.0005 8V20H19.0005L19 10.204L17 10.74V8.67L19.5005 8H21.0005Z"></path>
@@ -85,35 +86,42 @@ function Bar({ comandos, handleSubmit }) {
 						</svg>
 					</button>
 					<>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            ref={inputRef}
-                            onChange={handleArquivoSelecionado}
-                            style={{ display: "none" }} // esconde o input
-                        />
+						<input
+							type="file"
+							accept="image/*"
+							ref={inputRef}
+							onChange={handleArquivoSelecionado}
+							style={{ display: "none" }} // esconde o input
+						/>
 
-                        <button onClick={handleAbrirExplorador}>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="w-6 h-6"
-                            >
-                                <path d="M2.9918 21C2.44405 21 2 20.5551 2 20.0066V3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918ZM20 15V5H4V19L14 9L20 15ZM20 17.8284L14 11.8284L6.82843 19H20V17.8284ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z"></path>
-                            </svg>
-                        </button>
-                    </>
+						<button onClick={handleAbrirExplorador}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="currentColor"
+								className="w-6 h-6"
+							>
+								<path d="M2.9918 21C2.44405 21 2 20.5551 2 20.0066V3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918ZM20 15V5H4V19L14 9L20 15ZM20 17.8284L14 11.8284L6.82843 19H20V17.8284ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z"></path>
+							</svg>
+						</button>
+					</>
+					<button
+						onClick={toggleRecording}
+						className={`toolbar-button ${isRecording ? "active" : ""}`}
+						title={isRecording ? "Parar ditado" : "Iniciar ditado por voz"}
+					>
+						<FaMicrophone size={18} />
+					</button>
 
 					{/*<button onClick={comandos.agregarLink} >
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M18.3638 15.5355L16.9496 14.1213L18.3638 12.7071C20.3164 10.7545 20.3164 7.58866 18.3638 5.63604C16.4112 3.68341 13.2453 3.68341 11.2927 5.63604L9.87849 7.05025L8.46428 5.63604L9.87849 4.22182C12.6122 1.48815 17.0443 1.48815 19.778 4.22182C22.5117 6.95549 22.5117 11.3876 19.778 14.1213L18.3638 15.5355ZM15.5353 18.364L14.1211 19.7782C11.3875 22.5118 6.95531 22.5118 4.22164 19.7782C1.48797 17.0445 1.48797 12.6123 4.22164 9.87868L5.63585 8.46446L7.05007 9.87868L5.63585 11.2929C3.68323 13.2455 3.68323 16.4113 5.63585 18.364C7.58847 20.3166 10.7543 20.3166 12.7069 18.364L14.1211 16.9497L15.5353 18.364ZM14.8282 7.75736L16.2425 9.17157L9.17139 16.2426L7.75717 14.8284L14.8282 7.75736Z"></path>
-						</svg>
-					</button> */}
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+								<path d="M18.3638 15.5355L16.9496 14.1213L18.3638 12.7071C20.3164 10.7545 20.3164 7.58866 18.3638 5.63604C16.4112 3.68341 13.2453 3.68341 11.2927 5.63604L9.87849 7.05025L8.46428 5.63604L9.87849 4.22182C12.6122 1.48815 17.0443 1.48815 19.778 4.22182C22.5117 6.95549 22.5117 11.3876 19.778 14.1213L18.3638 15.5355ZM15.5353 18.364L14.1211 19.7782C11.3875 22.5118 6.95531 22.5118 4.22164 19.7782C1.48797 17.0445 1.48797 12.6123 4.22164 9.87868L5.63585 8.46446L7.05007 9.87868L5.63585 11.2929C3.68323 13.2455 3.68323 16.4113 5.63585 18.364C7.58847 20.3166 10.7543 20.3166 12.7069 18.364L14.1211 16.9497L15.5353 18.364ZM14.8282 7.75736L16.2425 9.17157L9.17139 16.2426L7.75717 14.8284L14.8282 7.75736Z"></path>
+							</svg>
+						</button> */}
 				</div>
 				<div className="right">
 					<button onClick={handleSubmit} className="btnGuardar">
-						
+
 						<span>Enviar laudo</span>
 					</button>
 				</div>
@@ -145,24 +153,24 @@ function LaudoForm() {
 		label: p.full_name
 	}));
 	function gerarOrderNumber() {
-  const prefixo = "REL";
+		const prefixo = "REL";
 
-  const agora = new Date();
-  const ano = agora.getFullYear();
-  const mes = String(agora.getMonth() + 1).padStart(2, "0"); // adiciona 0 à esquerda se necessário
+		const agora = new Date();
+		const ano = agora.getFullYear();
+		const mes = String(agora.getMonth() + 1).padStart(2, "0"); // adiciona 0 à esquerda se necessário
 
-  // Gerar um código aleatório de 6 caracteres (letras maiúsculas + números)
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let codigo = "";
-  for (let i = 0; i < 6; i++) {
-    codigo += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+		// Gerar um código aleatório de 6 caracteres (letras maiúsculas + números)
+		const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		let codigo = "";
+		for (let i = 0; i < 6; i++) {
+			codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
 
-  return `${prefixo}-${ano}-${mes}-${codigo}`;
-}
+		return `${prefixo}-${ano}-${mes}-${codigo}`;
+	}
 
-// Exemplo de uso:
-const orderNumber = gerarOrderNumber();
+	// Exemplo de uso:
+	const orderNumber = gerarOrderNumber();
 	const [laudos, setLaudos] = useState({
 		patient_id: "",
 		order_number: "",
@@ -228,15 +236,118 @@ const orderNumber = gerarOrderNumber();
 
 	const [open, setOpen] = useState(false);
 	const editor = useEditor({
-		extensions: [StarterKit, Image],
+		extensions: [StarterKit, Image, InterimMark ],
 		content: "",
 		onUpdate: ({ editor }) => {
-			setLaudos({
-				...laudos,
+			setLaudos(prev => ({
+				...prev,
 				content_html: editor.getHTML()
-			});
+			}));
 		}
 	})
+	const [isRecording, setIsRecording] = useState(false);
+	const recognitionRef = useRef(null);
+	const lastInsertedRef = useRef({ from: -1, to: -1, text: '' });
+	
+
+	useEffect(() => {
+        const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Seu navegador não suporta reconhecimento de voz 😢");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = "pt-BR";
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            if (!editor) return;
+
+            const result = event.results[0];
+            const transcript = result[0].transcript;
+            const last = lastInsertedRef.current;
+
+            // --- CORREÇÃO DE LÓGICA ---
+            // Vamos rodar a deleção como um comando SEPARADO primeiro.
+            if (last.from !== -1 && 
+                editor.state.doc.textBetween(last.from, last.to) === last.text) 
+            {
+                // Roda a deleção e PARA.
+                editor.chain().focus()
+                    .deleteRange({ from: last.from, to: last.to })
+                    .run();
+            }
+            
+            // Pega a posição ATUAL (depois da deleção)
+            const currentPos = editor.state.selection.from;
+
+            if (result.isFinal) {
+                // --- RESULTADO FINAL (PRETO) ---
+                // Roda a inserção final como um comando SEPARADO.
+                editor.chain().focus()
+                    .insertContent(transcript + ' ')
+                    .run();
+                
+                // Reseta a Ref
+                lastInsertedRef.current = { from: -1, to: -1, text: '' };
+
+            } else {
+                // --- RESULTADO PROVISÓRIO (CINZA) ---
+                // Esta é a nova estratégia: "Ligar" a mark, inserir, "Desligar" a mark.
+                // Roda tudo como um comando SEPARADO.
+                editor.chain()
+                    .focus()
+                    .setMark('interimMark')      // <-- "Pincel cinza" LIGADO
+                    .insertContent(transcript) // <-- Insere o texto
+                    .unsetMark('interimMark')    // <-- "Pincel cinza" DESLIGADO
+                    .run();
+                
+                // Atualiza a Ref com a posição do texto cinza
+                lastInsertedRef.current = {
+                    from: currentPos,
+                    to: currentPos + transcript.length,
+                    text: transcript
+                };
+            }
+            // Não precisamos mais do 'editorChain.run()' aqui embaixo
+        };
+
+        recognition.onerror = (err) => {
+            // ... (código do onerror sem mudanças)
+        };
+
+        recognition.onend = () => {
+            // ... (código do onend sem mudanças)
+        };
+
+        recognitionRef.current = recognition;
+        
+        return () => {
+            recognition.stop();
+        };
+        
+    }, [editor, isRecording]);
+
+    const toggleRecording = () => {
+        if (!recognitionRef.current) return;
+        
+        if (isRecording) {
+            // Usuário clicou para PARAR
+            setIsRecording(false); // <-- Seta o estado
+            recognitionRef.current.stop(); // <-- Para a API
+            // O 'onend' será chamado e fará a limpeza/confirmação.
+        } else {
+            // Usuário clicou para COMEÇAR
+            editor?.chain().focus().run(); 
+            setIsRecording(true); // <-- Seta o estado
+            recognitionRef.current.start(); // <-- Inicia a API
+        }
+    };
+
 	const comandos = {
 		toggleBold: () => editor.chain().focus().toggleBold().run(),
 		toggleItalic: () => editor.chain().focus().toggleItalic().run(),
@@ -249,9 +360,9 @@ const orderNumber = gerarOrderNumber();
 		toggleListaOrdenada: () => editor.chain().focus().toggleOrderedList().run(),
 		toggleListaPuntos: () => editor.chain().focus().toggleBulletList().run(),
 		agregarImagen: (url) => {
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
-  },
+			if (!url) return;
+			editor.chain().focus().setImage({ src: url }).run();
+		},
 		agregarLink: () => {
 			const url = window.prompt('URL do link')
 			if (url) {
@@ -262,67 +373,67 @@ const orderNumber = gerarOrderNumber();
 
 	return (
 		<div className="page-wrapper">
-		<div className="content">
-			<h4 className="page-title">Laudo Médico</h4>
-			<div className="d-flex flex-column align-items-left mt-5">
-				<Card style={{ width: "100%", borderRadius: "10px" }}>
-					<Card.Header
-						onClick={() => setOpen(!open)}
-						aria-controls="paciente-content"
-						aria-expanded={open}
-						className="d-flex justify-content-between align-items-center"
-						style={{
-							cursor: "pointer",
-							borderRadius: "25px",
-							padding: "12px 20px",
-						}}
-					>
-						<span>Informações do paciente</span>
-						{open ? <ChevronUp /> : <ChevronDown />}
-					</Card.Header>
+			<div className="content">
+				<h4 className="page-title">Laudo Médico</h4>
+				<div className="d-flex flex-column align-items-left mt-5">
+					<Card style={{ width: "100%", borderRadius: "10px" }}>
+						<Card.Header
+							onClick={() => setOpen(!open)}
+							aria-controls="paciente-content"
+							aria-expanded={open}
+							className="d-flex justify-content-between align-items-center"
+							style={{
+								cursor: "pointer",
+								borderRadius: "25px",
+								padding: "12px 20px",
+							}}
+						>
+							<span>Informações do paciente</span>
+							{open ? <ChevronUp /> : <ChevronDown />}
+						</Card.Header>
 
-					<Collapse in={open}>
-						<div id="paciente-content" className="p-3">
-							<Select
-								options={options}
-								placeholder="Pesquisar paciente..."
-								isClearable
-								isSearchable
-								onChange={handlePacienteChange}
-								value={options.find(option => option.value === laudos.patient_id) || null}>
-							</Select>
+						<Collapse in={open}>
+							<div id="paciente-content" className="p-3">
+								<Select
+									options={options}
+									placeholder="Pesquisar paciente..."
+									isClearable
+									isSearchable
+									onChange={handlePacienteChange}
+									value={options.find(option => option.value === laudos.patient_id) || null}>
+								</Select>
 
-							<input
-								type="text"
-								className="form-control mb-2"
-								placeholder="Diagnóstico"
-								name='diagnosis'
-								value={laudos.diagnosis}
-								onChange={handleChange}
-							/>
-							<input
-								type="text"
-								className="form-control mb-2"
-								name='exam'
-								value={laudos.exam}
-								onChange={handleChange}
-								placeholder="Exame"
-							/>
-							<input
-								type="text"
-								className="form-control mb-2"
-								name='conclusion'
-								value={laudos.conclusion}
-								onChange={handleChange}
-								placeholder="Conclusão"
-							/>
-						</div>
-					</Collapse>
-				</Card>
+								<input
+									type="text"
+									className="form-control mb-2"
+									placeholder="Diagnóstico"
+									name='diagnosis'
+									value={laudos.diagnosis}
+									onChange={handleChange}
+								/>
+								<input
+									type="text"
+									className="form-control mb-2"
+									name='exam'
+									value={laudos.exam}
+									onChange={handleChange}
+									placeholder="Exame"
+								/>
+								<input
+									type="text"
+									className="form-control mb-2"
+									name='conclusion'
+									value={laudos.conclusion}
+									onChange={handleChange}
+									placeholder="Conclusão"
+								/>
+							</div>
+						</Collapse>
+					</Card>
+				</div>
+				<Bar comandos={comandos} handleSubmit={handleSubmit} toggleRecording={toggleRecording} isRecording={isRecording} />
+				<EditorContent editor={editor} />
 			</div>
-			<Bar comandos={comandos} handleSubmit={handleSubmit}/>
-			<EditorContent editor={editor} />
-		</div>
 		</div>
 	);
 }
