@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
+
 function DoctorProntuario() {
   const { id } = useParams();
   const navigate = useNavigate();

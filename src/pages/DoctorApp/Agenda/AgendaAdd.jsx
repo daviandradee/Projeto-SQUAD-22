@@ -2,6 +2,7 @@ import "../../../assets/css/index.css"
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
+import { useResponsive } from '../../../utils/useResponsive';
 
 
 function AgendaAdd() {

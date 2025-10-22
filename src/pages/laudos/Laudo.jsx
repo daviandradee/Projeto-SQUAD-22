@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 
 
+
 function Bar({ comandos, handleSubmit }) {
 	   const inputRef = useRef(null);
 	

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
+import { useResponsive } from '../../../utils/useResponsive';
 
 function MedicosProfile() {
   const [doctorData, setDoctorData] = useState({});

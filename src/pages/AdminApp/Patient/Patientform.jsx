@@ -7,6 +7,7 @@ import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
 import Swal from "sweetalert2";
+import { useResponsive } from '../../../utils/useResponsive';
 function Patientform() {
     const tokenUsuario = getAccessToken()
     const [patientData, setpatientData] = useState({

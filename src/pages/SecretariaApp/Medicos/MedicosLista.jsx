@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth"; 
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"// importa o token do usuário
+import { useResponsive } from '../../../utils/useResponsive';
 
 function MedicosLista() {
   const [doctors, setDoctors] = useState([]);

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import Swal from "sweetalert2";
+import { useResponsive } from '../../utils/useResponsive';
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);

@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import { Outlet } from 'react-router-dom';
 import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
+import { useResponsive } from '../../utils/useResponsive';
 
 
 

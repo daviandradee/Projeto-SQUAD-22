@@ -3,6 +3,7 @@ import supabase from "../../../Supabase";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import useResponsive from '../../../utils/useResponsive';
 function PatientProfile() {
     const [patient, setPatient] = useState([]);
     // carregando a lista e adicionando no usestate

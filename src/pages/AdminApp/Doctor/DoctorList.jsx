@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 
+
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);

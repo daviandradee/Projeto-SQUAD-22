@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 
+
 function DoctorProfile() {
   const [doctorData, setDoctorData] = useState({});
   const [loading, setLoading] = useState(true);

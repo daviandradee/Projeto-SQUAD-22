@@ -5,6 +5,7 @@ import supabase from "../../../Supabase";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useResponsive } from '../../../utils/useResponsive';
 
 function MedicosForm() {
 

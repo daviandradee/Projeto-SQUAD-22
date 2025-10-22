@@ -6,6 +6,7 @@ import { Link,useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
+import { useResponsive } from '../../../utils/useResponsive';
 
 function MedicosEditar() {
     const [doctors, setdoctors] = useState([]);

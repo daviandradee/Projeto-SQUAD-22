@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../assets/css/darkmode.css";
 
+
 const LS_KEYS = {
     dark: "pref_dark_mode",
     daltonism: "pref_daltonism",

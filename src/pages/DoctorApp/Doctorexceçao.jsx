@@ -6,6 +6,7 @@ import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../utils/auth";
 
+
 const API_ROOT = "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1";
 const API_URL = `${API_ROOT}/doctor_exceptions`;
 const API_DOCTORS = `${API_ROOT}/doctors?select=id,full_name`;
