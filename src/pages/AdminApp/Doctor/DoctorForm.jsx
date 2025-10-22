@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth"; // pega token do usuário
+import { useResponsive } from '../../../utils/useResponsive';
 
 function DoctorForm() {
   const [doctorData, setDoctorData] = useState({

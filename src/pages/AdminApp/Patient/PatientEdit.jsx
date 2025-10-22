@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth";
 import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
+import { useResponsive } from '../../../utils/useResponsive';
 
 function PatientEdit() {
     //testando

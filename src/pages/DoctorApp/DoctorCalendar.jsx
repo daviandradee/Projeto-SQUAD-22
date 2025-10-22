@@ -5,6 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import "../../assets/css/index.css";
+import { useResponsive } from '../../utils/useResponsive';
 
 export default function DoctorCalendar() {
   const [events, setEvents] = useState([]);

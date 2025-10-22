@@ -8,6 +8,7 @@ import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
 
+
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);

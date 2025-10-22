@@ -5,6 +5,7 @@ import { useState } from "react";
 import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
 import { Link } from "react-router-dom";
+import { useResponsive } from '../../utils/useResponsive';
 
 function DoctorApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);

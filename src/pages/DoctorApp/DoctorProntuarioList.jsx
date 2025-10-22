@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import DoctorProntuario from "./DoctorProntuario";
 import { getAccessToken } from "../../utils/auth";
 
+
 // Componente DropdownPortal (mantido igual)
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);

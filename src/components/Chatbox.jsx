@@ -5,6 +5,7 @@ import ChatMessage from "./ChatMessage";
 import { useState, useRef, useEffect } from "react";
 import { Company } from "../Company";
 import { getAccessToken } from "../utils/auth";
+import { useResponsive } from '../utils/useResponsive';
 
 
 function Chatbox() {

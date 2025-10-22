@@ -7,6 +7,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import DoctorCalendar from "../../DoctorApp/DoctorCalendar";
+import { useResponsive } from '../../../utils/useResponsive';
 
 
 function AdminDashboard() {

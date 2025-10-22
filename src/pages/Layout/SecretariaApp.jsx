@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar'
 import React, { useState } from 'react';
 import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
+import { useResponsive } from '../../utils/useResponsive';
 
 
 function SecretariaApp() {

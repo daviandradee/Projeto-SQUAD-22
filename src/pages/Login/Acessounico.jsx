@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth";
+import { useResponsive } from '../../utils/useResponsive';
 
 export default function MagicLink() {
   const navigate = useNavigate();

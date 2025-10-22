@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../assets/css/index.css";
 import { logoutUser } from "../Supabase";
 import Swal from "sweetalert2";
+import { useResponsive } from '../utils/useResponsive';
 
 const LS_KEY = "pref_dark_mode"; 
 

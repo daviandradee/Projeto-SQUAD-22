@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../../utils/auth";
+import { useResponsive } from '../../../utils/useResponsive';
 
 function EditDoctor() {
   const [doctorData, setDoctorData] = useState({});

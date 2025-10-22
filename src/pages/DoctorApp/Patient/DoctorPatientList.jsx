@@ -7,6 +7,8 @@ import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
 
+
+
 // se for usar supabase para delete, senão pode remover
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão

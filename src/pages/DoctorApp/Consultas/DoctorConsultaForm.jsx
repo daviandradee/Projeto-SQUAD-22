@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
 import { getUserId } from "../../../utils/userInfo";
+import { useResponsive } from '../../../utils/useResponsive';
 
 function DoctorConsultaForm() {
   const [minDate, setMinDate] = useState("");

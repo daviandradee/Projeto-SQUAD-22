@@ -6,6 +6,7 @@ import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
 
 
+
 export default function PatientApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
       

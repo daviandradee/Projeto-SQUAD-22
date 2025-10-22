@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
 import "../../../assets/css/index.css";
+import { useResponsive } from '../../../utils/useResponsive';
 
 function AdicionarAgenda() {
   const [doctors, setDoctors] = useState([]);
