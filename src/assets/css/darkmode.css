@@ -1500,3 +1500,91 @@ body.dark-mode .acc-font-controls button {
 body.dark-mode .acc-font-controls button:hover {
     background-color: #3b82f6;
 }
+
+/* ========= SWEETALERT2 - ÍCONES NO MODO ESCURO ========= */
+
+/* Base dos ícones */
+body.dark-mode .swal2-icon {
+  border-color: #60a5fa !important; /* azul suave do tema */
+  color: #60a5fa !important;
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.4);
+}
+
+/* 🟢 Sucesso */
+body.dark-mode .swal2-icon.swal2-success {
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+body.dark-mode .swal2-success-ring {
+  border: 0.25em solid rgba(34, 197, 94, 0.3) !important;
+}
+body.dark-mode .swal2-success-line-tip,
+body.dark-mode .swal2-success-line-long {
+  background-color: #22c55e !important;
+}
+
+/* 🔴 Erro */
+body.dark-mode .swal2-icon.swal2-error {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+body.dark-mode .swal2-x-mark-line-left,
+body.dark-mode .swal2-x-mark-line-right {
+  background-color: #ef4444 !important;
+}
+
+/* 🟡 Aviso */
+body.dark-mode .swal2-icon.swal2-warning {
+  border-color: #facc15 !important;
+  color: #facc15 !important;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+/* 🔵 Info */
+body.dark-mode .swal2-icon.swal2-info {
+  border-color: #3b82f6 !important;
+  color: #3b82f6 !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+/* ❓ Pergunta */
+body.dark-mode .swal2-icon.swal2-question {
+  border-color: #93c5fd !important;
+  color: #93c5fd !important;
+  box-shadow: 0 0 10px rgba(147, 197, 253, 0.4);
+}
+
+/* 🔹 Botões refinados */
+body.dark-mode .swal2-confirm {
+  background-color: #3399ff !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .swal2-cancel {
+  background-color: #475569 !important;
+  border: none !important;
+  color: #f1f5f9 !important;
+}
+body.dark-mode .swal2-cancel:hover {
+  background-color: #64748b !important;
+}
+
+/* 🔹 Fundo e texto */
+body.dark-mode .swal2-popup {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 0 25px rgba(51, 153, 255, 0.25);
+}
+body.dark-mode .swal2-title {
+  color: #f8fafc !important;
+}
+body.dark-mode .swal2-html-container {
+  color: #e2e8f0 !important;
+}
+

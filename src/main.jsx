@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./assets/css/index.css";
 
+import { themedSwal } from "./utils/sweetalertTheme";
+
 //Login
 import Login from "./pages/Login/Login.jsx";
 import MagicLink from "./pages/Login/Acessounico.jsx"
@@ -176,6 +178,9 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
+// Tornando o Swal temático disponível globalmente
+window.Swal = themedSwal;
 
 // Renderizando a aplicação
 createRoot(document.getElementById("root")).render(
