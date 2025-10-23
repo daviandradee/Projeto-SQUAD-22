@@ -110,7 +110,10 @@ function PatientList() {
   useEffect(() => {
     fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
       .then(response => response.json())
-      .then(result => setPatients(Array.isArray(result) ? result : []))
+      .then(result => {
+        setPatients(Array.isArray(result) ? result : [])
+        console.log(result);
+      })
       .catch(error => console.log('error', error));
   }, [])
 

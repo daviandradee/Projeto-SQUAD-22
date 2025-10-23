@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import Swal from "sweetalert2";
 import { useResponsive } from '../../utils/useResponsive';
+import {getUserId} from "../../utils/userInfo.js"
+
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -89,7 +91,8 @@ function MinhasConsultas() {
   const [pacientesMap, setPacientesMap] = useState({});
   const [medicosMap, setMedicosMap] = useState({});
 
-  const patient_id ="a8039e6d-7271-4187-a719-e27d9c6d15b3"; 
+  const patient_id =getUserId(); 
+  console.log(patient_id)
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
