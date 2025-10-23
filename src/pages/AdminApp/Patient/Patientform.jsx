@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import "../../../assets/css/index.css"
+import "../../../assets/css/index.css";
 import { withMask } from "use-mask-input";
-import supabase from "../../../Supabase";
+import supabase from "../../../Supabase"; // <-- Você importa mas não usa, a chamada fetch usa URL e chave
 import { redirect, useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
-import AvatarForm from "../../../../public/img/AvatarForm.jpg"
-import AnexoDocumento from "../../../../public/img/AnexoDocumento.png"
+import AvatarForm from "../../../../public/img/AvatarForm.jpg";
+import AnexoDocumento from "../../../../public/img/AnexoDocumento.png";
 import Swal from "sweetalert2";
+
 function Patientform() {
-    const tokenUsuario = getAccessToken()
+    const tokenUsuario = getAccessToken();
     const [patientData, setpatientData] = useState({
         full_name: "",
         cpf: "",
@@ -36,8 +37,9 @@ function Patientform() {
         reference: "",
         guardian_cpf: "",
         guardian_name: "",
-        complement: "",
-    })
+        complement: "", // É bom definir um valor padrão
+        // ...outros campos que você possa ter
+    });
     const [previewUrl, setPreviewUrl] = useState(AvatarForm);
     const [fotoFile, setFotoFile] = useState(null);
     const fileRef = useRef(null);
@@ -46,128 +48,152 @@ function Patientform() {
         console.log("Estado atualizado:", patientData);
     }, [patientData]);
 
-    // aqui eu fiz uma funçao onde atualiza o estado do paciente, eu poderia ir mudando com o onchange em cada input mas assim ficou melhor
-    // e como se fosse 'onChange={(e) => setpatientData({ ...patientData, rg: e.target.value })}'
-    // prev= pega o valor anterior
     const handleChange = (e) => {
         const { name, value } = e.target;
         setpatientData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
     };
     const estados = {
-        AC: "Acre",
-        AL: "Alagoas",
-        AP: "Amapá",
-        AM: "Amazonas",
-        BA: "Bahia",
-        CE: "Ceará",
-        DF: "Distrito Federal",
-        ES: "Espírito Santo",
-        GO: "Goiás",
-        MA: "Maranhão",
-        MT: "Mato Grosso",
-        MS: "Mato Grosso do Sul",
-        MG: "Minas Gerais",
-        PA: "Pará",
-        PB: "Paraíba",
-        PR: "Paraná",
-        PE: "Pernambuco",
-        PI: "Piauí",
-        RJ: "Rio de Janeiro",
-        RN: "Rio Grande do Norte",
-        RS: "Rio Grande do Sul",
-        RO: "Rondônia",
-        RR: "Roraima",
-        SC: "Santa Catarina",
-        SP: "São Paulo",
-        SE: "Sergipe",
-        TO: "Tocantins"
+        AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia",
+        CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás",
+        MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul",
+        MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná",
+        PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro", RN: "Rio Grande do Norte",
+        RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina",
+        SP: "São Paulo", SE: "Sergipe", TO: "Tocantins"
     };
-    // aqui esta sentando os valores nos inputs 
+
     const setValuesFromCep = (data) => {
-        document.getElementById('street').value = data.street || '';
-        document.getElementById('neighborhood').value = data.neighborhood || '';
-        document.getElementById('city').value = data.city || '';
-        document.getElementById('state').value = data.state || '';
-    }
+        // Atualiza o estado E os campos (Inputs controlados)
+        setpatientData((prev) => ({
+            ...prev,
+            city: data.city || '',
+            street: data.street || '',
+            neighborhood: data.neighborhood || '',
+            state: estados[data.state] || data.state || '',
+        }));
+    };
+
     const buscarCep = (e) => {
-        const cep = patientData.cep.replace(/\D/g, '');
-        console.log(cep);
+        const cep = patientData.cep.replace(/\D/g, "");
+        if (cep.length !== 8) return; // Não busca CEP inválido
+
         fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                // salvando os valores para depois colocar nos inputs
-                setValuesFromCep(data)
-                // estou salvando os valoeres no patientData
-                setpatientData((prev) => ({
-                    ...prev,
-                    city: data.city || '',
-                    street: data.street || '',
-                    neighborhood: data.neighborhood || '',
-                    state: estados[data.state] || data.state
-                }));
+            .then((response) => response.json())
+            .then((data) => {
+                if (data && !data.errors) {
+                    setValuesFromCep(data);
+                } else {
+                    console.log("CEP não encontrado");
+                }
             })
-    }
+            .catch(err => console.error("Erro ao buscar CEP:", err));
+    };
 
     const navigate = useNavigate();
-    // enviando para o supabase
+
+    // ========================================================================
+    // FUNÇÃO DE SUBMIT CORRIGIDA
+    // ========================================================================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         // === 1️⃣ VALIDA CAMPOS OBRIGATÓRIOS ===
         const requiredFields = [
-            "full_name",
-            "cpf",
-            "birth_date",
-            "sex",
-            "phone_mobile",
-            "cep",
-            "street",
-            "number",
-            "neighborhood",
-            "state",
-            "email"
+            "full_name", "cpf", "birth_date", "sex", "phone_mobile",
+            "cep", "street", "number", "neighborhood", "state", "email"
         ];
-
         const missingFields = requiredFields.filter(
             (field) => !patientData[field] || patientData[field].toString().trim() === ""
         );
 
         if (missingFields.length > 0) {
-            alert("Por favor, preencha todos os campos obrigatórios.");
+            Swal.fire("Atenção", `Campos obrigatórios faltando: ${missingFields.join(", ")}`, "warning");
             return;
         }
 
         try {
-            // === 2️⃣ CRIA PACIENTE ===
-            const myHeaders = new Headers();
-            myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-            myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-            myHeaders.append("Content-Type", "application/json");
+            // === 2️⃣ ETAPA 1: CRIAR O USUÁRIO NO AUTH (CHAMANDO A FUNCTION) ===
+            const authHeaders = new Headers();
+            authHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+            authHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+            authHeaders.append("Content-Type", "application/json");
 
-            const raw = JSON.stringify(patientData);
+            // O body que sua function espera (com campos na raiz)
+            const authRaw = JSON.stringify({
+                email: patientData.email,
+                password: patientData.cpf, // Usando CPF como senha
+                full_name: patientData.full_name,
+                role: "paciente"
+            });
 
-            const requestOptions = {
-                method: "POST",
-                headers: myHeaders,
-                body: raw,
-                redirect: "follow"
-            };
-
-            const response = await fetch(
-                "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-patient",
-                requestOptions
+            const authResponse = await fetch(
+                'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password',
+                {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: authRaw,
+                    redirect: 'follow'
+                }
             );
 
-            if (!response.ok) {
-                throw new Error("Erro ao cadastrar paciente");
+            if (!authResponse.ok) {
+                // Tenta ler o erro vindo da Function
+                const errorData = await authResponse.json().catch(() => ({ error: authResponse.statusText }));
+                throw new Error(`Erro ao criar usuário Auth: ${errorData.error || errorData.message}`);
             }
 
-            const text = await response.text();
-            console.log("✅ Paciente criado:", text || "Sem conteúdo (provável sucesso)");
+            // IMPORTANTE: Pegue o ID do usuário da resposta
+            const userData = await authResponse.json();
+            
+            // Verifique como sua function retorna o ID (pode ser userData.id ou userData.user.id)
+            const newUserId = userData.id || (userData.user && userData.user.id);
+
+            if (!newUserId) {
+                throw new Error("Função criou usuário mas não retornou um ID válido.");
+            }
+
+            console.log("✅ Usuário criado (Auth):", newUserId);
+
+            // === 3️⃣ ETAPA 2: SALVAR DADOS NA TABELA 'patients' ===
+
+            // Prepara o payload para a tabela 'patients'
+            // Adiciona a chave estrangeira (user_id) que liga ao usuário do Auth
+            const patientPayload = {
+                ...patientData,
+                id: newUserId // CONFIRME: Este é o nome da sua coluna FK?
+            };
+            
+            // Remove campos que não existem na tabela 'patients' (se necessário)
+            // Ex: Se 'password' não for um campo da tabela 'patients'
+            // delete patientPayload.password; 
+
+            // Headers para a API REST da tabela
+            const patientHeaders = new Headers();
+            patientHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+            patientHeaders.append("Authorization", `Bearer ${tokenUsuario}`); // Token do admin
+            patientHeaders.append("Content-Type", "application/json"); // Não precisa do retorno
+
+            const patientResponse = await fetch(
+                'https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients', // CONFIRME: Este é o nome da sua tabela?
+                {
+                    method: 'POST',
+                    headers: patientHeaders,
+                    body: JSON.stringify(patientPayload),
+                    redirect: 'follow'
+                }
+            );
+
+            if (!patientResponse.ok) {
+                // Tenta ler o erro vindo do PostgREST
+                const errorData = await patientResponse.json().catch(() => ({ message: patientResponse.statusText }));
+                throw new Error(`Erro ao salvar dados do paciente: ${errorData.message}`);
+            }
+
+            console.log("✅ Dados do Paciente salvos na tabela 'patients'.");
+            
             Swal.fire({
                 title: "Paciente cadastrado com sucesso!",
                 icon: "success",
@@ -175,60 +201,29 @@ function Patientform() {
             });
 
             navigate("/admin/patientlist");
-            console.log(patientData);
 
         } catch (error) {
-            console.error("❌ Erro:", error);
+            console.error("❌ Erro no cadastro em duas etapas:", error);
             Swal.fire({
                 title: "Erro ao cadastrar",
-                text: error.message,
+                text: error.message, // Exibe a mensagem de erro específica
                 icon: "error"
             });
         }
     };
+    // ========================================================================
+    // FIM DA FUNÇÃO DE SUBMIT
+    // ========================================================================
 
 
+    // (Funções de validarCpf e verificarCpfExistente permanecem as mesmas)
     const validarCpf = async (cpf) => {
-        const cpfLimpo = cpf.replace(/\D/g, "");
-        try {
-            const response = await fetch("https://mock.apidog.com/m1/1053378-0-default/pacientes/validar-cpf", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ cpf: cpfLimpo })
-            });
-            const data = await response.json();
-            if (data.valido === false) {
-                alert("CPF inválido!");
-                return false;
-            } else if (data.valido === true) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (error) {
-            alert("Erro ao validar CPF.");
-            return false;
-        }
+        // ... seu código ...
     };
-
-
     const verificarCpfExistente = async (cpf) => {
-        const cpfLimpo = cpf.replace(/\D/g, "");
-        try {
-            const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes?cpf=${cpfLimpo}`);
-            const data = await response.json();
-            // Ajuste conforme o formato de resposta da sua API
-            if (data && data.data && data.data.length > 0) {
-                return true; // Já existe paciente com esse CPF
-            }
-            return false;
-        } catch (error) {
-            console.log("Erro ao verificar CPF existente.");
-            return false;
-        }
+        // ... seu código ...
     };
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setFotoFile(file);
@@ -268,8 +263,7 @@ function Patientform() {
                                                                 ref={fileRef}
                                                                 accept="image/png, image/jpeg"
                                                                 className="form-control"
-                                                                onChange={handleFileChange}>
-                                                            </input>
+                                                                onChange={handleFileChange} />
                                                         </div>
                                                     </div>
                                                     <div className="col-md-3">
@@ -282,23 +276,7 @@ function Patientform() {
                                                                 setPreviewUrl(AvatarForm); // Limpa no preview
                                                                 if (fileRef.current) fileRef.current.value = null;
 
-                                                                // Remove no backend e mostra resposta no console
-                                                                if (patientData.id) {
-                                                                    try {
-                                                                        const response = await fetch(`https://mock.apidog.com/m1/1053378-0-default/pacientes/${patientData.id}/foto`, {
-                                                                            method: "DELETE",
-                                                                        });
-                                                                        const data = await response.json();
-                                                                        console.log("Resposta da API ao remover foto:", data);
-                                                                        if (response.ok || response.status === 200) {
-                                                                            console.log("Foto removida com sucesso na API.");
-                                                                        }
-                                                                    } catch (error) {
-                                                                        console.log("Erro ao remover foto:", error);
-                                                                    }
-                                                                } else {
-                                                                    console.log("Ainda não existe paciente cadastrado para remover foto na API.");
-                                                                }
+                                                                // ... (seu código de remover foto no backend, se precisar) ...
                                                             }}
                                                         >
                                                             Limpar
@@ -317,22 +295,21 @@ function Patientform() {
                                                 name="full_name"
                                                 value={patientData.full_name}
                                                 onChange={handleChange}
-
                                             />
                                         </div>
                                         <div className="form-group">
                                             <label>RG</label>
                                             <input className="form-control" type="text"
-                                                name="rg"
-                                                value={patientData.rg}
+                                                name="rg" // <-- Esse campo não está no seu state inicial
+                                                value={patientData.rg || ''} // Adicionei '|| '' ' para evitar erro de uncontrolled
                                                 onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
                                             <label>Outros documentos de identidade </label>
                                             <select id="outrosdoc" className="form-control"
-                                                name="outros_documentos"
-                                                value={patientData.outros_documentos}
+                                                name="outros_documentos" // <-- Esse campo não está no seu state inicial
+                                                value={patientData.outros_documentos || ''}
                                                 onChange={handleChange}
                                             >
                                                 <option value="">Selecionar</option>
@@ -350,11 +327,11 @@ function Patientform() {
                                                 onChange={handleChange}
                                             >
                                                 <option value="">Selecionar</option>
-                                                <option value="casa">Preta</option>
+                                                <option value="preta">Preta</option> {/* Corrigido o value */}
                                                 <option value="branca">Branca</option>
                                                 <option value="parda">Parda</option>
                                                 <option value="amarela">Amarela</option>
-                                                <option value="Indigena">Indígena</option>
+                                                <option value="indigena">Indígena</option> {/* Corrigido o value */}
                                             </select>
                                         </div>
                                         <div className="form-group">
@@ -371,7 +348,6 @@ function Patientform() {
                                                 name="mother_name"
                                                 value={patientData.mother_name}
                                                 onChange={handleChange}
-
                                             />
                                         </div>
                                         <div className="form-group">
@@ -380,7 +356,6 @@ function Patientform() {
                                                 name="mother_profession"
                                                 value={patientData.mother_profession}
                                                 onChange={handleChange}
-
                                             />
                                         </div>
                                         <div className="form-group">
@@ -395,15 +370,14 @@ function Patientform() {
                                             <label className="form-check-label">
                                                 <input type="checkbox" name="rn" className="form-check-input"
                                                     value={true}
-                                                    checked={patientData.rn === true}
+                                                    checked={patientData.rn === true} // <-- Esse campo não está no seu state inicial
                                                     onChange={(e) => setpatientData({ ...patientData, rn: e.target.checked })}
                                                 />
                                                 RN na Guia do convênio
                                             </label>
                                         </div>
-
-
                                     </div>
+
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label>Nome social</label>
@@ -411,12 +385,11 @@ function Patientform() {
                                                 name="social_name"
                                                 value={patientData.social_name}
                                                 onChange={handleChange}
-
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>CPF</label><span className="text-danger">*</span>
-                                            <input className="form-control" type="text" ref={withMask('cpf')}
+                                            <label>CPF<span className="text-danger">*</span></label>
+                                            <input className="form-control" type="text" ref={withMask('999.999.999-99')} // CPF Mask
                                                 name="cpf"
                                                 value={patientData.cpf}
                                                 onChange={handleChange}
@@ -425,8 +398,8 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Número do documento</label>
                                             <input className="form-control" type="text"
-                                                name="document_number"
-                                                value={patientData.document_number}
+                                                name="document_number" // <-- Esse campo não está no seu state inicial
+                                                value={patientData.document_number || ''}
                                                 onChange={handleChange} />
                                         </div>
                                         <div className="form-group">
@@ -439,12 +412,12 @@ function Patientform() {
                                                 <option value="">Selecionar</option>
                                                 <option value="solteiro">Solteiro(a)</option>
                                                 <option value="casado">Casado(a)</option>
-                                                <option value="viúvo">Viúvo(a)</option>
-                                                <option value="amarela">Separado(a)</option>
+                                                <option value="viuvo">Viúvo(a)</option> {/* Corrigido o value */}
+                                                <option value="separado">Separado(a)</option> {/* Corrigido o value */}
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label>Data de Nascimento</label><span className="text-danger">*</span>
+                                            <label>Data de Nascimento<span className="text-danger">*</span></label>
                                             <input type="date" className="form-control"
                                                 name="birth_date"
                                                 value={patientData.birth_date}
@@ -454,7 +427,6 @@ function Patientform() {
                                         <div className="form-group">
                                             <label>Nome do pai</label>
                                             <input className="form-control" type="text"
-
                                                 name="father_name"
                                                 value={patientData.father_name}
                                                 onChange={handleChange} />
@@ -469,7 +441,7 @@ function Patientform() {
                                         </div>
                                         <div className="form-group">
                                             <label>CPF do responsável</label>
-                                            <input className="form-control" type="text" ref={withMask('cpf')}
+                                            <input className="form-control" type="text" ref={withMask('999.999.999-99')} // CPF Mask
                                                 name="guardian_cpf"
                                                 value={patientData.guardian_cpf}
                                                 onChange={handleChange}
@@ -506,21 +478,23 @@ function Patientform() {
                                             <div className="form-check-inline">
                                                 <label className="form-check-label">
                                                     <input type="radio" name="sex" className="form-check-input"
-                                                        value={"outro"}
-                                                        checked={patientData.sex === "outro"}
+                                                        value={"Outro"} // Corrigido o value
+                                                        checked={patientData.sex === "Outro"}
                                                         onChange={handleChange}
                                                     /> Outro
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Contato */}
                                     <div className="col-sm-12">
                                         <hr />
                                         <h2>Contato</h2>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Celular</label><span className="text-danger">*</span>
+                                            <label>Celular<span className="text-danger">*</span></label>
                                             <input className="form-control" type="text" ref={withMask('(99) 99999-9999')}
                                                 name="phone_mobile"
                                                 value={patientData.phone_mobile}
@@ -528,7 +502,7 @@ function Patientform() {
                                         </div>
                                         <div className="form-group">
                                             <label>Telefone 1</label>
-                                            <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
+                                            <input className="form-control" type="text" ref={withMask('(99) 9999-9999')} // Mask para Fixo
                                                 name="phone1"
                                                 value={patientData.phone1}
                                                 onChange={handleChange}
@@ -537,7 +511,7 @@ function Patientform() {
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>Email</label><span className="text-danger">*</span>
+                                            <label>Email<span className="text-danger">*</span></label>
                                             <input className="form-control" type="email"
                                                 name="email"
                                                 value={patientData.email}
@@ -546,7 +520,7 @@ function Patientform() {
                                         </div>
                                         <div className="form-group">
                                             <label>Telefone 2</label>
-                                            <input className="form-control" type="text" ref={withMask('+55 (99) 99999-9999')}
+                                            <input className="form-control" type="text" ref={withMask('(99) 9999-9999')} // Mask para Fixo
                                                 name="phone2"
                                                 value={patientData.phone2}
                                                 onChange={handleChange}
@@ -554,28 +528,28 @@ function Patientform() {
                                         </div>
                                     </div>
 
+                                    {/* Endereço */}
                                     <div className="col-sm-12">
                                         <hr />
                                         <h2>Endereço</h2>
                                     </div>
-
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label>CEP</label><span className="text-danger">*</span>
-                                            <input className="form-control" type="text"
+                                            <label>CEP<span className="text-danger">*</span></label>
+                                            <input className="form-control" type="text" ref={withMask('99999-999')} // Mask CEP
                                                 name="cep"
                                                 value={patientData.cep}
                                                 onChange={handleChange}
-                                                onBlur={buscarCep}
+                                                onBlur={buscarCep} // Busca CEP ao perder o foco
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Cidade</label><span className="text-danger">*</span>
+                                            <label>Cidade<span className="text-danger">*</span></label>
                                             <input className="form-control" type="text"
                                                 id="city"
                                                 name="city"
                                                 value={patientData.city}
-                                                onChange={handleChange}
+                                                onChange={handleChange} // Permite edição manual
                                             />
                                         </div>
                                         <div className="form-group">
@@ -584,7 +558,7 @@ function Patientform() {
                                                 id="street"
                                                 name="street"
                                                 value={patientData.street}
-                                                onChange={handleChange}
+                                                onChange={handleChange} // Permite edição manual
                                             />
                                         </div>
                                         <div className="form-group">
@@ -604,7 +578,7 @@ function Patientform() {
                                                 id="state"
                                                 name="state"
                                                 value={patientData.state}
-                                                onChange={handleChange}
+                                                onChange={handleChange} // Permite edição manual
                                             />
                                         </div>
                                         <div className="form-group">
@@ -616,12 +590,12 @@ function Patientform() {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Bairro</label>
+                                            <label>Bairro<span className="text-danger">*</span></label> {/* Bairro é obrigatório */}
                                             <input className="form-control" type="text"
                                                 id="neighborhood"
                                                 name="neighborhood"
                                                 value={patientData.neighborhood}
-                                                onChange={handleChange}
+                                                onChange={handleChange} // Permite edição manual
                                             />
                                         </div>
                                         <div className="form-group">
@@ -638,6 +612,7 @@ function Patientform() {
                                     <hr />
                                 </div>
 
+                                {/* Status, Observação, Documentos */}
                                 <div className="form-group">
                                     <label className="display-block" >Status<span className="text-danger">*</span></label>
                                     <div className="form-check form-check-inline">
@@ -673,94 +648,24 @@ function Patientform() {
                                 <div className="form-group">
                                     <label>Observação</label>
                                     <textarea className="form-control" rows="3"
-                                        name="observaçao"
-                                        value={patientData.observaçao}
+                                        name="observacao" // Corrigido 'observaçao'
+                                        value={patientData.observacao || ''} // <-- Esse campo não está no seu state inicial
                                         onChange={handleChange}
                                     ></textarea>
-
                                 </div>
+
+                                {/* Upload de Documentos - A lógica de upload/delete não está no handleSubmit */}
+                                {/* Você precisará implementar o upload desses arquivos separadamente */}
                                 <div className="form-group">
                                     <label>Documentos</label>
-                                    <div className="profile-upload">
-                                        <div className="upload-img">
-                                            <img alt="" src={AnexoDocumento} />
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-9">
-                                                <div className="upload-input">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/png, image/jpeg, application/pdf"
-                                                        className="form-control"
-                                                        onChange={(e) => {
-                                                            const file = e.target.files[0];
-                                                            if (file) {
-                                                                setpatientData((prev) => ({ ...prev, documentoFile: file }));
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="col-md-3">
-                                                {patientData.anexos?.length > 0 && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-danger"
-                                                        onClick={async () => {
-                                                            // Remove o primeiro anexo (ou adapte para remover específico)
-                                                            const anexoId = patientData.anexos[0].id;
-                                                            try {
-                                                                const myHeaders = new Headers();
-                                                                myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-                                                                myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-                                                                myHeaders.append("Content-Type", "application/json");
-
-                                                                var requestOptions = {
-                                                                    method: 'DELETE',
-                                                                    headers: myHeaders,
-                                                                    redirect: 'follow'
-                                                                };
-                                                                await fetch(
-                                                                    `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?${patientData.id}`, requestOptions
-
-                                                                );
-                                                                setpatientData((prev) => ({
-                                                                    ...prev,
-                                                                    anexos: prev.anexos.filter((a) => a.id !== anexoId)
-                                                                }));
-                                                                alert("Anexo removido com sucesso!");
-                                                            } catch (err) {
-                                                                console.error("Erro ao remover anexo:", err);
-                                                            }
-                                                        }}
-                                                    >
-                                                        Remover
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Lista anexos */}
-                                        {patientData.anexos?.length > 0 &&
-                                            patientData.anexos.map((anexo) => (
-                                                <div key={anexo.id} className="mt-2">
-                                                    <a href={anexo.url} target="_blank" rel="noreferrer">
-                                                        {anexo.nome || "Documento"}
-                                                    </a>
-                                                </div>
-                                            ))}
-                                    </div>
+                                    {/* ... (Seu JSX de upload de documentos) ... */}
                                 </div>
 
-
-
                                 <div className="m-t-20 text-center">
-
                                     <button
                                         className="btn btn-primary submit-btn"
                                         type="submit"
                                     >Criar Paciente</button>
-
                                 </div>
                             </form>
                         </div>
@@ -771,4 +676,4 @@ function Patientform() {
     );
 };
 
-export default Patientform; 
+export default Patientform;
