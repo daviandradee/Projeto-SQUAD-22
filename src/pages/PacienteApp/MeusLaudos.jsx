@@ -79,7 +79,7 @@ function LaudoList() {
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
-  const patient_id ="a8039e6d-7271-4187-a719-e27d9c6d15b3"; // Substitua pelo ID real do paciente
+  const patient_id = "a8039e6d-7271-4187-a719-e27d9c6d15b3"; // Substitua pelo ID real do paciente
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
@@ -91,14 +91,14 @@ function LaudoList() {
     redirect: 'follow'
   };
   useEffect(() => {
-  fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?patient_id=eq.${patient_id}&select=*`, requestOptions)
-    .then(response => response.json())
-    .then(result => {
-      setLaudos(result)
-      console.log(result)
-    })
-    .catch(error => console.log('error', error));
-}, [])
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?patient_id=eq.${patient_id}&select=*`, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        setLaudos(result)
+        console.log(result)
+      })
+      .catch(error => console.log('error', error));
+  }, [])
   // FUNÇÃO AUXILIAR PARA CORES DO STATUS
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -155,139 +155,133 @@ function LaudoList() {
 
     let dateMatch = true;
     if (startDate && endDate) {
-      dateMatch =l.created_at >= startDate &&l.created_at <= endDate;
+      dateMatch = l.created_at >= startDate && l.created_at <= endDate;
     } else if (startDate) {
-      dateMatch =l.created_at >= startDate;
+      dateMatch = l.created_at >= startDate;
     } else if (endDate) {
-      dateMatch =l.created_at <= endDate;
+      dateMatch = l.created_at <= endDate;
     }
 
     return textMatch && dateMatch;
   });
 
   return (
-    <div className="main-wrapper" style={styles.mainWrapper}>
-      <div className="page-wrapper" style={styles.pageWrapper}>
-        <div className="content" style={styles.content}>
+    <div className="main-wrapper">
+      <div className="content">
+        <h4 className="page-title">Laudos</h4>
 
-          {/* CABEÇALHO FIXO */}
-          <div style={styles.headerFixed}>
-            <h4 className="page-title" style={styles.pageTitle}>Laudos</h4>
-
-            {/* Linha de pesquisa e filtros FIXOS */}
-            <div className="row align-items-center mb-2" style={styles.filtersRow}>
-              {/* Buscar laudo */}
-              <div className="col d-flex align-items-center">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar laudo"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  style={styles.searchInput}
-                />
-              </div>
-
-              {/* Filtros de data e botões rápidos */}
-              <div className="col-auto d-flex align-items-center" style={styles.filtersContainer}>
-
-                {/* Filtros de data */}
-                <div style={styles.dateFilter}>
-                  <label style={styles.filterLabel}>De:</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={e => setStartDate(e.target.value)}
-                    style={styles.dateInput}
-                  />
-                  <label style={styles.filterLabel}>Até:</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={e => setEndDate(e.target.value)}
-                    style={styles.dateInput}
-                  />
-                </div>
-
-                {/* Botões rápidos */}
-                <div style={styles.quickFilter}>
-                  <button
-                    style={period === "today" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={() => setPeriod("today")}
-                  >
-                    Hoje
-                  </button>
-                  <button
-                    style={period === "week" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={() => setPeriod("week")}
-                  >
-                    Semana
-                  </button>
-                  <button
-                    style={period === "month" ? styles.btnFilterActive : styles.btnFilter}
-                    onClick={() => setPeriod("month")}
-                  >
-                    Mês
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Linha de pesquisa e filtros */}
+        <div className="row align-items-center mb-2">
+          {/* Esquerda: pesquisa */}
+          <div className="col d-flex align-items-center">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="🔍  Buscar laudo"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ minWidth: "200px" }}
+            />
           </div>
 
-          {/* ÁREA ROLÁVEL APENAS DA TABELA */}
-          <div style={styles.scrollableArea}>
-            <div className="table-responsive" style={styles.tableResponsive}>
-              <table className="table table-border table-striped custom-table datatable mb-0" style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.tableHeader}>Pedido</th>
-                    <th style={styles.tableHeader}>Exame</th>
-                    <th style={styles.tableHeader}>Diagnostico</th>
-                    <th style={styles.tableHeader}>Conclusão</th>
-                    <th style={styles.tableHeader}>Status</th>
-                    <th style={styles.tableHeader}>Executante</th>
-                    <th style={styles.tableHeader}>Criado em</th>
-                    <th style={styles.tableHeader}>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLaudos.length > 0 ? filteredLaudos.map(l => (
-                    <tr key={l.id}>
-                      <td style={styles.tableCell}>{l.order_number}</td>
-                      <td style={styles.tableCell}>{l.exam}</td>
-                      <td style={styles.tableCell}>{l.diagnosis || '-'}</td>
-                      <td style={styles.tableCell}>{l.conclusion || '-'}</td>
-                      <td style={styles.tableCell}>
-                        <span style={{
-                          ...styles.statusBadge,
-                          background: getStatusColor(l.status)
-                        }}>
-                          {traduzirStatus(l.status)}
-                        </span>
-                      </td>
-                      <td style={styles.tableCell}>{l.requested_by}</td>
-                      <td style={styles.tableCell}>{formatarData(l.created_at)}</td>
-                      <td style={styles.tableCell}>
-                        <Link
-                          style={styles.detailsButton}
-                          to={`/patientapp/verlaudo/${l.id}`}
-                          
-                        >
-                          Ver Laudo
-                        </Link>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan="9" style={styles.noResults}>Nenhum laudo encontrado</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          {/* Filtros de data e botões rápidos */}
+          <div className="col-auto d-flex align-items-center" style={styles.filtersContainer}>
+
+            {/* Filtros de data */}
+            <div style={styles.dateFilter}>
+              <label style={styles.filterLabel}>De:</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                style={styles.dateInput}
+              />
+              <label style={styles.filterLabel}>Até:</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                style={styles.dateInput}
+              />
+            </div>
+
+            {/* Botões rápidos */}
+            <div style={styles.quickFilter}>
+              <button
+                style={period === "today" ? styles.btnFilterActive : styles.btnFilter}
+                onClick={() => setPeriod("today")}
+              >
+                Hoje
+              </button>
+              <button
+                style={period === "week" ? styles.btnFilterActive : styles.btnFilter}
+                onClick={() => setPeriod("week")}
+              >
+                Semana
+              </button>
+              <button
+                style={period === "month" ? styles.btnFilterActive : styles.btnFilter}
+                onClick={() => setPeriod("month")}
+              >
+                Mês
+              </button>
             </div>
           </div>
-
         </div>
+
+        {/* ÁREA ROLÁVEL APENAS DA TABELA */}
+        <div className="row">
+          <div className="col-12">
+            <table className="table table-border table-striped custom-table datatable mb-0" style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Pedido</th>
+                  <th style={styles.tableHeader}>Exame</th>
+                  <th style={styles.tableHeader}>Diagnostico</th>
+                  <th style={styles.tableHeader}>Conclusão</th>
+                  <th style={styles.tableHeader}>Status</th>
+                  <th style={styles.tableHeader}>Executante</th>
+                  <th style={styles.tableHeader}>Criado em</th>
+                  <th style={styles.tableHeader}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLaudos.length > 0 ? filteredLaudos.map(l => (
+                  <tr key={l.id}>
+                    <td style={styles.tableCell}>{l.order_number}</td>
+                    <td style={styles.tableCell}>{l.exam}</td>
+                    <td style={styles.tableCell}>{l.diagnosis || '-'}</td>
+                    <td style={styles.tableCell}>{l.conclusion || '-'}</td>
+                    <td style={styles.tableCell}>
+                      <span style={{
+                        ...styles.statusBadge,
+                        background: getStatusColor(l.status)
+                      }}>
+                        {traduzirStatus(l.status)}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>{l.requested_by}</td>
+                    <td style={styles.tableCell}>{formatarData(l.created_at)}</td>
+                    <td style={styles.tableCell}>
+                      <Link
+                        style={styles.detailsButton}
+                        to={`/patientapp/verlaudo/${l.id}`}
+
+                      >
+                        Ver Laudo
+                      </Link>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan="9" style={styles.noResults}>Nenhum laudo encontrado</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   );
