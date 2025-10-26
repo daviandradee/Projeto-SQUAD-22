@@ -3,7 +3,8 @@ import { withMask } from "use-mask-input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { getAccessToken } from "../../../utils/auth"; // pega token do usuário
+import { getAccessToken } from "../../../utils/auth";   
+
 
 function DoctorForm() {
   const [doctorData, setDoctorData] = useState({
@@ -25,129 +26,19 @@ function DoctorForm() {
     active: false,
   });
 
-
   const tokenUsuario = getAccessToken();
   const navigate = useNavigate();
 
-  // headers globais
-  var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-  myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-  myHeaders.append("Content-Type", "application/json");
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setDoctorData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // === 1️⃣ VALIDA CAMPOS OBRIGATÓRIOS ===
-    const requiredFields = [
-      "full_name",     // Nome completo
-      "cpf",           // CPF
-      "email",         // Email
-      "phone_mobile",  // Telefone
-      "crm",           // CRM
-      "crm_uf",        // CRM - UF
-      "specialty",     // Especialidade
-      "birth_date",    // Data de nascimento
-      "cep",           // CEP
-      "street",        // Logradouro
-      "number",        // Número
-      "neighborhood",  // Bairro
-      "city",          // Cidade
-      "state"
-    ];
-
-    const missingFields = requiredFields.filter(
-      (field) => !doctorData[field] || doctorData[field].toString().trim() === ""
-    );
-
-    if (missingFields.length > 0) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    try {
-      // === 2️⃣ CRIA PACIENTE ===
-      const myHeaders = new Headers();
-      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-      myHeaders.append("Content-Type", "application/json");
-
-      const raw = JSON.stringify(doctorData);
-
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
-      };
-
-      const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-doctor",
-        requestOptions
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao cadastrar médico");
-      }
-
-      const text = await response.text();
-      console.log("✅ Médico criado:", text || "Sem conteúdo (provável sucesso)");
-      Swal.fire({
-        title: "Médico cadastrado com sucesso!",
-        icon: "success",
-        draggable: true
-      });
-
-      navigate("/admin/doctorlist");
-      console.log(doctorData);
-
-    } catch (error) {
-      console.error("❌ Erro:", error);
-      Swal.fire({
-        title: "Erro ao cadastrar",
-        text: error.message,
-        icon: "error"
-      });
-    }
-  };
   const estados = {
-    AC: "Acre",
-    AL: "Alagoas",
-    AP: "Amapá",
-    AM: "Amazonas",
-    BA: "Bahia",
-    CE: "Ceará",
-    DF: "Distrito Federal",
-    ES: "Espírito Santo",
-    GO: "Goiás",
-    MA: "Maranhão",
-    MT: "Mato Grosso",
-    MS: "Mato Grosso do Sul",
-    MG: "Minas Gerais",
-    PA: "Pará",
-    PB: "Paraíba",
-    PR: "Paraná",
-    PE: "Pernambuco",
-    PI: "Piauí",
-    RJ: "Rio de Janeiro",
-    RN: "Rio Grande do Norte",
-    RS: "Rio Grande do Sul",
-    RO: "Rondônia",
-    RR: "Roraima",
-    SC: "Santa Catarina",
-    SP: "São Paulo",
-    SE: "Sergipe",
-    TO: "Tocantins"
+    AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas",
+    BA: "Bahia", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo",
+    GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul",
+    MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná",
+    PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro", RN: "Rio Grande do Norte",
+    RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina",
+    SP: "São Paulo", SE: "Sergipe", TO: "Tocantins"
   };
-  // Buscar CEP
+
   const buscarCep = () => {
     const cep = doctorData.cep.replace(/\D/g, "");
     if (cep.length === 8) {
@@ -161,7 +52,90 @@ function DoctorForm() {
             neighborhood: data.neighborhood || '',
             state: estados[data.state] || data.state
           }));
+        })
+        .catch(() => {
+          Swal.fire({ title: "Erro ao buscar CEP", icon: "error" });
         });
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setDoctorData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const requiredFields = [
+      "full_name", "cpf", "email", "phone_mobile", "crm", "crm_uf",
+      "specialty", "birth_date", "cep", "street", "number",
+      "neighborhood", "city", "state"
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !doctorData[field] || doctorData[field].toString().trim() === ""
+    );
+
+    if (missingFields.length > 0) {
+      Swal.fire({
+        title: "Campos obrigatórios faltando",
+        text: "Por favor, preencha todos os campos antes de continuar.",
+        icon: "warning"
+      });
+      return;
+    }
+
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+      myHeaders.append("Content-Type", "application/json");
+
+      
+      const body = JSON.stringify({
+        email: doctorData.email,
+        full_name: doctorData.full_name,
+        cpf: doctorData.cpf,
+        crm: doctorData.crm,
+        crm_uf: doctorData.crm_uf,
+        specialty: doctorData.specialty,
+        phone_mobile: doctorData.phone_mobile,
+        birth_date: doctorData.birth_date
+      });
+
+      console.log("Body enviado:", body);
+
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-doctor",
+        { method: "POST", headers: myHeaders, body }
+      );
+
+      const text = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`Erro ao cadastrar médico: ${text}`);
+      }
+
+      console.log("✅ Médico criado:", text);
+
+      Swal.fire({
+        title: "Médico cadastrado com sucesso!",
+        icon: "success"
+      });
+
+      navigate("/admin/doctorlist");
+
+    } catch (error) {
+      console.error("❌ Erro:", error);
+      Swal.fire({
+        title: "Erro ao cadastrar",
+        text: error.message,
+        icon: "error"
+      });
     }
   };
 

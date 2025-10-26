@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react"; 
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../assets/css/index.css";
 import { logoutUser } from "../Supabase";
 import Swal from "sweetalert2";
-import { useResponsive } from '../utils/useResponsive';
+import { getUserRole, clearUserInfo } from "../utils/userInfo"; 
 
-const LS_KEY = "pref_dark_mode"; 
+const LS_KEY = "pref_dark_mode";
 
 function Navbar({ onMenuClick }) {
   const location = useLocation();
@@ -17,19 +17,17 @@ function Navbar({ onMenuClick }) {
   const profileRef = useRef(null);
   const [profileName, setProfileName] = useState("Admin");
 
-  const [darkMode, setDarkMode] = useState(false); 
+  const [darkMode, setDarkMode] = useState(false);
 
   const isDoctor = location.pathname.startsWith("/doctor");
   const isPatient = location.pathname.startsWith("/patientapp");
 
-  
   useEffect(() => {
     const saved = localStorage.getItem(LS_KEY) === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark-mode", saved);
   }, []);
 
-  
   const toggleDarkMode = () => {
     const next = !darkMode;
     setDarkMode(next);
@@ -37,7 +35,6 @@ function Navbar({ onMenuClick }) {
     document.body.classList.toggle("dark-mode", next);
   };
 
-  
   useEffect(() => {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) setOpenNotif(false);
@@ -47,16 +44,38 @@ function Navbar({ onMenuClick }) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  
+
   useEffect(() => {
-    if (location.pathname.startsWith("/doctor")) setProfileName("Médico");
-    else if (location.pathname.startsWith("/patientapp")) setProfileName("Paciente");
-    else if (location.pathname.startsWith("/admin")) setProfileName("Admin");
-    else if (location.pathname.startsWith("/secretaria")) setProfileName("Secretária");
-    else setProfileName("Admin");
+    const role = getUserRole();
+
+    if (role) {
+      switch (role) {
+        case "medico":
+          setProfileName("Médico");
+          break;
+        case "paciente":
+          setProfileName("Paciente");
+          break;
+        case "admin":
+          setProfileName("Admin");
+          break;
+        case "secretaria":
+          setProfileName("Secretária");
+          break;
+        default:
+          setProfileName("Admin");
+          break;
+      }
+    } else {
+      // fallback baseado na rota, caso role não exista
+      if (location.pathname.startsWith("/doctor")) setProfileName("Médico");
+      else if (location.pathname.startsWith("/patientapp")) setProfileName("Paciente");
+      else if (location.pathname.startsWith("/admin")) setProfileName("Admin");
+      else if (location.pathname.startsWith("/secretaria")) setProfileName("Secretária");
+      else setProfileName("Admin");
+    }
   }, [location.pathname]);
 
-  
   const handleLogout = async () => {
     Swal.fire({
       title: "Tem certeza que deseja sair?",
@@ -71,6 +90,7 @@ function Navbar({ onMenuClick }) {
       if (result.isConfirmed) {
         const success = await logoutUser();
         if (success) {
+          clearUserInfo(); // ✅ limpa dados do usuário
           Swal.fire({
             title: "Logout realizado!",
             text: "Você foi desconectado com sucesso.",
@@ -113,7 +133,6 @@ function Navbar({ onMenuClick }) {
       </a>
 
       <ul className="nav user-menu float-right">
-        
         <li className="nav-item dm-container">
           <button
             onClick={toggleDarkMode}
@@ -121,31 +140,11 @@ function Navbar({ onMenuClick }) {
             className={`dm-button ${darkMode ? "dark" : "light"}`}
           >
             {darkMode ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
               </svg>
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="23" />
@@ -177,28 +176,8 @@ function Navbar({ onMenuClick }) {
             <span>{profileName}</span>
           </a>
 
+          {/* 🔒 Dropdown SEM perfis — apenas botão de sair */}
           <div className={`dropdown-menu${openProfile ? " show" : ""}`}>
-            {profileName !== "Paciente" && (
-              <button className="dropdown-item" onClick={() => navigate("/patientapp")}>
-                Paciente
-              </button>
-            )}
-            {profileName !== "Médico" && (
-              <button className="dropdown-item" onClick={() => navigate("/doctor")}>
-                Médico
-              </button>
-            )}
-            {profileName !== "Admin" && (
-              <button className="dropdown-item" onClick={() => navigate("/admin")}>
-                Admin
-              </button>
-            )}
-            {profileName !== "Secretária" && (
-              <button className="dropdown-item" onClick={() => navigate("/secretaria")}>
-                Secretária
-              </button>
-            )}
-            <hr className="dropdown-divider" />
             <button className="dropdown-item logout-btn" onClick={handleLogout}>
               Sair
             </button>
