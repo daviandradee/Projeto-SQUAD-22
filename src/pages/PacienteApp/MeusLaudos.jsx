@@ -77,6 +77,7 @@ function LaudoList() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [laudos, setLaudos] = useState([])
+  const [medicosMap, setMedicosMap] = useState({});
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
@@ -172,6 +173,46 @@ function LaudoList() {
 
     return textMatch && dateMatch;
   }) : [];
+   useEffect(() => {
+    if (!Array.isArray(laudos) || laudos.length === 0) return;
+
+    const buscarMedicos = async () => {
+      try {
+        const idsUnicos = [...new Set(laudos.map((c) => c.requested_by).filter(Boolean))];
+        if (idsUnicos.length === 0) return;
+
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenUsuario}`,
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        };
+
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
+              method: "GET",
+              headers,
+            });
+            if (!res.ok) return { id, full_name: "Nome não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setMedicosMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar nomes dos médicos:", err);
+      }
+    };
+
+    buscarMedicos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [laudos]);
 
   return (
     <div className="main-wrapper">
@@ -268,7 +309,7 @@ function LaudoList() {
                         {traduzirStatus(l.status)}
                       </span>
                     </td>
-                    <td style={styles.tableCell}>{l.requested_by}</td>
+                    <td style={styles.tableCell}>{medicosMap[l.requested_by] || '-'}</td>
                     <td style={styles.tableCell}>{formatarData(l.created_at)}</td>
                     <td style={styles.tableCell}>
                       <Link

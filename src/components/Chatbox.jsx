@@ -5,6 +5,7 @@ import ChatMessage from "./ChatMessage";
 import { useState, useRef, useEffect } from "react";
 import { Company } from "../Company";
 import { getAccessToken } from "../utils/auth";
+import { getPatientId } from "../utils/userInfo";
 
 // --- MAPAS DE TRADUÇÃO ---
 const dbWeekdayToPt = {
@@ -27,17 +28,18 @@ const ptWeekdayToDb = {
     "Sábado": "saturday"
 };
 
-// --- FUNÇÃO HELPER PARA FORMATAR HORA (UTC -> LOCAL HH:MM) ---
-function formatTimeFromUTC(utcDateTimeString) {
-    try {
-        const dateObj = new Date(utcDateTimeString);
-        // Usa getHours/getMinutes que considera o fuso do navegador
-        const hours = dateObj.getHours().toString().padStart(2, '0');
-        const minutes = dateObj.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    } catch {
-        return null; // Em caso de erro de parsing
-    }
+// --- FUNÇÕES HELPER PARA HORÁRIOS ---
+// Converte horário "HH:MM:SS" para minutos
+function timeToMinutes(timeString) {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+// Converte minutos de volta para "HH:MM:SS"
+function minutesToTime(minutes) {
+    const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
+    const mins = (minutes % 60).toString().padStart(2, '0');
+    return `${hours}:${mins}:00`;
 }
 
 function Chatbox() {
@@ -46,6 +48,65 @@ function Chatbox() {
         hideInchat: true,
         role: "model",
         text: Company,
+    }, {
+        hideInchat: true,
+        role: "model",
+        text: `Você é um assistente médico virtual inteligente da MediConnect. Suas responsabilidades:
+
+**IMPORTANTE:** Você NUNCA deve prescrever medicamentos, dar diagnósticos definitivos ou substituir consultas médicas presenciais.
+
+1. **QUANDO USUÁRIO MENCIONAR SINTOMAS/DOENÇAS:**
+   - Seja empático e compreensivo
+   - Forneça informações educativas gerais sobre o sintoma/condição
+   - Dê dicas de cuidados básicos e prevenção (quando aplicável)
+   - Explique quando é importante buscar ajuda médica
+   - SEMPRE recomende consultar um profissional para avaliação adequada
+   - **SEMPRE pergunte se o usuário quer agendar** de forma natural
+   - Termine com: "RECOMENDO_CONSULTA: [especialidade]" para ativar detecção de resposta
+
+2. **ESPECIALIDADES DISPONÍVEIS:**
+   - **cardiologia**: problemas cardíacos, dor no peito, palpitações, pressão alta
+   - **dermatologia**: problemas de pele, acne, manchas, alergias cutâneas
+   - **ortopedia**: dores articulares, problemas ósseos, lesões musculares
+   - **pediatria**: saúde infantil, desenvolvimento, vacinação
+   - **ginecologia**: saúde feminina, menstruação, gravidez
+   - **clinico geral**: sintomas gerais, febre, gripe, check-ups
+   - **oftalmologia**: problemas de visão, saúde ocular
+   - **psiquiatria**: saúde mental, ansiedade, depressão
+
+3. **EXEMPLO DE RESPOSTA ADEQUADA:**
+   
+   Usuário: "Estou com dor no peito e palpitações"
+   
+   Você: "Entendo sua preocupação. Dor no peito e palpitações podem ter várias causas, desde ansiedade até problemas cardíacos mais sérios.
+   
+   **Algumas informações importantes:**
+   - Esses sintomas merecem atenção médica, especialmente se persistirem
+   - Evite esforços físicos intensos até ser avaliado
+   - Se a dor for muito intensa ou acompanhada de falta de ar, procure emergência
+   - Mantenha-se calmo e respire profundamente
+   
+   **É fundamental que um cardiologista avalie esses sintomas** para determinar a causa e orientar o tratamento adequado. Gostaria que eu ajude você a agendar uma consulta com um cardiologista?
+   
+   RECOMENDO_CONSULTA: cardiologia"
+
+4. **OUTRAS DICAS GERAIS:**
+   - Para sintomas leves: hidratação, repouso, alimentação saudável
+   - Para prevenção: exercícios regulares, dieta balanceada, sono adequado
+   - Sempre mencione sinais de alarme que requerem atendimento imediato
+   - Seja claro que suas orientações são educativas, não médicas
+
+5. **NUNCA FAÇA:**
+   - Não prescreva medicamentos específicos
+   - Não dê diagnósticos definitivos
+   - Não minimize sintomas graves
+   - Não substitua a consulta médica
+
+6. **OUTRAS FUNÇÕES:**
+   - Ajudar com informações sobre a clínica
+   - Auxiliar em agendamentos
+   - Responder dúvidas administrativas
+   - Fornecer orientações gerais de saúde`
     }]);
     const [showChatbot, setShowChatbot] = useState(false);
     const chatBodyRef = useRef()
@@ -68,10 +129,10 @@ function Chatbox() {
     };
 
     // O ID do usuário logado (usado para criar agendamento)
-    // ATENÇÃO: TROQUE ESTE ID POR UM ID DE PACIENTE QUE EXISTA NO SEU BANCO
+    // ATENÇÃO: TROQUE ESTE ID POR eu   UM ID DE PACIENTE QUE EXISTA NO SEU BANCO
     //6e7f8829-0574-42df-9290-8dbb70f75ada - jp
-
-    const user = { id: '6e7f8829-0574-42df-9290-8dbb70f75ada'};
+    const patient_id = getPatientId();
+    const user = { id: patient_id };
 
     // --- EFEITOS PARA BUSCAR DADOS (CACHE) ---
 
@@ -306,6 +367,25 @@ function Chatbox() {
         },
     ];
 
+    // Função para lidar com a confirmação de agendamento
+    const handleBookingConfirmation = async (message, updateHistory) => {
+        const { step, data } = conversationState;
+        
+        if (step === 'awaiting_confirmation') {
+            const response = message.trim().toLowerCase();
+            
+            if (response.includes('sim') || response === 's' || response === 'yes' || response === 'ok') {
+                updateHistory("Perfeito! Vamos agendar sua consulta.");
+                startAutomaticBooking(data.specialty, updateHistory);
+            } else if (response.includes('não') || response.includes('nao') || response === 'n' || response === 'no') {
+                updateHistory("Sem problemas! Se precisar agendar posteriormente, pode entrar em contato conosco pelos nossos canais de atendimento. Estou aqui se tiver outras dúvidas! 😊");
+                resetConversation();
+            } else {
+                updateHistory("Por favor, responda com 'sim' se deseja agendar a consulta ou 'não' se prefere não agendar agora.");
+            }
+        }
+    };
+
     // ATUALIZADO: A "Máquina de Estados" com a CORREÇÃO FINAL (datetime e fuso horário)
     const handleBookingFlow = async (message, updateHistory) => {
         const { step, data } = conversationState;
@@ -419,8 +499,9 @@ function Chatbox() {
 
                 updateHistory(`Ok, verificando horários livres para ${ptWeekday} (${dateInput})...`);
 
-                const startDate = new Date(`${isoDateStr}T00:00:00-03:00`).toISOString();
-                const endDate = new Date(`${isoDateStr}T23:59:59-03:00`).toISOString();
+                // Cria datas sem conversão de fuso para consulta no banco
+                const startDate = `${isoDateStr}T00:00:00.000Z`;
+                const endDate = `${isoDateStr}T23:59:59.999Z`;
 
                 const payload = {
                     doctor_id: data.selectedDoctor.id,
@@ -432,48 +513,95 @@ function Chatbox() {
                 // Removi o console.log do payload daqui
 
                 try {
-                    const slotsResponse = await fetch("https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots", {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify(payload)
-                    });
+                    // Busca horários disponíveis diretamente do banco para o médico e data selecionados
+                    const doctorAvailability = disponibilidadeMedicos.filter(slot => 
+                        slot.doctor_id === data.selectedDoctor.id && 
+                        slot.weekday.toLowerCase() === dbCheckWeekday
+                    );
 
-                    const responseText = await slotsResponse.text(); // Lê como texto primeiro
-                    // Removi o console.log da resposta bruta daqui
-
-                    // Tenta processar como JSON
-                    const slotsData = JSON.parse(responseText);
-
-                    if (!slotsResponse.ok) { // Checa o status DEPOIS de ler o texto
-                        throw new Error(slotsData.error || slotsData.message || `Erro ${slotsResponse.status}`);
-                    }
-
-                    if (!slotsData || !Array.isArray(slotsData.slots)) {
-                         throw new Error("A resposta da API de horários está mal formatada após o JSON.parse.");
-                    }
-
-                    // --- CORREÇÃO DEFINITIVA AQUI ---
-                    // 1. Filtra slots que são available E que possuem 'datetime'
-                    // 2. Cria um array de objetos { displayTime: "HH:MM", originalDateTime: "ISOString" }
-                    const availableSlotsInfo = slotsData.slots
-                        .filter(slot => slot.available === true && slot.datetime != null)
-                        .map(slot => {
-                            const displayTime = formatTimeFromUTC(slot.datetime); // Formata para HH:MM local
-                            return displayTime ? { displayTime: displayTime, originalDateTime: slot.datetime } : null;
-                        })
-                        .filter(info => info != null); // Remove erros de formatação
-                    // --- FIM DA CORREÇÃO ---
-
-                    if (availableSlotsInfo.length === 0) {
-                        updateHistory(`Desculpe, não há horários livres para ${data.selectedDoctor.full_name} no dia ${dateInput} (vazio ou indisponível). Por favor, escolha outra data.`);
+                    if (doctorAvailability.length === 0) {
+                        updateHistory(`Desculpe, não há horários cadastrados para ${data.selectedDoctor.full_name} no dia ${dateInput}. Por favor, escolha outra data.`);
                         return;
                     }
 
-                    // Mostra apenas a hora formatada para o usuário
-                    const slotsListText = availableSlotsInfo.map(info => `- ${info.displayTime}`).join('\n');
-                    const exampleTime = availableSlotsInfo[0].displayTime; // Pega o primeiro como exemplo
+                    // Busca agendamentos já existentes para este médico nesta data
+                    const appointmentsResponse = await fetch(
+                        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${data.selectedDoctor.id}&scheduled_at=gte.${startDate}&scheduled_at=lt.${endDate}`,
+                        { method: "GET", headers }
+                    );
 
-                    updateHistory(`Perfeito! Horários **realmente livres** para ${dateInput} (${ptWeekday}):\n${slotsListText}\n\nQual horário você prefere? (Ex: ${exampleTime})`);
+                    const existingAppointments = appointmentsResponse.ok ? await appointmentsResponse.json() : [];
+                    console.log("Agendamentos existentes:", existingAppointments);
+                    console.log("Consultando entre:", startDate, "e", endDate);
+
+                    // Gera horários disponíveis baseado na disponibilidade cadastrada
+                    const availableSlots = [];
+                    
+                    doctorAvailability.forEach(availability => {
+                        const startTime = availability.start_time; // Ex: "08:00:00"
+                        const endTime = availability.end_time;     // Ex: "17:00:00"
+                        
+                        // Converte horários para minutos para facilitar cálculos
+                        const startMinutes = timeToMinutes(startTime);
+                        const endMinutes = timeToMinutes(endTime);
+                        const slotDuration = 30; // 30 minutos por consulta
+
+                        for (let minutes = startMinutes; minutes < endMinutes; minutes += slotDuration) {
+                            const slotTime = minutesToTime(minutes);
+                            // Especifica o fuso horário brasileiro (-03:00) para evitar conversões indesejadas
+                            const slotDateTime = `${isoDateStr}T${slotTime}-03:00`;
+
+                            // Verifica se já existe agendamento neste horário
+                            const isOccupied = existingAppointments.some(apt => {
+                                // Converte ambas as datas para timestamp brasileiro para comparação precisa
+                                const aptDateTime = new Date(apt.scheduled_at);
+                                const slotDateTime_parsed = new Date(slotDateTime);
+                                
+                                console.log(`Data agendamento original: ${apt.scheduled_at}`);
+                                console.log(`Data slot original: ${slotDateTime}`);
+                                
+                                // Extrai apenas hora e minuto de cada um (no horário local brasileiro)
+                                const aptBrazilTime = aptDateTime.toLocaleString('pt-BR', {
+                                    timeZone: 'America/Sao_Paulo',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                });
+                                
+                                const slotBrazilTime = slotDateTime_parsed.toLocaleString('pt-BR', {
+                                    timeZone: 'America/Sao_Paulo', 
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                });
+                                
+                                console.log(`Comparando horários BR: Agendamento ${aptBrazilTime} vs Slot ${slotBrazilTime}`);
+                                
+                                return aptBrazilTime === slotBrazilTime;
+                            });
+
+                            if (!isOccupied) {
+                                console.log(`✅ Slot disponível: ${slotTime.substring(0, 5)} (${slotDateTime})`);
+                                availableSlots.push({
+                                    displayTime: slotTime.substring(0, 5), // "HH:MM"
+                                    originalDateTime: slotDateTime
+                                });
+                            } else {
+                                console.log(`❌ Slot ocupado: ${slotTime.substring(0, 5)} (${slotDateTime})`);
+                            }
+                        }
+                    });
+
+                    if (availableSlots.length === 0) {
+                        updateHistory(`Desculpe, não há horários livres para ${data.selectedDoctor.full_name} no dia ${dateInput}. Todos os horários já estão ocupados. Por favor, escolha outra data.`);
+                        return;
+                    }
+
+                    // Mostra os horários disponíveis para o usuário
+                    const slotsListText = availableSlots.map(slot => `- ${slot.displayTime}`).join('\n');
+                    const exampleTime = availableSlots[0].displayTime;
+
+                    updateHistory(`Perfeito! Horários disponíveis para ${dateInput} (${ptWeekday}):\n${slotsListText}\n\nQual horário você prefere? (Ex: ${exampleTime})`);
 
                     setConversationState({
                         ...conversationState,
@@ -481,19 +609,18 @@ function Chatbox() {
                         data: {
                             ...data,
                             selectedDateISO: isoDateStr,
-                            // Salva a lista de objetos { displayTime, originalDateTime }
-                            availableSlotsInfo: availableSlotsInfo,
+                            availableSlotsInfo: availableSlots,
                             slotDuration: 30
                         }
                     });
 
                 } catch (err) {
                      console.error("Erro detalhado ao processar horários:", err);
-                     updateHistory(`Erro ao consultar ou processar horários: ${err.message}. Tente outra data.`);
+                     updateHistory(`Erro ao consultar horários: ${err.message}. Tente outra data.`);
                 }
                 break;
 
-            // ETAPA 4: Usuário digitou o horário (COM A CORREÇÃO FINAL)
+            // ETAPA 4: Usuário digitou o horário
             case 'awaiting_time':
                 let timeInput = message.trim(); // Ex: "16:00"
 
@@ -502,7 +629,6 @@ function Chatbox() {
                     timeInput = timeInput.substring(0, 5);
                 }
 
-                // --- CORREÇÃO AQUI ---
                 // Acha o objeto correspondente na lista availableSlotsInfo
                 const chosenSlotInfo = data.availableSlotsInfo.find(info => info.displayTime === timeInput);
 
@@ -512,18 +638,20 @@ function Chatbox() {
                     return;
                 }
 
-                // Pega o timestamp UTC original que veio da API
+                // Usa o horário direto do banco sem conversão
                 const scheduled_at_iso = chosenSlotInfo.originalDateTime;
-                // --- FIM DA CORREÇÃO ---
 
                 const duration_minutes = data.slotDuration;
 
-                updateHistory(`Confirmando agendamento para ${data.selectedDateISO} às ${timeInput} (horário local)...`);
+                updateHistory(`Confirmando agendamento para ${data.selectedDateISO} às ${timeInput}...`);
+
+                console.log("Horário selecionado:", timeInput);
+                console.log("DateTime que será salvo:", scheduled_at_iso);
 
                 const appointmentBody = {
                     doctor_id: data.selectedDoctor.id,
                     patient_id: user.id,
-                    scheduled_at: scheduled_at_iso, // Salva o timestamp UTC correto
+                    scheduled_at: scheduled_at_iso,
                     duration_minutes: duration_minutes,
                     created_by: user.id
                 };
@@ -559,7 +687,41 @@ function Chatbox() {
     };
 
 
-    // generateBotResponse (sem mudanças)
+    // Função para extrair recomendação de consulta do Gemini
+    const extractConsultationRecommendation = (text) => {
+        const match = text.match(/RECOMENDO_CONSULTA:\s*([^\n]+)/i);
+        if (match) {
+            return match[1].trim().toLowerCase();
+        }
+        return null;
+    };
+
+
+
+    // Função para iniciar agendamento automático com especialidade (após confirmação)
+    const startAutomaticBooking = (specialty, updateHistory) => {
+        // Busca médicos da especialidade
+        const filteredDoctors = allDoctors.filter(doc =>
+            doc.specialty && doc.specialty.toLowerCase() === specialty
+        );
+
+        if (filteredDoctors.length === 0) {
+            updateHistory(`\n💡 Infelizmente não encontrei especialistas em ${specialty} disponíveis no momento. Entre em contato conosco para mais informações.`);
+            resetConversation();
+            return;
+        }
+
+        const doctorListText = filteredDoctors.map((doc, i) => `${i + 1}. ${doc.full_name}`).join('\n');
+        updateHistory(`\nÓtimo! Encontrei estes especialistas em ${specialty}:\n${doctorListText}\n\nQual você prefere? (Digite o nome ou o número)`);
+
+        setConversationState({
+            flow: 'booking',
+            step: 'awaiting_doctor_choice',
+            data: { specialty, doctorsList: filteredDoctors }
+        });
+    };
+
+    // generateBotResponse HÍBRIDO (atualizado para dar dicas médicas)
     const generateBotResponse = async (history) => {
         const updateHistory = (text, isError = false) => {
             setChatHistory(prev => [...prev.filter(msg => msg.text !== "Pensando..."), { role: "model", text, isError }]);
@@ -568,7 +730,13 @@ function Chatbox() {
         const lastUserMessage = history[history.length - 1].text.toLowerCase();
         let intentFound = false;
 
-        // Checa o fluxo de agendamento PRIMEIRO
+        // Checa o fluxo de confirmação de agendamento PRIMEIRO
+        if (conversationState.flow === 'booking_confirmation') {
+            await handleBookingConfirmation(lastUserMessage, updateHistory);
+            return;
+        }
+
+        // Checa o fluxo de agendamento
         if (conversationState.flow === 'booking') {
             await handleBookingFlow(lastUserMessage, updateHistory);
             return; // Interrompe para não buscar intents
@@ -631,7 +799,25 @@ function Chatbox() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error.message || "Algo deu errado");
             const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
-            updateHistory(apiResponseText);
+            
+            // Verifica se o Gemini recomendou uma consulta médica
+            const recommendedSpecialty = extractConsultationRecommendation(apiResponseText);
+            
+            if (recommendedSpecialty) {
+                // Remove a linha "RECOMENDO_CONSULTA" da resposta visível
+                const cleanedResponse = apiResponseText.replace(/RECOMENDO_CONSULTA:\s*[^\n]+/i, '').trim();
+                updateHistory(cleanedResponse);
+                
+                // Coloca o sistema em modo de espera de confirmação diretamente
+                setConversationState({
+                    flow: 'booking_confirmation',
+                    step: 'awaiting_confirmation',
+                    data: { specialty: recommendedSpecialty }
+                });
+            } else {
+                // Resposta normal sem recomendação de consulta
+                updateHistory(apiResponseText);
+            }
         } catch (error) {
             updateHistory(error.message, true);
         }
