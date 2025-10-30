@@ -7,6 +7,7 @@ import supabase from "../../../Supabase";
 import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
+import AvatarForm from "../../../../public/img/AvatarForm.jpg";
 
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
@@ -94,9 +95,9 @@ function PatientList() {
   const [showModal, setShowModal] = useState(false);
 
   const handleViewDetails = (patient) => {
-  setSelectedPatient(patient);
-  setShowModal(true);
-};
+    setSelectedPatient(patient);
+    setShowModal(true);
+  };
 
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
@@ -186,8 +187,6 @@ function PatientList() {
     setCurrentPage1(1);
   }, [search]);
 
-
-
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
     const inicio = cpf.slice(0, 3);
@@ -237,34 +236,54 @@ function PatientList() {
                     {currentPatients.length > 0 ? (
                       currentPatients.map((p) => (
                         <tr key={p.id}>
-                          <td>{p.full_name}</td>
-                          <td>{mascararCPF(p.cpf)}</td>
-                          <td>{p.birth_date}</td>
-                          <td>{p.phone_mobile}</td>
-                          <td>{p.email}</td>
-                          <td>{p.sex}</td>
-                          <td className="text-right">
-                            <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                              <button
-                                type="button"
-                                ref={(el) => (anchorRefs.current[p.id] = el)}
-                                className="action-icon"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenDropdown(openDropdown === p.id ? null : p.id);
-                                }}
+                          
+                              <td>
+                            <div className="table-avatar">
+                              <div className="upload-img">
+                                <img 
+                                  alt={p.full_name} 
+                                  src={p.profile_photo_url || AvatarForm} 
+                                  style={{ 
+                                    width: "30px", 
+                                    height: "30px", 
+                                    borderRadius: "50%",
+                                    objectFit: "cover" 
+                                  }} 
+                                  onError={(e) => {
+                                    e.target.src = AvatarForm; // Fallback se a imagem não carregar
+                                  }}
+                                />
+                                <span style={{ marginLeft: "4px" }}>{p.full_name}</span>
+                              </div>
+                            </div>
+                            </td>
+                            <td>{mascararCPF(p.cpf)}</td>
+                            <td>{p.birth_date}</td>
+                            <td>{p.phone_mobile}</td>
+                            <td>{p.email}</td>
+                            <td>{p.sex}</td>
+                            <td className="text-right">
+                              <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
+                                <button
+                                  type="button"
+                                  ref={(el) => (anchorRefs.current[p.id] = el)}
+                                  className="action-icon"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdown(openDropdown === p.id ? null : p.id);
+                                  }}
 
-                              >
-                                <i className="fa fa-ellipsis-v"></i>
-                              </button>
+                                >
+                                  <i className="fa fa-ellipsis-v"></i>
+                                </button>
 
-                              <DropdownPortal
-                                anchorEl={anchorRefs.current[p.id]}
-                                isOpen={openDropdown === p.id}
-                                onClose={() => setOpenDropdown(null)}
-                                className="dropdown-menu dropdown-menu-right show"
-                              >
-                                {/*<Link
+                                <DropdownPortal
+                                  anchorEl={anchorRefs.current[p.id]}
+                                  isOpen={openDropdown === p.id}
+                                  onClose={() => setOpenDropdown(null)}
+                                  className="dropdown-menu dropdown-menu-right show"
+                                >
+                                  {/*<Link
                                   className="dropdown-item-custom"
                                   to={`/profilepatient/${p.id}`}
                                   onClick={(e) => {
@@ -274,36 +293,36 @@ function PatientList() {
                                 >
                                   <i className="fa fa-eye"></i> Ver Detalhes
                                 </Link>*/}
-                                <Link
-                                                                  className="dropdown-item-custom"
-                                                                  onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setOpenDropdown(null);
-                                                                    handleViewDetails(p);
-                                                                 }}
-                                                               >
-                                                                <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                                                                </Link>
-                                <Link
-                                  className="dropdown-item-custom"
-                                  to={`/admin/editpatient/${p.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-pencil m-r-5"></i> Editar
-                                </Link>
+                                  <Link
+                                    className="dropdown-item-custom"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenDropdown(null);
+                                      handleViewDetails(p);
+                                    }}
+                                  >
+                                    <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                                  </Link>
+                                  <Link
+                                    className="dropdown-item-custom"
+                                    to={`/admin/editpatient/${p.id}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenDropdown(null);
+                                    }}
+                                  >
+                                    <i className="fa fa-pencil m-r-5"></i> Editar
+                                  </Link>
 
-                                <button
-                                  className="dropdown-item-custom dropdown-item-delete"
-                                  onClick={() => handleDelete(p.id)}
-                                >
-                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                </button>
-                              </DropdownPortal>
-                            </div>
-                          </td>
+                                  <button
+                                    className="dropdown-item-custom dropdown-item-delete"
+                                    onClick={() => handleDelete(p.id)}
+                                  >
+                                    <i className="fa fa-trash-o m-r-5"></i> Excluir
+                                  </button>
+                                </DropdownPortal>
+                              </div>
+                            </td>
                         </tr>
                       ))
                     ) : (
@@ -352,63 +371,83 @@ function PatientList() {
                   </li>
                 </ul>
               </nav>
-             {showModal && selectedPatient && (
-            <div
-    className="modal fade show"
-    style={{
-      display: "block",
-      backgroundColor: "rgba(0,0,0,0.5)",
-    }}
-  >
-    <div className="modal-dialog modal-lg modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Detalhes do Paciente</h5>
-          <button
-            type="button"
-            className="close"
-            onClick={() => setShowModal(false)}
-          >
-            <span>&times;</span>
-          </button>
-        </div>
+              {showModal && selectedPatient && (
+                <div
+                  className="modal fade show"
+                  style={{
+                    display: "block",
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                  }}
+                >
+                  <div className="modal-dialog modal-lg modal-dialog-centered">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title">Detalhes do Paciente</h5>
+                        <button
+                          type="button"
+                          className="close"
+                          onClick={() => setShowModal(false)}
+                        >
+                          <span>&times;</span>
+                        </button>
+                      </div>
 
-        <div className="modal-body">
-          <p className="text-muted">
-            Informações detalhadas sobre o paciente.
-          </p>
+                      <div className="modal-body">
+                        {/* Foto do Paciente */}
+                        <div className="text-center mb-4">
+                          <img 
+                            src={selectedPatient.profile_photo_url || AvatarForm} 
+                            alt={selectedPatient.full_name}
+                            style={{
+                              width: "120px",
+                              height: "120px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "3px solid #4dabf7",
+                              boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                            }}
+                            onError={(e) => {
+                              e.target.src = AvatarForm;
+                            }}
+                          />
+                          <h5 className="mt-3">{selectedPatient.full_name}</h5>
+                        </div>
 
-          <div className="row">
-            <div className="col-md-6">
-              <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
-              <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
-              <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
-              <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
-              <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
-            </div>
+                        <p className="text-muted">
+                          Informações detalhadas sobre o paciente.
+                        </p>
 
-            <div className="col-md-6">
-              <p><strong>Email:</strong> {selectedPatient.email}</p>
-              <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
-              <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
-              <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
-            </div>
-          </div>
-        </div>
+                        <div className="row">
+                          <div className="col-md-6">
+                            <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
+                            <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
+                            <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
+                            <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
+                            <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
+                          </div>
 
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setShowModal(false)}
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-            )}
+                          <div className="col-md-6">
+                            <p><strong>Email:</strong> {selectedPatient.email}</p>
+                            <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
+                            <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
+                            <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setShowModal(false)}
+                        >
+                          Fechar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>
