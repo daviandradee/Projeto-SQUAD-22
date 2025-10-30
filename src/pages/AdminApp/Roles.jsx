@@ -147,7 +147,6 @@ function Roles() {
           </div>
         `,
         icon: "success",
-        draggable: true
       });
 
       setShowModal(false);
@@ -167,7 +166,6 @@ function Roles() {
         title: "Erro!",
         text: err.message,
         icon: "error",
-        draggable: true
       });
     } finally {
       setSubmitting(false);
