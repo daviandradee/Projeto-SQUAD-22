@@ -186,6 +186,47 @@ function LaudoListDoctor() {
 
     setOpenDropdown(null);
   };
+  useEffect(() => {
+    if (!consultas || consultas.length === 0) return;
+
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [consultas]);
 
   // 🗑️ Excluir consulta
   const handleDelete = async (id) => {
@@ -258,6 +299,7 @@ function LaudoListDoctor() {
       return dateString;
     }
   };
+  console.log("👨‍⚕️ Laudos do médico:", consultas);
   return (
     <div className="content">
       <div className="row">
@@ -286,11 +328,12 @@ function LaudoListDoctor() {
             <table className="table table-striped custom-table">
               <thead>
                 <tr>
-                  <th>Paciente</th>
-                  <th>Agendado</th>
-                  <th>Queixa Principal</th>
-                  <th>Duração</th>
-                  <th>Modo</th>
+                  <th>Pedido</th>
+                  <th>Pacient ID</th>
+                  <th>Exame</th>
+                  <th>Diagnóstico</th>
+                  <th>Conclusão</th>
+                  <th>Criado em</th>
                   <th>Status</th>
                   <th className="text-right">Ações</th>
                 </tr>
@@ -299,11 +342,12 @@ function LaudoListDoctor() {
                 {current.length > 0 ? (
                   current.map((c) => (
                     <tr key={c.id}>
-                      <td>{c.patient_id || "—"}</td>
-                      <td>{formatDate(c.scheduled_at)|| "—"}</td> 
-                      <td>{c.chief_complaint || "—"}</td>
-                      <td>{c.duration_minutes} min</td>
-                      <td>{c.appointment_type || "—"}</td>
+                      <td>{c.order_number}</td>
+                      <td>{pacientesMap[c.patient_id] || "—"}</td>
+                      <td>{c.exam || "—"}</td>
+                      <td>{c.diagnosis || "—"}</td>
+                      <td>{c.conclusion || "—"}</td>
+                      <td>{formatDate(c.created_at)|| "—"}</td> 
                       <td>
                         <span
                           className={`custom-badge ${
@@ -333,22 +377,15 @@ function LaudoListDoctor() {
                             onClose={() => setOpenDropdown(null)}
                             className="dropdown-menu dropdown-menu-right show"
                           >
-                            <button
-                              className="dropdown-item-custom"
-                              onClick={() => handleView(c.id)}
-                            >
-                              <i className="fa fa-eye m-r-5"></i> Ver
-                            </button>
-
                             <Link
                               className="dropdown-item-custom"
-                              to={`/editappointment/${c.id}`}
+                              to={`/doctor/laudoedit/${c.id}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);
                               }}
                             >
-                              <i className="fa fa-pencil m-r-5"></i> Editar
+                              <i className="fa fa-eye m-r-5"></i> Ver
                             </Link>
 
                             <button

@@ -373,7 +373,6 @@ function LaudoForm() {
   }
 
   return (
-    <div className="page-wrapper">
       <div className="content">
         <h4 className="page-title">Laudo Médico</h4>
         <div className="d-flex flex-column align-items-left mt-5">
@@ -435,7 +434,6 @@ function LaudoForm() {
         <Bar comandos={comandos} handleSubmit={handleSubmit} toggleRecording={toggleRecording} isRecording={isRecording} />
         <EditorContent editor={editor} />
       </div>
-    </div>
   );
 }
 
