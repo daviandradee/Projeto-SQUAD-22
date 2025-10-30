@@ -115,73 +115,26 @@ function Patientform() {
         }
 
         try {
-            // === 2️⃣ ETAPA 1: CRIAR O USUÁRIO NO AUTH (CHAMANDO A FUNCTION) ===
-            const authHeaders = new Headers();
-            authHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-            authHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-            authHeaders.append("Content-Type", "application/json");
-
-            // O body que sua function espera (com campos na raiz)
-            const authRaw = JSON.stringify({
+            var raw = JSON.stringify({
                 email: patientData.email,
-                password: patientData.cpf, // Usando CPF como senha
+                password: "minhasenha123",
                 full_name: patientData.full_name,
-                role: "paciente"
+                role: "paciente",
+                create_patient_record: true,
+                cpf: patientData.cpf,
+                phone_mobile: patientData.phone_mobile
             });
-
-            const authResponse = await fetch(
-                'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password',
-                {
-                    method: 'POST',
-                    headers: authHeaders,
-                    body: authRaw,
-                    redirect: 'follow'
-                }
-            );
-
-            if (!authResponse.ok) {
-                // Tenta ler o erro vindo da Function
-                const errorData = await authResponse.json().catch(() => ({ error: authResponse.statusText }));
-                throw new Error(`Erro ao criar usuário Auth: ${errorData.error || errorData.message}`);
-            }
-
-            // IMPORTANTE: Pegue o ID do usuário da resposta
-            const userData = await authResponse.json();
-            
-            // Verifique como sua function retorna o ID (pode ser userData.id ou userData.user.id)
-            const newUserId = userData.id || (userData.user && userData.user.id);
-
-            if (!newUserId) {
-                throw new Error("Função criou usuário mas não retornou um ID válido.");
-            }
-
-            console.log("✅ Usuário criado (Auth):", newUserId);
-
-            // === 3️⃣ ETAPA 2: SALVAR DADOS NA TABELA 'patients' ===
-
-            // Prepara o payload para a tabela 'patients'
-            // Adiciona a chave estrangeira (user_id) que liga ao usuário do Auth
-            const patientPayload = {
-                ...patientData,
-                id: newUserId // CONFIRME: Este é o nome da sua coluna FK?
-            };
-            
-            // Remove campos que não existem na tabela 'patients' (se necessário)
-            // Ex: Se 'password' não for um campo da tabela 'patients'
-            // delete patientPayload.password; 
-
-            // Headers para a API REST da tabela
             const patientHeaders = new Headers();
             patientHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
             patientHeaders.append("Authorization", `Bearer ${tokenUsuario}`); // Token do admin
             patientHeaders.append("Content-Type", "application/json"); // Não precisa do retorno
 
             const patientResponse = await fetch(
-                'https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients', // CONFIRME: Este é o nome da sua tabela?
+                'https://yuanqfswhberkoevtmfr.supabase.co/create-user-with-password', // CONFIRME: Este é o nome da sua tabela?
                 {
                     method: 'POST',
                     headers: patientHeaders,
-                    body: JSON.stringify(patientPayload),
+                    body: raw,
                     redirect: 'follow'
                 }
             );
@@ -203,7 +156,7 @@ function Patientform() {
             navigate("/admin/patientlist");
 
         } catch (error) {
-            console.error("❌ Erro no cadastro em duas etapas:", error);
+            console.error("❌ Erro no cadastro", error);
             Swal.fire({
                 title: "Erro ao cadastrar",
                 text: error.message, // Exibe a mensagem de erro específica
