@@ -14,7 +14,7 @@ export async function sendSMS(phoneNumber, message, patientId) {
   });
 
   const response = await fetch(
-    "https://mock.apidog.com/m1/1053378-0-default/functions/v1/send-sms",
+    "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/send-sms",
     { method: "POST", headers, body }
   );
 
