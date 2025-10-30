@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Swal from "sweetalert2"; // 🧁 importando SweetAlert2
 import { getAccessToken } from "../../../utils/auth";
 import { useResponsive } from '../../../utils/useResponsive';
- 
+import { getDoctorId } from "../../../utils/userInfo";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -82,7 +82,7 @@ function ConsultaList() {
   const ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
-  const doctor_id = 	"7c395cb2-1681-4e45-9e42-03b9907e378f";
+  const doctor_id = getDoctorId();
 
   // 🔹 Listar consultas do médico logado
   useEffect(() => {
@@ -95,13 +95,17 @@ function ConsultaList() {
     headers: myHeaders,
     redirect: 'follow'
   };
+  console.log("Buscando consultas para doctor_id:", doctor_id);
 
     fetch(
       `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${doctor_id}`, requestOptions
 
     )
       .then((res) => res.json())
-      .then((result) => setConsultas(Array.isArray(result) ? result : []))
+      .then((result) => {
+        setConsultas(Array.isArray(result) ? result : [])
+        console.log("Consultas fetchadas:", result);
+      })
       .catch((err) => console.error("Erro ao buscar consultas:", err));
   }, [doctor_id, tokenUsuario]);
   useEffect(() => {

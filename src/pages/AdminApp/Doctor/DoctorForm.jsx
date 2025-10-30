@@ -90,50 +90,40 @@ function DoctorForm() {
     }
 
     try {
-      const myHeaders = new Headers();
-      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-      myHeaders.append("Content-Type", "application/json");
-
-      
-      const body = JSON.stringify({
-        email: doctorData.email,
-        full_name: doctorData.full_name,
-        cpf: doctorData.cpf,
-        crm: doctorData.crm,
-        crm_uf: doctorData.crm_uf,
-        specialty: doctorData.specialty,
-        phone_mobile: doctorData.phone_mobile,
-        birth_date: doctorData.birth_date
+      // === 2️⃣ ETAPA 1: CRIAR O USUÁRIO NO AUTH (CHAMANDO A FUNCTION) ===
+      const authHeaders = new Headers();
+      authHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      authHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+      authHeaders.append("Content-Type", "application/json");
+      const authRaw = JSON.stringify({
+        ...doctorData,
+        password: "12345678", // Usando CRM como senha
+        role: "medico"
       });
 
-      console.log("Body enviado:", body);
+      console.log("📤 Body enviado para Auth:", authRaw);
+      console.log("🌐 Endpoint:", 'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password');
 
-      const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-doctor",
-        { method: "POST", headers: myHeaders, body }
+      const authResponse = await fetch(
+        'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password',
+        {
+          method: 'POST',
+          headers: authHeaders,
+          body: authRaw,
+          redirect: 'follow'
+        }
       );
-
-      const text = await response.text();
-
-      if (!response.ok) {
-        throw new Error(`Erro ao cadastrar médico: ${text}`);
+      console.log("📥 Status da resposta:", authResponse.status, authResponse.statusText);
+      if (!authResponse.ok) {
+        console.log("❌ Resposta não OK de criação de usuário no Auth");
+      }else{
+        navigate("/admin/doctorlist")
       }
-
-      console.log("✅ Médico criado:", text);
-
-      Swal.fire({
-        title: "Médico cadastrado com sucesso!",
-        icon: "success"
-      });
-
-      navigate("/admin/doctorlist");
-
     } catch (error) {
-      console.error("❌ Erro:", error);
+      console.error("❌ Erro no cadastro em duas etapas:", error);
       Swal.fire({
         title: "Erro ao cadastrar",
-        text: error.message,
+        text: error.message, // Exibe a mensagem de erro específica
         icon: "error"
       });
     }
