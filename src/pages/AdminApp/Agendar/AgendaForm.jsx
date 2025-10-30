@@ -5,7 +5,7 @@ import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
 import { getUserId } from "../../../utils/userInfo";
 import { useResponsive } from '../../../utils/useResponsive';
-import { sendSMS } from "../../../utils/Sendsms";
+import { sendSMS } from "../../../utils/sendSMS.js";
 
 function AgendaForm() {
   const [minDate, setMinDate] = useState("");
