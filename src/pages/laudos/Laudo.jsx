@@ -181,7 +181,6 @@ function LaudoForm() {
 		content_html: "",
 		status: "draft",
 		requested_by: "Dr.Davi",
-		content_html: "",
 	});
 	const handlePacienteChange = (selected) => {
 		setLaudos(prev => ({
