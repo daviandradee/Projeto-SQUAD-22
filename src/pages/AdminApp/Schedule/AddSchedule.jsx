@@ -2,6 +2,7 @@ import "../../../assets/css/index.css"
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
+import Swal from "sweetalert2";
 
 
 
@@ -54,7 +55,7 @@ function AddSchedule() {
     e.preventDefault();
 
     if (!doctorId || !weekday || !startTime || !endTime) {
-      alert("Preencha todos os campos obrigatórios!");
+      Swal.fire("Preencha todos os campos obrigatórios!");
       return;
     }
 
@@ -97,149 +98,155 @@ function AddSchedule() {
         return text ? JSON.parse(text) : {};
       })
       .then(() => {
-        alert("✅ Agenda criada com sucesso!");
-        navigate("/admin/doctorschedule");
+        Swal.fire({
+          title: "Sucesso!",
+          text: "Consulta criada com sucesso!",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/admin/doctorschedule");
+        })
       })
       .catch((err) => {
         console.error("❌ Erro ao criar agenda:", err);
-        alert("Erro ao criar agenda. Veja o console para mais detalhes.");
+        Swal.fire("Erro ao criar agenda. Veja o console para mais detalhes.");
       });
   };
 
   return (
     <div className="page-wrapper">
-    <div className="content">
-      <div className="row">
-        <div className="col-lg-8 offset-lg-2">
-          <h4 className="page-title">Adicionar Agenda</h4>
+      <div className="content">
+        <div className="row">
+          <div className="col-lg-8 offset-lg-2">
+            <h4 className="page-title">Adicionar Agenda</h4>
+          </div>
         </div>
-      </div>
 
-      <div className="row">
-        <div className="col-lg-8 offset-lg-2">
-          <form onSubmit={handleSubmit}>
-            {/* Médico */}
-            <div className="row">
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Médico</label>
-                  <select
-                    className="form-control"
-                    value={doctorId}
-                    onChange={(e) => setDoctorId(e.target.value)}
-                    required
-                  >
-                    <option value="">
-                      {loading ? "Carregando..." : "Selecionar"}
-                    </option>
-                    {!loading && doctors.length === 0 && (
-                      <option disabled>Nenhum médico encontrado</option>
-                    )}
-                    {doctors.map((doc) => (
-                      <option key={doc.id} value={doc.id}>
-                        {doc.full_name || doc.name || `ID: ${doc.id}`}
+        <div className="row">
+          <div className="col-lg-8 offset-lg-2">
+            <form onSubmit={handleSubmit}>
+              {/* Médico */}
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Médico</label>
+                    <select
+                      className="form-control"
+                      value={doctorId}
+                      onChange={(e) => setDoctorId(e.target.value)}
+                      required
+                    >
+                      <option value="">
+                        {loading ? "Carregando..." : "Selecionar"}
                       </option>
-                    ))}
-                  </select>
+                      {!loading && doctors.length === 0 && (
+                        <option disabled>Nenhum médico encontrado</option>
+                      )}
+                      {doctors.map((doc) => (
+                        <option key={doc.id} value={doc.id}>
+                          {doc.full_name || doc.name || `ID: ${doc.id}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Dias */}
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label>Dias disponíveis</label>
+                    <select
+                      className="form-control"
+                      value={weekday}
+                      onChange={(e) => setWeekday(e.target.value)}
+                      required
+                    >
+                      <option value="">Selecionar</option>
+                      <option value="monday">Segunda</option>
+                      <option value="tuesday">Terça</option>
+                      <option value="wednesday">Quarta</option>
+                      <option value="thursday">Quinta</option>
+                      <option value="friday">Sexta</option>
+                      <option value="saturday">Sábado</option>
+                      <option value="sunday">Domingo</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* Dias */}
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label>Dias disponíveis</label>
-                  <select
+              {/* Horários */}
+              <div className="row">
+                <div className="col-md-6">
+                  <label>Início</label>
+                  <input
+                    type="time"
                     className="form-control"
-                    value={weekday}
-                    onChange={(e) => setWeekday(e.target.value)}
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
                     required
-                  >
-                    <option value="">Selecionar</option>
-                    <option value="monday">Segunda</option>
-                    <option value="tuesday">Terça</option>
-                    <option value="wednesday">Quarta</option>
-                    <option value="thursday">Quinta</option>
-                    <option value="friday">Sexta</option>
-                    <option value="saturday">Sábado</option>
-                    <option value="sunday">Domingo</option>
-                  </select>
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <label>Fim</label>
+                  <input
+                    type="time"
+                    className="form-control"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Horários */}
-            <div className="row">
-              <div className="col-md-6">
-                <label>Início</label>
-                <input
-                  type="time"
+              {/* Tipo e Status */}
+              <div className="form-group mt-3">
+                <label>Tipo de consulta</label>
+                <select
                   className="form-control"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                />
+                  value={appointmentType}
+                  onChange={(e) => setAppointmentType(e.target.value)}
+                >
+                  <option value="presencial">Presencial</option>
+                  <option value="telemedicina">Telemedicina</option>
+                </select>
               </div>
 
-              <div className="col-md-6">
-                <label>Fim</label>
-                <input
-                  type="time"
-                  className="form-control"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  required
-                />
+              <div className="form-group">
+                <label>Status</label>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="status"
+                    value="ativo"
+                    checked={active}
+                    onChange={() => setActive(true)}
+                  />
+                  <label className="form-check-label">Ativo</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="status"
+                    value="inativo"
+                    checked={!active}
+                    onChange={() => setActive(false)}
+                  />
+                  <label className="form-check-label">Inativo</label>
+                </div>
               </div>
-            </div>
 
-            {/* Tipo e Status */}
-            <div className="form-group mt-3">
-              <label>Tipo de consulta</label>
-              <select
-                className="form-control"
-                value={appointmentType}
-                onChange={(e) => setAppointmentType(e.target.value)}
-              >
-                <option value="presencial">Presencial</option>
-                <option value="telemedicina">Telemedicina</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Status</label>
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="status"
-                  value="ativo"
-                  checked={active}
-                  onChange={() => setActive(true)}
-                />
-                <label className="form-check-label">Ativo</label>
+              <div className="text-center mt-4">
+                <button className="btn btn-primary submit-btn" type="submit">
+                  Criar agenda
+                </button>
               </div>
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="status"
-                  value="inativo"
-                  checked={!active}
-                  onChange={() => setActive(false)}
-                />
-                <label className="form-check-label">Inativo</label>
-              </div>
-            </div>
-
-            <div className="text-center mt-4">
-              <button className="btn btn-primary submit-btn" type="submit">
-                Criar agenda
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

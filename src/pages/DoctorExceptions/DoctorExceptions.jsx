@@ -93,7 +93,7 @@ export default function DoctorExceptions() {
       text: "Essa ação não pode ser desfeita.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sim, excluir",
+      confirmButtonText: "Excluir",
       cancelButtonText: "Cancelar",
     });
     if (!confirm.isConfirmed) return;

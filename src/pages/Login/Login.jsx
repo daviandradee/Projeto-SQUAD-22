@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setUserId, setUserEmail, setUserRole, setDoctorId, setPatientId, setFullName } from "../../utils/userInfo";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Login() {
       console.log(" Retorno /auth token:", loginResult);
 
       if (!loginResult.access_token) {
-        alert(loginResult.error_description || loginResult.msg || "Erro ao fazer login");
+        Swal.fire(loginResult.error_description || loginResult.msg || "Erro ao fazer login");
         return;
       }
 
@@ -67,7 +68,7 @@ export default function Login() {
       if (!userInfoRes.ok) {
         const text = await userInfoRes.text();
         console.error("Erro user-info:", userInfoRes.status, text);
-        alert(`Erro ao buscar informações do usuário (status ${userInfoRes.status}). Veja console.`);
+        Swal.fire(`Erro ao buscar informações do usuário (status ${userInfoRes.status}). Veja console.`);
         return;
       }
 
@@ -138,13 +139,13 @@ export default function Login() {
         console.log("Role detectada:", matchedRole.role);
         navigate(matchedRole.path);
       } else {
-        alert("Usuário sem função atribuída. Contate o administrador.");
+        Swal.fire("Usuário sem função atribuída. Contate o administrador.");
         console.warn("⚠️ Role não reconhecido:", userInfo);
       }
 
     } catch (error) {
       console.error("❌ Erro no processo de login/user-info:", error);
-      alert("Erro ao conectar ao servidor. Veja console para mais detalhes.");
+      Swal.fire("Erro ao conectar ao servidor. Veja console para mais detalhes.");
     }
   };
 
