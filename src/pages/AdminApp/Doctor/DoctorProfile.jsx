@@ -32,6 +32,7 @@ function DoctorProfile() {
         }
       } catch (err) {
         console.error("Erro ao buscar médico:", err);
+        Swal.fire("Erro!", err.message || "Erro ao buscar médico: ", "error");
       } finally {
         setLoading(false);
       }

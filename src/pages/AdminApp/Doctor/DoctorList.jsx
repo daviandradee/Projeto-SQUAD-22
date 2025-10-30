@@ -41,7 +41,7 @@ function Doctors() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Sim, excluir",
+      confirmButtonText: "Excluir",
       cancelButtonText: "Cancelar"
     }).then(async (result) => {
       if (result.isConfirmed) {

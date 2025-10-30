@@ -33,7 +33,7 @@ function EditDoctor() {
           setDoctorData(data[0]);
         }
       } catch (err) {
-        console.error("Erro ao buscar médico:", err);
+        Swal.fire("Erro!", err.message || "Erro ao buscar médico ", "error");
       }
     };
 
@@ -65,7 +65,7 @@ function EditDoctor() {
           neighborhood: data.bairro || "",
         }));
       })
-      .catch((err) => console.error("Erro ao buscar CEP:", err));
+      .catch((err) => Swal.fire("Erro ao buscar CEP", err));
   };
 
   // Salvar alterações
