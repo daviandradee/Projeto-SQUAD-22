@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { getAccessToken } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useResponsive } from '../../utils/useResponsive';
+import { getPatientId } from "../../utils/userInfo";
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
   const [stylePos, setStylePos] = useState({
@@ -79,7 +80,7 @@ function LaudoList() {
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
-  const patient_id = "a8039e6d-7271-4187-a719-e27d9c6d15b3"; // Substitua pelo ID real do paciente
+  const patient_id = getPatientId(); // Substitua pelo ID real do paciente
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
@@ -91,14 +92,20 @@ function LaudoList() {
     redirect: 'follow'
   };
   useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?patient_id=eq.${patient_id}&select=*`, requestOptions)
+    if (!patient_id) return;
+    
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?patient_id=eq.${patient_id}`, requestOptions)
       .then(response => response.json())
       .then(result => {
-        setLaudos(result)
+        // ✅ Garantir que sempre seja um array
+        setLaudos(Array.isArray(result) ? result : [])
         console.log(result)
       })
-      .catch(error => console.log('error', error));
-  }, [])
+      .catch(error => {
+        console.log('error', error)
+        setLaudos([]) // ✅ Em caso de erro, definir como array vazio
+      });
+  }, [patient_id])
   // FUNÇÃO AUXILIAR PARA CORES DO STATUS
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -142,7 +149,8 @@ function LaudoList() {
     navigate = `/patientapp/verlaudo?id=${laudo.id}`;
   };
 
-  const filteredLaudos = laudos.filter(l => {
+  // ✅ Garantir que laudos seja um array antes de filtrar
+  const filteredLaudos = Array.isArray(laudos) ? laudos.filter(l => {
     const q = search.toLowerCase();
     const textMatch =
       (l.order_number || "").toLowerCase().includes(q) ||
@@ -163,7 +171,7 @@ function LaudoList() {
     }
 
     return textMatch && dateMatch;
-  });
+  }) : [];
 
   return (
     <div className="main-wrapper">

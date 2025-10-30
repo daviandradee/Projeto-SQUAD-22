@@ -111,11 +111,6 @@ comandos.agregarImagen(imageUrl);
 						</svg>
 					</button> */}
                 </div>
-                <div className="right">
-                    <button onClick={handleSubmit} className="btnGuardar">
-                        <span>Editar Laudo</span>
-                    </button>
-                </div>
             </div>
         </>
     );
@@ -185,13 +180,6 @@ function VerLaudo() {
             }
         }
     }
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setLaudos((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    };
     const [pacientesMap, setPacientesMap] = useState({});
     useEffect(() => {
         if (!Laudos || !Laudos.patient_id) return;
@@ -233,63 +221,6 @@ function VerLaudo() {
 
         buscarPacientes();
     }, [Laudos]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        Swal.fire({
-            title: "Você deseja salvar as alterações?",
-            text: "As modificações serão salvas permanentemente.",
-            icon: "question",
-            showDenyButton: true,
-            showCancelButton: true,
-            cancelButtonText: "Cancelar",
-            confirmButtonText: "Salvar",
-            denyButtonText: "Não salvar",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    var myHeaders = new Headers();
-                    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-                    myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-                    myHeaders.append("Content-Type", "application/json");
-                    var raw = JSON.stringify({
-                        patient_id: Laudos.patient_id,
-                        exam: Laudos.exam,
-                        diagnosis: Laudos.diagnosis,
-                        conclusion: Laudos.conclusion,
-                        content_html: Laudos.content_html,
-                        status: "draft",
-                    });
-
-                    var requestOptions = {
-                        method: "PATCH",
-                        headers: myHeaders,
-                        body: raw,
-                        redirect: "follow",
-                    };
-
-                    const response = await fetch(
-                        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${id}`,
-                        requestOptions
-                    );
-
-                    if (response.ok) {
-                        Swal.fire("Salvo!", "", "success").then(() => {
-                            navigate("/admin/laudolist");
-                        })
-                    } else {
-                        Swal.fire("Error saving changes", "", "error");
-                    }
-                } catch (error) {
-                    Swal.fire("Something went wrong", "", "error");
-                    console.error(error);
-                }
-            } else if (result.isDenied) {
-                Swal.fire("As alterações não foram salvas", "", "info");
-            }
-        });
-    }
-
     return (
         <div className="content">
             <h4 className="page-title">Laudo Médico</h4>
@@ -318,8 +249,10 @@ function VerLaudo() {
                                 name='patient_id'
                                 type='text'
                                 id='patient_id'
+                                readOnly
                                 placeholder="Pesquisar paciente..."
                                 value={pacientesMap[Laudos.patient_id]}>
+                                
                             </input>
                             <label>Diagnóstico</label>
                             <input
@@ -329,7 +262,8 @@ function VerLaudo() {
                                 name='diagnosis'
                                 id='diagnosis'
                                 value={Laudos.diagnosis}
-                                onChange={handleChange}
+                                readOnly
+                                
                             />
                             <label>Exames</label>
                             <input
@@ -338,24 +272,26 @@ function VerLaudo() {
                                 name='exam'
                                 id='exam'
                                 value={Laudos.exam}
-                                onChange={handleChange}
+                                
                                 placeholder="Exame"
+                                readOnly
                             />
                             <label>Conclusão</label>
                             <input
+                                readOnly
                                 type="text"
                                 className="form-control mb-2"
                                 name='conclusion'
                                 id='conclusion'
                                 value={Laudos.conclusion}
-                                onChange={handleChange}
+                                
                                 placeholder="Conclusão"
                             />
                         </div>
                     </Collapse>
                 </Card>
             </div>
-            <Bar comandos={comandos} handleSubmit={handleSubmit} />
+            <Bar comandos={comandos} />
             <EditorContent editor={editor} />
         </div>
     );
