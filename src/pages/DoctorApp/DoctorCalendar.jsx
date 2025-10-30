@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import "../../assets/css/index.css";
-import { useResponsive } from '../../utils/useResponsive';
+import { getAccessToken } from '../../utils/auth';
+import { getDoctorId } from "../../utils/userInfo";
+
 
 export default function DoctorCalendar() {
   const [events, setEvents] = useState([]);
@@ -16,13 +18,95 @@ export default function DoctorCalendar() {
   const [newEvent, setNewEvent] = useState({ title: "", time: "" });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [pacientesMap, setPacientesMap] = useState({});
 
   const colorsByType = {
+    presencial: "#4dabf7",
+    online: "#f76c6c",
     Rotina: "#4dabf7",
     Cardiologia: "#f76c6c",
     Otorrino: "#f7b84d",
     Pediatria: "#6cf78b"
   };
+
+  const doctor_id = getDoctorId();
+  const tokenUsuario = getAccessToken();
+
+  // Buscar consultas do médico logado
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const requestOptions = {
+          method: "GET",
+          headers: {
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+          redirect: "follow",
+        };
+
+        const response = await fetch(
+          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${doctor_id}`,
+          requestOptions
+        );
+
+        const result = await response.json();
+        const consultas = Array.isArray(result) ? result : [];
+
+        // Buscar nomes dos pacientes
+        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            if (!res.ok) return { id, full_name: "Paciente não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const pacientes = await Promise.all(promises);
+        const map = {};
+        pacientes.forEach((p) => (map[p.id] = p.full_name));
+        setPacientesMap(map);
+
+        // Converter consultas para eventos do calendário
+        const calendarEvents = consultas.map((consulta) => {
+          const scheduledDate = new Date(consulta.scheduled_at);
+          const date = scheduledDate.toISOString().split("T")[0];
+          const time = scheduledDate.toTimeString().substring(0, 5);
+
+          return {
+            id: consulta.id,
+            title: map[consulta.patient_id] || "Paciente",
+            date: date,
+            time: time,
+            type: consulta.appointment_type || "presencial",
+            color: colorsByType[consulta.appointment_type] || "#4dabf7",
+            appointmentData: consulta, // Guardar dados completos da consulta
+          };
+        });
+
+        setEvents(calendarEvents);
+      } catch (error) {
+        console.error("Erro ao buscar consultas:", error);
+      }
+    };
+
+    if (doctor_id) {
+      fetchAppointments();
+    }
+  }, [doctor_id, tokenUsuario]);
 
   // Clicar em um dia -> abrir popup 3 etapas
   const handleDateClick = (arg) => {
@@ -107,6 +191,9 @@ export default function DoctorCalendar() {
       eventInfo.event.backgroundColor ||
       eventInfo.event.extendedProps?.color ||
       "#4dabf7";
+    
+    const appointmentType = eventInfo.event.extendedProps?.type || "presencial";
+    const typeLabel = appointmentType === "presencial" ? "Presencial" : "Online";
 
     return (
       <div
@@ -127,7 +214,7 @@ export default function DoctorCalendar() {
           overflow: "hidden",
           textOverflow: "ellipsis"
         }}
-        title={`${eventInfo.event.title} • ${eventInfo.event.extendedProps.type} • ${eventInfo.event.extendedProps.time}`} // tooltip
+        title={`${eventInfo.event.title} • ${typeLabel} • ${eventInfo.event.extendedProps.time}`} // tooltip
       >
         <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
           {eventInfo.event.title}
@@ -169,7 +256,8 @@ export default function DoctorCalendar() {
             extendedProps: {
               type: ev.type,
               time: ev.time,
-              color: ev.color // para o nosso renderEventContent
+              color: ev.color, // para o nosso renderEventContent
+              appointmentData: ev.appointmentData // dados completos da consulta
             }
           }))}
           eventContent={renderEventContent}
@@ -307,44 +395,34 @@ export default function DoctorCalendar() {
               backgroundColor: "#fff",
               padding: 20,
               borderRadius: 8,
-              width: 320,
-              textAlign: "center"
+              width: 360,
+              textAlign: "left"
             }}
           >
-            <h3 style={{ marginBottom: 4 }}>Consulta de {selectedEvent.title}</h3>
-            <p style={{ margin: 0 }}>
-              {selectedEvent.extendedProps.type} às {selectedEvent.extendedProps.time}
-            </p>
-
-            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-              <button
-                onClick={handleStartEdit}
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: "#4dabf7",
-                  color: "#fff",
-                  cursor: "pointer"
-                }}
-              >
-                Editar
-              </button>
-              <button
-                onClick={handleDeleteEvent}
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: "#f76c6c",
-                  color: "#fff",
-                  cursor: "pointer"
-                }}
-              >
-                Apagar
-              </button>
+            <h3 style={{ marginBottom: 12, textAlign: "center" }}>Detalhes da Consulta</h3>
+            <div style={{ marginBottom: 16, fontSize: "0.9rem" }}>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Paciente:</strong> {selectedEvent.title}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Tipo:</strong> {selectedEvent.extendedProps?.type === "presencial" ? "Presencial" : "Online"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Horário:</strong> {selectedEvent.extendedProps?.time || "Não informado"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Data:</strong> {new Date(selectedEvent.start).toLocaleDateString("pt-BR")}
+              </p>
+              {selectedEvent.extendedProps?.appointmentData?.chief_complaint && (
+                <p style={{ margin: "8px 0" }}>
+                  <strong>Queixa:</strong> {selectedEvent.extendedProps.appointmentData.chief_complaint}
+                </p>
+              )}
+              {selectedEvent.extendedProps?.appointmentData?.patient_notes && (
+                <p style={{ margin: "8px 0" }}>
+                  <strong>Observações:</strong> {selectedEvent.extendedProps.appointmentData.patient_notes}
+                </p>
+              )}
             </div>
 
             <button
@@ -355,12 +433,12 @@ export default function DoctorCalendar() {
                 padding: 10,
                 borderRadius: 6,
                 border: "none",
-                background: "#ccc",
-                color: "#222",
+                background: "#4dabf7",
+                color: "#fff",
                 cursor: "pointer"
               }}
             >
-              Cancelar
+              Fechar
             </button>
           </div>
         </div>

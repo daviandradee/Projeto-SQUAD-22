@@ -112,7 +112,7 @@ function AgendaDoctor() {
   // Fetch agenda
   useEffect(() => {
     fetch(
-      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability",
+      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability`,
       requestOptions
     )
       .then((res) => res.json())

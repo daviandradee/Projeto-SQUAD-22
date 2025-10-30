@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth";
+import { getUserId } from "../../utils/userInfo";
 import "./../../assets/css/index.css";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -16,6 +17,8 @@ function DoctorDashboard() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [consulta, setConsulta] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [pacientesMap, setPacientesMap] = useState({});
   const [countPaciente, setCountPaciente] = useState(0);
   const [countMedico, setCountMedico] = useState(0);
 
@@ -50,13 +53,32 @@ function DoctorDashboard() {
 
   const [value, setValue] = React.useState(0);
 
+  const [laudos, setLaudos] = useState([]);
+
+  useEffect(() => {
+    var requestOptions = {
+      method: 'GET',
+      headers: {
+        apikey:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        Authorization: `Bearer ${tokenUsuario}`,
+      },
+      redirect: 'follow'
+    };
+
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
+      .then(response => response.text())
+      .then(result => setLaudos(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, []);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const TabPanel = ({ children, value, index }) => {
-  return value === index ? <div>{children}</div> : null;
-};
+    return value === index ? <div>{children}</div> : null;
+  };
 
   const requestOptions = {
     method: "GET",
@@ -97,21 +119,71 @@ function DoctorDashboard() {
       .catch((err) => console.log(err));
   }, []);
 
+  // Buscar consultas do médico logado
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const doctor_id = getUserId();
+      if (!doctor_id) return;
+
+      try {
+        const response = await fetch(
+          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments`,
+          requestOptions
+        );
+
+        const result = await response.json();
+        const consultas = Array.isArray(result) ? result : [];
+        setAppointments(consultas);
+
+        // Buscar nomes dos pacientes
+        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            if (!res.ok) return { id, full_name: "Paciente não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const pacientes = await Promise.all(promises);
+        const map = {};
+        pacientes.forEach((p) => (map[p.id] = p.full_name));
+        setPacientesMap(map);
+      } catch (error) {
+        console.error("Erro ao buscar consultas:", error);
+      }
+    };
+
+    fetchAppointments();
+  }, [tokenUsuario]);
+
   const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
-  ({ theme }) => ({
-    textTransform: 'none',
-    fontWeight: theme.typography.fontWeightRegular,
-    fontSize: theme.typography.pxToRem(15),
-    marginRight: theme.spacing(1),
-    color: "#4dabf7",
-    '&.Mui-selected': {
-      color: "#3e7bf6ff",
-    },
-    '&.Mui-focusVisible': {
-      backgroundColor: 'rgba(100, 95, 228, 0.32)',
-    },
-  }),
-);
+    ({ theme }) => ({
+      textTransform: 'none',
+      fontWeight: theme.typography.fontWeightRegular,
+      fontSize: theme.typography.pxToRem(15),
+      marginRight: theme.spacing(1),
+      color: "#4dabf7",
+      '&.Mui-selected': {
+        color: "#3e7bf6ff",
+      },
+      '&.Mui-focusVisible': {
+        backgroundColor: 'rgba(100, 95, 228, 0.32)',
+      },
+    }),
+  );
 
   return (
     <div className="doc-content">
@@ -135,25 +207,25 @@ function DoctorDashboard() {
               <i className="fa fa-user-md" />
             </span>
             <div className="doc-dash-widget-info">
-              <h3>{consulta.length}</h3>
+              <h3>{appointments.length}</h3>
               <span>Consultas</span>
             </div>
           </div>
         </div>
-        
+
         <div className="col-md-3">
           <div className="doc-dash-widget">
             <span className="doc-dash-widget-bg1">
               <i className="fa fa-stethoscope" />
             </span>
             <div className="doc-dash-widget-info">
-              <h3>4</h3>
+              <h3>{laudos.length}</h3>
               <span>Laudos</span>
             </div>
           </div>
         </div>
 
-      <div className="col-md-3">
+        <div className="col-md-3">
           <div className="doc-dash-widget">
             <span className="doc-dash-widget-bg4">
               <i className="fa fa-heartbeat" />
@@ -167,60 +239,60 @@ function DoctorDashboard() {
       </div>
 
       <div className="row">
-  {/* Coluna do Calendário */}
-  <div className="col-lg-7 col-md-12">
-    <div
-      className="calendar-container"
-      style={{
-        padding: 20,
-        marginTop: 20,
-        borderRadius: 10,
-        backgroundColor: "#fff",
-        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-      }}
-    >
-      {DoctorCalendar()}
-    </div>
-  </div>
+        {/* Coluna do Calendário */}
+        <div className="col-lg-7 col-md-12">
+          <div
+            className="calendar-container"
+            style={{
+              padding: 20,
+              marginTop: 20,
+              borderRadius: 10,
+              backgroundColor: "#fff",
+              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+            }}
+          >
+            <DoctorCalendar />
+          </div>
+        </div>
 
-  {/* Coluna dos Pacientes */}
-  <div className="col-lg-5 col-md-12">
-    <Box sx={{ width: '100%', bgcolor: "white" , borderRadius: 2}}>
-      <Tabs value={value} onChange={handleChange} centered>
-        <StyledTab label="Pacientes" />
-        <StyledTab label="Consultas" />
-        <StyledTab label="Prontuários" />
-      </Tabs>
-    </Box>
-  <div className="card-block"
-  style={{
-    padding: "6px 8px",
-    backgroundColor: "#fff",
-    fontSize: "0.85rem",
-    lineHeight: "1.1rem",
-    boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-    height: "71vh",
-    overflowY: "auto",
-    overflowX: "hidden", 
-    wordWrap: "break-word", 
-    whiteSpace: "normal", 
-  }}
-  >
-    <div className="table-responsive"
-    style={{
-        fontSize: "0.8rem",
-      }}
-    >
+        {/* Coluna dos Pacientes */}
+        <div className="col-lg-5 col-md-12">
+          <Box sx={{ width: '100%', bgcolor: "white", borderRadius: 2 }}>
+            <Tabs value={value} onChange={handleChange} centered>
+              <StyledTab label="Pacientes" />
+              <StyledTab label="Consultas" />
+              <StyledTab label="Prontuários" />
+            </Tabs>
+          </Box>
+          <div className="card-block"
+            style={{
+              padding: "6px 8px",
+              backgroundColor: "#fff",
+              fontSize: "0.85rem",
+              lineHeight: "1.1rem",
+              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+              height: "71vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+              wordWrap: "break-word",
+              whiteSpace: "normal",
+            }}
+          >
+            <div className="table-responsive"
+              style={{
+                fontSize: "0.8rem",
+              }}
+            >
 
-      {/* Aba Pacientes */}
-      <TabPanel value={value} index={0}>
+              {/* Aba Pacientes */}
+              <TabPanel value={value} index={0}>
                 <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
                       <th>Nome</th>
                       <th>Telefone</th>
                       <th>Status</th>
-                     
+
                     </tr>
                   </thead>
                   <tbody>
@@ -229,7 +301,7 @@ function DoctorDashboard() {
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{p.phone_mobile}</td>
-                            <td>Ativo</td>
+                          <td>Ativo</td>
                         </tr>
                       ))
                     ) : (
@@ -242,77 +314,87 @@ function DoctorDashboard() {
                   </tbody>
                 </table>
                 <nav className="mt-3">
-            <ul className="pagination justify-content-center">
-              {/* Ir para a primeira página */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                  {"<<"} {/* ou "Início" */}
-                </button>
-              </li>
+                  <ul className="pagination justify-content-center">
+                    {/* Ir para a primeira página */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                        {"<<"} {/* ou "Início" */}
+                      </button>
+                    </li>
 
-              {/* Botão de página anterior */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                >
-                  &lt;
-                </button>
-              </li>
+                    {/* Botão de página anterior */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                      >
+                        &lt;
+                      </button>
+                    </li>
 
-              {/* Números de página */}
+                    {/* Números de página */}
 
-              <li className="page-item active">
-                <span className="page-link">{currentPage1}</span>
-              </li>
-              {/* Botão de próxima página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                  }
-                >
-                  &gt;
-                </button>
-              </li>
+                    <li className="page-item active">
+                      <span className="page-link">{currentPage1}</span>
+                    </li>
+                    {/* Botão de próxima página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() =>
+                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                        }
+                      >
+                        &gt;
+                      </button>
+                    </li>
 
 
-              {/* Ir para a última página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                  {">>"} {/* ou "Fim" */}
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </TabPanel>
+                    {/* Ir para a última página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                        {">>"} {/* ou "Fim" */}
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </TabPanel>
 
-        {/* Aba Consultas */}
-      <TabPanel value={value} index={1}>
+              {/* Aba Consultas */}
+              <TabPanel value={value} index={1}>
                 <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
-                      <th>Nome</th>
+                      <th>Paciente</th>
                       <th>Data</th>
                       <th>Hora</th>
-                      <th>Status</th>
-                
+                      <th>Tipo</th>
+
                     </tr>
                   </thead>
                   <tbody>
-                    {currentPatients.length > 0 ? (
-                      currentPatients.map((c) => (
-                        <tr key={c.id}>
-                          <td>{c.full_name}</td>
-                          <td>{c.created_at}</td>
-                          <td>10:00am - 11:00am</td>
-                          <td>Ativo</td>
-                        </tr>
-                      ))
+                    {appointments.length > 0 ? (
+                      appointments.slice(0, 8).map((c) => {
+                        const scheduledDate = new Date(c.scheduled_at);
+                        const date = scheduledDate.toLocaleDateString("pt-BR");
+                        const time = scheduledDate.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+
+                        return (
+                          <tr key={c.id}>
+                            <td>{pacientesMap[c.patient_id] || "Carregando..."}</td>
+                            <td>{date}</td>
+                            <td>{time}</td>
+                            <td>
+                              <span className={`badge ${c.appointment_type === 'presencial' ? 'bg-primary' : 'bg-success'}`}>
+                                {c.appointment_type === 'presencial' ? 'Presencial' : 'Online'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
-                        <td colSpan="7" className="text-center text-muted">
+                        <td colSpan="4" className="text-center text-muted">
                           Nenhuma consulta encontrada
                         </td>
                       </tr>
@@ -320,54 +402,54 @@ function DoctorDashboard() {
                   </tbody>
                 </table>
                 <nav className="mt-3">
-            <ul className="pagination justify-content-center">
-              {/* Ir para a primeira página */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                  {"<<"} {/* ou "Início" */}
-                </button>
-              </li>
+                  <ul className="pagination justify-content-center">
+                    {/* Ir para a primeira página */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                        {"<<"} {/* ou "Início" */}
+                      </button>
+                    </li>
 
-              {/* Botão de página anterior */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                >
-                  &lt;
-                </button>
-              </li>
+                    {/* Botão de página anterior */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                      >
+                        &lt;
+                      </button>
+                    </li>
 
-              {/* Números de página */}
+                    {/* Números de página */}
 
-              <li className="page-item active">
-                <span className="page-link">{currentPage1}</span>
-              </li>
-              {/* Botão de próxima página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                  }
-                >
-                  &gt;
-                </button>
-              </li>
+                    <li className="page-item active">
+                      <span className="page-link">{currentPage1}</span>
+                    </li>
+                    {/* Botão de próxima página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() =>
+                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                        }
+                      >
+                        &gt;
+                      </button>
+                    </li>
 
 
-              {/* Ir para a última página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                  {">>"} {/* ou "Fim" */}
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </TabPanel>
+                    {/* Ir para a última página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                        {">>"} {/* ou "Fim" */}
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </TabPanel>
 
-        {/* Aba Prontuários */}
-      <TabPanel value={value} index={2}>
+              {/* Aba Prontuários */}
+              <TabPanel value={value} index={2}>
                 <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
@@ -382,13 +464,13 @@ function DoctorDashboard() {
                         <tr key={p.id}>
                           <td>{p.full_name}</td>
                           <td>{p.phone_mobile}</td>
-                           <td>Ativo</td>
+                          <td>Ativo</td>
                           <td>
                             <span className={`badge ${p.status === 'ativo' ? 'bg-success' :
-                            p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
-                          }`}>
-                          {p.status}
-                        </span>
+                              p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
+                              }`}>
+                              {p.status}
+                            </span>
                           </td>
                         </tr>
                       ))
@@ -402,57 +484,57 @@ function DoctorDashboard() {
                   </tbody>
                 </table>
                 <nav className="mt-3">
-            <ul className="pagination justify-content-center">
-              {/* Ir para a primeira página */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                  {"<<"} {/* ou "Início" */}
-                </button>
-              </li>
+                  <ul className="pagination justify-content-center">
+                    {/* Ir para a primeira página */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                        {"<<"} {/* ou "Início" */}
+                      </button>
+                    </li>
 
-              {/* Botão de página anterior */}
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                >
-                  &lt;
-                </button>
-              </li>
+                    {/* Botão de página anterior */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                      >
+                        &lt;
+                      </button>
+                    </li>
 
-              {/* Números de página */}
+                    {/* Números de página */}
 
-              <li className="page-item active">
-                <span className="page-link">{currentPage1}</span>
-              </li>
-              {/* Botão de próxima página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                  }
-                >
-                  &gt;
-                </button>
-              </li>
+                    <li className="page-item active">
+                      <span className="page-link">{currentPage1}</span>
+                    </li>
+                    {/* Botão de próxima página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() =>
+                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                        }
+                      >
+                        &gt;
+                      </button>
+                    </li>
 
 
-              {/* Ir para a última página */}
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                  {">>"} {/* ou "Fim" */}
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </TabPanel>
-  </div>
+                    {/* Ir para a última página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                        {">>"} {/* ou "Fim" */}
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </TabPanel>
+            </div>
 
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</div>
   );
 }
 
