@@ -5,6 +5,7 @@ import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
 import { getUserId } from "../../../utils/userInfo";
 import { useResponsive } from '../../../utils/useResponsive';
+import { sendSMS } from "../../../utils/Sendsms";
 
 function AgendaForm() {
   const [minDate, setMinDate] = useState("");
@@ -169,16 +170,16 @@ function AgendaForm() {
   // 🔹 Envia formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.scheduled_date || !formData.scheduled_time) {
       Swal.fire("Atenção", "Selecione uma data e horário válidos", "warning");
       return;
     }
-
+  
     const scheduled_at = new Date(
       `${formData.scheduled_date}T${formData.scheduled_time}-03:00`
     ).toISOString();
-
+  
     const payload = {
       patient_id: formData.patient_id,
       doctor_id: formData.doctor_id,
@@ -190,9 +191,7 @@ function AgendaForm() {
       insurance_provider: formData.insurance_provider,
       created_by: getUserId(),
     };
-
-    console.log("Payload criar consulta:", payload);
-
+  
     try {
       const response = await fetch(
         "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
@@ -207,8 +206,28 @@ function AgendaForm() {
           body: JSON.stringify(payload),
         }
       );
-
+  
       if (response.ok) {
+        const consultaCriada = await response.json();
+  
+        // 🔹 Busca o telefone do paciente selecionado
+        const pacienteSelecionado = pacientes.find(
+          (p) => p.id === formData.patient_id
+        );
+        const telefone = pacienteSelecionado?.phone || pacienteSelecionado?.telefone;
+  
+        if (telefone) {
+          const mensagem = `Lembrete: sua consulta é dia ${formData.scheduled_date} às ${formData.scheduled_time} na Clínica MediConnect.`;
+          try {
+            await sendSMS(telefone, mensagem, formData.patient_id);
+            console.log("✅ SMS enviado com sucesso!");
+          } catch (smsError) {
+            console.error("❌ Erro ao enviar SMS:", smsError);
+          }
+        } else {
+          console.warn("⚠️ Paciente sem telefone cadastrado — SMS não enviado.");
+        }
+  
         Swal.fire({
           title: "Sucesso!",
           text: "Consulta criada com sucesso!",
