@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setUserId, setUserEmail, setUserRole } from "../../utils/userInfo";
+import { setUserId, setUserEmail, setUserRole, setDoctorId, setPatientId, setFullName } from "../../utils/userInfo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -72,21 +72,50 @@ export default function Login() {
       }
 
       const userInfo = await userInfoRes.json();
-      console.log(" Dados completos do usuário:", userInfo);
+      console.log("📋 Dados completos do usuário:", userInfo);
 
       
       const userData = {
         id: userInfo.profile?.id,
         email: userInfo.user?.email,
-        role: userInfo.roles || [] 
+        role: userInfo.roles || [],
+        doctor_id: userInfo.profile?.doctor_id || userInfo.doctor_id || null,
+        patient_id: userInfo.profile?.patient_id || userInfo.patient_id || null,
+        full_name: userInfo.profile?.full_name || userInfo.user?.user_metadata?.full_name || userInfo.user?.email?.split('@')[0] || null
       };
 
       if (userData.id) {
         setUserId(userData.id);
         setUserEmail(userData.email);
-        console.log(" User info salva:", userData.id, userData.email, userData.role);
+        
+        // Se o usuário for médico, salva o doctor_id
+        if (userData.doctor_id) {
+          setDoctorId(userData.doctor_id);
+          console.log("🩺 Doctor ID salvo:", userData.doctor_id);
+        }
+        
+        // Se o usuário for paciente, salva o patient_id
+        if (userData.patient_id) {
+          setPatientId(userData.patient_id);
+          console.log("👤 Patient ID salvo:", userData.patient_id);
+        }
+        
+        // Salva o nome completo
+        if (userData.full_name) {
+          setFullName(userData.full_name);
+          console.log("📝 Nome completo salvo:", userData.full_name);
+        }
+        
+        console.log("✅ User info salva:", {
+          id: userData.id,
+          email: userData.email,
+          role: userData.role,
+          doctor_id: userData.doctor_id || "sem doctor_id",
+          patient_id: userData.patient_id || "sem patient_id",
+          full_name: userData.full_name || "sem full_name"
+        });
       } else {
-        console.warn(" Não foi possível salvar userInfo, id não encontrado", userInfo);
+        console.warn("⚠️ Não foi possível salvar userInfo, id não encontrado", userInfo);
       }
 
       

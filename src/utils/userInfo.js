@@ -29,8 +29,41 @@ export function getUserRole() {
 }
 
 
+export function setDoctorId(doctorId) {
+    localStorage.setItem("doctor_id", doctorId);
+}
+
+
+export function getDoctorId() {
+    return localStorage.getItem("doctor_id");
+}
+
+
+export function setPatientId(patientId) {
+    localStorage.setItem("patient_id", patientId);
+}
+
+
+export function getPatientId() {
+    return localStorage.getItem("patient_id");
+}
+
+
+export function setFullName(fullName) {
+    localStorage.setItem("full_name", fullName);
+}
+
+
+export function getFullName() {
+    return localStorage.getItem("full_name");
+}
+
+
 export function clearUserInfo() {
     localStorage.removeItem("user_id");
     localStorage.removeItem("user_email");
     localStorage.removeItem("user_role");
+    localStorage.removeItem("doctor_id");
+    localStorage.removeItem("patient_id");
+    localStorage.removeItem("full_name");
 }

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Swal from "sweetalert2"; // 🧁 importando SweetAlert2
 import { getAccessToken } from "../../../utils/auth";
 import { useResponsive } from '../../../utils/useResponsive';
+import { getDoctorId } from "../../../utils/userInfo";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -81,7 +82,7 @@ function LaudoListDoctor() {
   const ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
-  const doctor_id = 	"c7fcd702-9a6e-4b7c-abd3-956b25af407d";
+  const doctor_id = 	getDoctorId();
 
   // 🔹 Listar consultas do médico logado
   useEffect(() => {
@@ -96,7 +97,7 @@ function LaudoListDoctor() {
   };
 
     fetch(
-      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?doctor_id=eq.${doctor_id}`, requestOptions
+      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports`, requestOptions
 
     )
       .then((res) => res.json())
@@ -273,8 +274,8 @@ function LaudoListDoctor() {
         </div>
 
         <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/doctor/DoctorConsultaForm" className="btn btn-primary btn-rounded">
-            <i className="fa fa-plus"></i> Adicionar consulta
+          <Link to="/doctor/laudoform" className="btn btn-primary btn-rounded">
+            <i className="fa fa-plus"></i> Adicionar Laudo
           </Link>
         </div>
       </div>
