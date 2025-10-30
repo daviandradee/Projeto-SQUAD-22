@@ -1,4 +1,245 @@
 /* ============
+   RESET GERAL
+   ============ */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ============
+   MODO CLARO (PADRÃO)
+   ============ */
+body {
+  background: #f5f8ff !important;
+  color: #111 !important;
+  font-family: "Inter", sans-serif;
+}
+
+/* ============
+   MODO ESCURO
+   ============ */
+body.dark-mode {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Containers principais */
+body.dark-mode #root,
+body.dark-mode .app,
+body.dark-mode .main-container,
+body.dark-mode .page-wrapper,
+body.dark-mode .content {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* ============
+   CHATBOT - CORREÇÃO DAS LISTRAS BRANCAS (AJUSTADO)
+   ============ */
+body.dark-mode .container-chatbox {
+  background: #0f172a !important;
+  /* MANTÉM o tamanho original, só muda a cor de fundo */
+}
+
+body.dark-mode .chatbot-popup {
+  background: #0f172a !important;
+  /* MANTÉM o tamanho original, só muda a cor de fundo */
+  border: 1px solid #334155 !important;
+}
+
+body.dark-mode .chat-body {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .chat-footer {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-top: 1px solid #334155 !important;
+}
+
+body.dark-mode .message-text {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .message-input {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+/* ============
+   MODAIS - CORREÇÃO DOS MODAIS CLAROS
+   ============ */
+body.dark-mode .modal-content {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark-mode .modal-header {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+body.dark-mode .modal-body {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .modal-footer {
+  background: #0f172a !important;
+  border-top: 1px solid #334155 !important;
+}
+
+body.dark-mode .btn-close {
+  filter: invert(1) !important;
+}
+
+/* ============
+   FORMULÁRIOS
+   ============ */
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .form-check-input {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #3399ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(51, 153, 255, 0.25) !important;
+}
+
+body.dark-mode .form-check-label {
+  color: #e2e8f0 !important;
+}
+
+/* ============
+   TABELAS
+   ============ */
+body.dark-mode .table {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .table th {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .table td {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #192230 !important;
+}
+
+/* ============
+   BOTÕES
+   ============ */
+body.dark-mode .btn-secondary {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .btn-white {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+/* ============
+   TEXTOS
+   ============ */
+body.dark-mode .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* ============
+   CARDS E CONTAINERS
+   ============ */
+body.dark-mode .card,
+body.dark-mode .card-box,
+body.dark-mode .profile-widget {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+/* ============
+   BOTÃO ACESSIBILIDADE
+   ============ */
+.acc-btn {
+  position: fixed;
+  right: 90px;
+  bottom: 30px;
+  z-index: 3000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background-color: #3399ff;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.acc-btn:hover {
+  background-color: #4da6ff;
+}
+
+.acc-btn.active {
+  border: 2px solid #fff;
+}
+
+/* ============
+   PAINEL ACESSIBILIDADE
+   ============ */
+.acc-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 30px;
+  background: #ffffff;
+  color: #000;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 4000;
+}
+
+body.dark-mode .acc-panel {
+  background: #1e293b !important;
+  color: #f9fafb !important;
+  border: 1px solid #334155 !important;
+}
+
+/* ADICIONE AQUI O RESTO DO SEU darkmode.css ORIGINAL */
+/* (mantenha todas as outras regras que você já tinha) */
+
+/* ============
    ESTILOS BASE
    ============ */
 body {
