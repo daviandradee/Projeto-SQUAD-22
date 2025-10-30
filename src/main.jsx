@@ -14,6 +14,7 @@ import App from "./pages/Layout/AdminApp.jsx";           // Layout Admin
 import DoctorApp from "./pages/Layout/DoctorApp.jsx";
 import PatientApp from "./pages/Layout/PatientApp.jsx";
 import SecretariaApp from "./pages/Layout/SecretariaApp.jsx";
+import FinanceiroApp from "./pages/Layout/FinanceiroApp.jsx";
 
 // Páginas Admin
 import Dashboard from "./pages/AdminApp/AdminDashboard/AdminDashboard.jsx";
@@ -78,6 +79,10 @@ import AgendaAdd from "./pages/DoctorApp/Agenda/AgendaAdd.jsx";
 import Doctorexceçao from "./pages/DoctorApp/Doctorexceçao.jsx";
 import VerLaudo from "./pages/PacienteApp/VerLaudo.jsx";
 import MarcarConsulta from "./pages/PacienteApp/MarcarConsulta.jsx";
+
+// Páginas Financeiro
+import FinanceiroDashboard from "./pages/FinanceiroApp/FinanceiroDashboard.jsx";
+import Transações from "./pages/FinanceiroApp/Transações/Transações.jsx";
 
 // Criando o router com todas as rotas
 const router = createBrowserRouter([
@@ -176,6 +181,17 @@ const router = createBrowserRouter([
         { path: "verlaudo/:id", element: <VerLaudo /> },
       { path: "marcarconsulta", element: <MarcarConsulta /> },
 
+    ],
+  },
+
+  // Rotas Financeiro
+  {
+    path: "/financeiro",
+    element: <FinanceiroApp />,
+    children: [
+      { index: true, element: <Transações /> },
+      { path: "dashboard", element: <FinanceiroDashboard /> },
+      { path: "transacoes", element: <Transações /> },
     ],
   },
 ]);
