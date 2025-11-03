@@ -76,7 +76,7 @@ export default function DoctorExceptions() {
         },
         body: JSON.stringify(body),
       });
-
+      console.log("Criar exceção - resposta da API:", body); // DEBUG
       if (!res.ok) throw new Error(await res.text());
       await res.json();
       await loadExceptions();

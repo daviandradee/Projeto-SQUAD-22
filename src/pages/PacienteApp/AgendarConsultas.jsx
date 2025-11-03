@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Grid, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Button, 
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Button,
   Avatar,
   Box,
   Chip,
@@ -22,10 +22,10 @@ import {
   Checkbox,
   FormControlLabel
 } from '@mui/material';
-import { 
-  ArrowBack, 
-  CalendarToday, 
-  AccessTime, 
+import {
+  ArrowBack,
+  CalendarToday,
+  AccessTime,
   Person,
   LocalHospital,
   CheckCircle,
@@ -35,6 +35,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { getAccessToken } from "../../utils/auth";
+import { getPatientId } from "../../utils/userInfo";
 
 const AgendarConsulta = () => {
   const { medicoId } = useParams();
@@ -50,19 +52,49 @@ const AgendarConsulta = () => {
   const [enviarEmail, setEnviarEmail] = useState(true);
   const [enviarSMS, setEnviarSMS] = useState(true);
   const [minDate, setMinDate] = useState("");
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
+  const [formData, setFormData] = useState({
+    scheduled_date: "",
+    scheduled_time: "",
+    chief_complaint: "",
+    patient_notes: ""
+  });
   let [confirmationModal, setConfirmationModal] = useState(false);
 
-  confirmationModal = async () => {
-              Swal.fire({
-                title: "Consulta marcada",
-                text: `Sua consulta com ${medico.nome} foi marcada com sucesso.`,
-                icon: "success",
-                timer: 1800,
-                showConfirmButton: false,
-              });
-              setConfirmationModal(true);
-              navigate("/patientapp/minhasconsultas");
-            }
+  const tokenUsuario = getAccessToken();
+  const patientId = getPatientId();
+
+  const headers = {
+    "Content-Type": "application/json",
+    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+    Authorization: `Bearer ${tokenUsuario}`,
+  };
+
+  const handleConfirmationModal = async () => {
+    if (!dataSelecionada || !horarioSelecionado) {
+      alert("Selecione uma data e horário válidos");
+      return;
+    }
+
+    const confirm = window.confirm(`
+      Confirmar agendamento:
+      
+      Médico: Dr. ${medico?.nome}
+      Especialidade: ${medico?.especialidade}
+      Data: ${new Date(dataSelecionada).toLocaleDateString('pt-BR')}
+      Horário: ${horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ''}
+      Valor: R$ ${medico?.valorConsulta}
+      
+      Deseja confirmar?
+    `);
+
+    if (confirm) {
+      await confirmarAgendamento();
+
+      alert(`Consulta marcada com sucesso! Sua consulta com Dr. ${medico.nome} foi agendada.`);
+      navigate("/patientapp/minhasconsultas");
+    }
+  };
 
   useEffect(() => {
     const getToday = () => {
@@ -103,32 +135,103 @@ const AgendarConsulta = () => {
   const carregarMedicoEHorarios = async () => {
     setLoading(true);
     try {
-      // TODO: Substituir pelas APIs reais
-      // const medicoResponse = await fetch(`/api/medicos/${medicoId}`);
-      // const medicoData = await medicoResponse.json();
-      
-      // const horariosResponse = await fetch(`/api/medicos/${medicoId}/horarios-disponiveis`);
-      // const horariosData = await horariosResponse.json();
+      // Buscar dados do médico
+      const medicoResponse = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${medicoId}`,
+        { headers }
+      );
 
-      // Usando dados mock
-      setTimeout(() => {
-        setMedico(medicoMock);
-        setHorariosDisponiveis(horariosMock);
-        
-        if (horariosMock.length > 0) {
-          setDataSelecionada(horariosMock[0].data);
+      if (medicoResponse.ok) {
+        const medicoData = await medicoResponse.json();
+        if (medicoData.length > 0) {
+          const doctorData = medicoData[0];
+          setMedico({
+            id: doctorData.id,
+            nome: doctorData.full_name,
+            especialidade: doctorData.specialty,
+            valorConsulta: 250, // Valor fixo por enquanto
+            foto: '',
+            biografia: doctorData.bio || 'Especialista em ' + doctorData.specialty
+          });
+        } else {
+          throw new Error('Médico não encontrado');
         }
-        
-        setLoading(false);
-      }, 1000);
-      
+      } else {
+        throw new Error('Erro ao carregar dados do médico');
+      }
+
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       setMedico(medicoMock);
-      setHorariosDisponiveis(horariosMock);
       setLoading(false);
     }
   };
+
+  // Função para buscar horários disponíveis
+  const fetchHorariosDisponiveis = async (date) => {
+    if (!medicoId || !date) {
+      setHorariosDisponiveis([]);
+      return;
+    }
+
+    setCarregandoHorarios(true);
+
+    const startDate = `${date}T00:00:00.000Z`;
+    const endDate = `${date}T23:59:59.999Z`;
+
+    const payload = {
+      doctor_id: medicoId,
+      start_date: startDate,
+      end_date: endDate,
+      appointment_type: "presencial",
+    };
+
+    try {
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("🔍 AgendarConsultas - Resposta da Edge Function:", data);
+
+      if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
+
+      // Usar exatamente o mesmo formato do AgendaForm
+      const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+
+      console.log("✅ Slots disponíveis após filtro:", slotsDisponiveis);
+      console.log("🔍 Todos os slots (antes do filtro):", data?.slots);
+      console.log("❌ Slots NÃO disponíveis:", (data?.slots || []).filter((s) => !s.available));
+
+      console.log("✅ AgendarConsultas - Slots disponíveis após filtro:", slotsDisponiveis);
+
+      setHorariosDisponiveis(slotsDisponiveis);
+
+      if (slotsDisponiveis.length === 0) {
+        alert("Nenhum horário disponível para este dia.");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar horários disponíveis:", error);
+      setHorariosDisponiveis([]);
+      alert("Não foi possível obter os horários disponíveis.");
+    } finally {
+      setCarregandoHorarios(false);
+    }
+  };
+
+  // Atualizar horários quando a data muda
+  useEffect(() => {
+    if (dataSelecionada && medicoId) {
+      fetchHorariosDisponiveis(dataSelecionada);
+    }
+  }, [dataSelecionada, medicoId]);
 
   const selecionarHorario = (horario) => {
     setHorarioSelecionado(horario);
@@ -138,45 +241,59 @@ const AgendarConsulta = () => {
 
   const confirmarAgendamento = async () => {
     setAgendando(true);
-    
+
     try {
-      // TODO: Substituir pela API real de agendamento
-      const agendamentoData = {
-        medicoId: medico.id,
-        medicoNome: medico.nome,
-        especialidade: medico.especialidade,
-        data: dataSelecionada,
-        hora: horarioSelecionado.hora,
-        horarioId: horarioSelecionado.id,
-        valorConsulta: medico.valorConsulta,
-        enviarEmail,
-        enviarSMS
+      if (!horarioSelecionado || !horarioSelecionado.datetime) {
+        throw new Error("Horário não selecionado corretamente");
+      }
+
+      // Usar exatamente o mesmo formato que o AgendaForm
+      const scheduled_at = horarioSelecionado.datetime;
+
+      const payload = {
+        patient_id: patientId,
+        doctor_id: medicoId,
+        scheduled_at,
+        duration_minutes: 30,
+        appointment_type: "presencial",
+        chief_complaint: formData.chief_complaint || "Consulta agendada pelo paciente",
+        patient_notes: formData.patient_notes || "",
+        created_by: patientId,
       };
 
-      // Simulando API de agendamento
-      // const response = await fetch('/api/consultas/agendar', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(agendamentoData)
-      // });
+      const response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-      // if (!response.ok) throw new Error('Erro ao agendar');
-      
-      // Simulando sucesso
-      setTimeout(() => {
+      if (response.ok) {
+        const consultaCriada = await response.json();
+        console.log("Consulta criada:", consultaCriada);
+
         setActiveStep(2);
         setAgendando(false);
-        
-        // Aqui a consulta seria adicionada automaticamente na agenda do médico
-        console.log('Consulta agendada na agenda do médico:', agendamentoData);
-        
-      }, 2000);
-      
+
+        // Aqui você pode adicionar envio de SMS se necessário
+        // if (enviarSMS) {
+        //   await sendSMS(telefone, mensagem, patientId);
+        // }
+
+      } else {
+        const error = await response.json();
+        console.error("Erro da API:", error);
+        throw new Error("Não foi possível criar a consulta");
+      }
+
     } catch (error) {
       console.error('Erro no agendamento:', error);
-      alert('Erro ao realizar agendamento. Tente novamente.');
+      alert(error.message || "Erro ao realizar agendamento. Tente novamente.");
       setAgendando(false);
     }
   };
@@ -186,7 +303,7 @@ const AgendarConsulta = () => {
     navigate('/patientapp/minhasconsultas');
   };
 
-  const datasDisponiveis = [...new Set(horariosDisponiveis.map(h => h.data))];
+  // Não precisamos mais da linha datasDisponiveis, pois usamos a Edge Function
   const horariosDaData = horariosDisponiveis.filter(h => h.data === dataSelecionada);
 
   const renderStepContent = (step) => {
@@ -197,26 +314,26 @@ const AgendarConsulta = () => {
             <Typography variant="h6" gutterBottom>
               Confirme os dados da consulta:
             </Typography>
-            
+
             <Paper sx={{ p: 2, mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Person sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography><strong>Médico:</strong> Dr. {medico.nome}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <LocalHospital sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography><strong>Especialidade:</strong> {medico.especialidade}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CalendarToday sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography><strong>Data:</strong> {new Date(dataSelecionada).toLocaleDateString('pt-BR')}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccessTime sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography><strong>Horário:</strong> {horarioSelecionado?.hora}</Typography>
+                <Typography><strong>Horário:</strong> {horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ''}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -236,10 +353,10 @@ const AgendarConsulta = () => {
             <Typography variant="h6" gutterBottom>
               Escolha como deseja receber as confirmações:
             </Typography>
-            
+
             <FormControlLabel
               control={
-                <Checkbox 
+                <Checkbox
                   checked={enviarEmail}
                   onChange={(e) => setEnviarEmail(e.target.checked)}
                   icon={<Email />}
@@ -249,10 +366,10 @@ const AgendarConsulta = () => {
               label="Receber confirmação por E-mail"
               sx={{ mb: 2, display: 'block' }}
             />
-            
+
             <FormControlLabel
               control={
-                <Checkbox 
+                <Checkbox
                   checked={enviarSMS}
                   onChange={(e) => setEnviarSMS(e.target.checked)}
                   icon={<Sms />}
@@ -277,7 +394,7 @@ const AgendarConsulta = () => {
               Consulta Agendada com Sucesso!
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              Sua consulta foi agendada para {new Date(dataSelecionada).toLocaleDateString('pt-BR')} às {horarioSelecionado?.hora}
+              Sua consulta foi agendada para {new Date(dataSelecionada).toLocaleDateString('pt-BR')} às {horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ''}
             </Typography>
             <Alert severity="success">
               A consulta foi adicionada à agenda do Dr. {medico.nome} e as confirmações foram enviadas.
@@ -309,8 +426,8 @@ const AgendarConsulta = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Button 
-        startIcon={<ArrowBack />} 
+      <Button
+        startIcon={<ArrowBack />}
         onClick={() => navigate('/patientapp/medicosdisponiveis')}
         sx={{ mb: 3 }}
       >
@@ -321,10 +438,10 @@ const AgendarConsulta = () => {
       <Card sx={{ mb: 4 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Avatar 
-              sx={{ 
-                width: 60, 
-                height: 60, 
+            <Avatar
+              sx={{
+                width: 60,
+                height: 60,
                 mr: 2,
                 bgcolor: 'primary.main',
                 fontSize: '1.5rem',
@@ -347,63 +464,111 @@ const AgendarConsulta = () => {
       </Card>
       <form>
         <hr />
-                <h3>Informações do atendimento</h3>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Data<span className="text-danger">*</span></label>
-                      <div>
-                        <input
-                          type="date"
-                          className="form-control"
-                          min={minDate}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label>Horas<span className="text-danger">*</span></label>
-                      <div>
-                        <input type="time" className="form-control" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Observação</label>
-                  <textarea cols="30" rows="4" className="form-control"></textarea>
-                </div>
+        <h3>Informações do atendimento</h3>
+        <div className="row">
+          <div className="col-md-6">
+            <div className="form-group">
+              <label>Data<span className="text-danger">*</span></label>
+              <div>
+                <input
+                  type="date"
+                  className="form-control"
+                  min={minDate}
+                  value={dataSelecionada}
+                  onChange={(e) => setDataSelecionada(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div className="form-group">
+              <label>Horários Disponíveis<span className="text-danger">*</span></label>
+              <div>
+                <select
+                  className="form-control"
+                  value={horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ""}
+                  onChange={(e) => {
+                    const horaValue = e.target.value;
+                    const horario = horariosDisponiveis.find(slot => {
+                      const hora = slot.datetime.split("T")[1].substring(0, 5);
+                      return hora === horaValue;
+                    });
+                    setHorarioSelecionado(horario);
+                  }}
+                  disabled={carregandoHorarios || !horariosDisponiveis.length}
+                >
+                  <option value="">
+                    {carregandoHorarios
+                      ? "Carregando horários..."
+                      : horariosDisponiveis.length
+                        ? "Selecione um horário"
+                        : "Nenhum horário disponível"}
+                  </option>
+                  {horariosDisponiveis.map((slot) => {
+                    const hora = slot.datetime.split("T")[1].substring(0, 5);
+                    return (
+                      <option key={slot.datetime} value={hora}>
+                        {hora}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Motivo da consulta</label>
+          <input
+            type="text"
+            className="form-control"
+            value={formData.chief_complaint}
+            onChange={(e) => setFormData(prev => ({ ...prev, chief_complaint: e.target.value }))}
+            placeholder="Ex: Dor no peito, consulta de rotina..."
+          />
+        </div>
+        <div className="form-group">
+          <label>Observações</label>
+          <textarea
+            cols="30"
+            rows="4"
+            className="form-control"
+            value={formData.patient_notes}
+            onChange={(e) => setFormData(prev => ({ ...prev, patient_notes: e.target.value }))}
+            placeholder="Observações adicionais (opcional)"
+          ></textarea>
+        </div>
 
-                <div className="form-group">
-                  <label className="display-block">Status da consulta</label>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      name="status"
-                      id="product_active"
-                      value="option1"
-                      defaultChecked
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="product_active"
-                    >
-                      Receber confirmação por SMS
-                    </label>
-                  </div>
-                </div>
+        <div className="form-group">
+          <label className="display-block">Status da consulta</label>
+          <div className="form-check form-check-inline">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              name="status"
+              id="product_active"
+              value="option1"
+              defaultChecked
+            />
+            <label
+              className="form-check-label"
+              htmlFor="product_active"
+            >
+              Receber confirmação por SMS
+            </label>
+          </div>
+        </div>
 
-                <div className="m-t-20 text-center">
-                    <button
-                      className="btn btn-primary submit-btn"
-                      type="button"
-                      onClick={confirmationModal}
-                      >
-                      Marcar consulta
-                    </button>
-                </div>
+        <div className="m-t-20 text-center">
+          <button
+            className="btn btn-primary submit-btn"
+            type="button"
+            onClick={handleConfirmationModal}
+            disabled={agendando || !dataSelecionada || !horarioSelecionado}
+          >
+            {agendando ? "Agendando..." : "Marcar consulta"}
+          </button>
+        </div>
       </form>
     </Container>
   );

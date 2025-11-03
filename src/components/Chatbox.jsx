@@ -499,7 +499,7 @@ function Chatbox() {
 
                 updateHistory(`Ok, verificando horários livres para ${ptWeekday} (${dateInput})...`);
 
-                // Cria datas sem conversão de fuso para consulta no banco
+                // Cria datas no mesmo formato que o AgendaForm (sem conversão de fuso)
                 const startDate = `${isoDateStr}T00:00:00.000Z`;
                 const endDate = `${isoDateStr}T23:59:59.999Z`;
 
@@ -510,92 +510,45 @@ function Chatbox() {
                     appointment_type: "presencial"
                 };
 
-                // Removi o console.log do payload daqui
+                console.log("🚀 Chatbox - Payload enviado para get-available-slots:", payload);
+                console.log("🔑 Chatbox - Token do usuário:", token ? "EXISTS" : "NULL");
+                console.log("👤 Chatbox - Patient ID:", patient_id);
+                console.log("🆔 Chatbox - Doctor ID sendo consultado:", data.selectedDoctor?.id || "Ainda não selecionado");
 
                 try {
-                    // Busca horários disponíveis diretamente do banco para o médico e data selecionados
-                    const doctorAvailability = disponibilidadeMedicos.filter(slot => 
-                        slot.doctor_id === data.selectedDoctor.id && 
-                        slot.weekday.toLowerCase() === dbCheckWeekday
-                    );
-
-                    if (doctorAvailability.length === 0) {
-                        updateHistory(`Desculpe, não há horários cadastrados para ${data.selectedDoctor.full_name} no dia ${dateInput}. Por favor, escolha outra data.`);
-                        return;
-                    }
-
-                    // Busca agendamentos já existentes para este médico nesta data
-                    const appointmentsResponse = await fetch(
-                        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${data.selectedDoctor.id}&scheduled_at=gte.${startDate}&scheduled_at=lt.${endDate}`,
-                        { method: "GET", headers }
-                    );
-
-                    const existingAppointments = appointmentsResponse.ok ? await appointmentsResponse.json() : [];
-                    console.log("Agendamentos existentes:", existingAppointments);
-                    console.log("Consultando entre:", startDate, "e", endDate);
-
-                    // Gera horários disponíveis baseado na disponibilidade cadastrada
-                    const availableSlots = [];
-                    
-                    doctorAvailability.forEach(availability => {
-                        const startTime = availability.start_time; // Ex: "08:00:00"
-                        const endTime = availability.end_time;     // Ex: "17:00:00"
-                        
-                        // Converte horários para minutos para facilitar cálculos
-                        const startMinutes = timeToMinutes(startTime);
-                        const endMinutes = timeToMinutes(endTime);
-                        const slotDuration = 30; // 30 minutos por consulta
-
-                        for (let minutes = startMinutes; minutes < endMinutes; minutes += slotDuration) {
-                            const slotTime = minutesToTime(minutes);
-                            // Especifica o fuso horário brasileiro (-03:00) para evitar conversões indesejadas
-                            const slotDateTime = `${isoDateStr}T${slotTime}-03:00`;
-
-                            // Verifica se já existe agendamento neste horário
-                            const isOccupied = existingAppointments.some(apt => {
-                                // Converte ambas as datas para timestamp brasileiro para comparação precisa
-                                const aptDateTime = new Date(apt.scheduled_at);
-                                const slotDateTime_parsed = new Date(slotDateTime);
-                                
-                                console.log(`Data agendamento original: ${apt.scheduled_at}`);
-                                console.log(`Data slot original: ${slotDateTime}`);
-                                
-                                // Extrai apenas hora e minuto de cada um (no horário local brasileiro)
-                                const aptBrazilTime = aptDateTime.toLocaleString('pt-BR', {
-                                    timeZone: 'America/Sao_Paulo',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                });
-                                
-                                const slotBrazilTime = slotDateTime_parsed.toLocaleString('pt-BR', {
-                                    timeZone: 'America/Sao_Paulo', 
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                });
-                                
-                                console.log(`Comparando horários BR: Agendamento ${aptBrazilTime} vs Slot ${slotBrazilTime}`);
-                                
-                                return aptBrazilTime === slotBrazilTime;
-                            });
-
-                            if (!isOccupied) {
-                                console.log(`✅ Slot disponível: ${slotTime.substring(0, 5)} (${slotDateTime})`);
-                                availableSlots.push({
-                                    displayTime: slotTime.substring(0, 5), // "HH:MM"
-                                    originalDateTime: slotDateTime
-                                });
-                            } else {
-                                console.log(`❌ Slot ocupado: ${slotTime.substring(0, 5)} (${slotDateTime})`);
-                            }
+                    // USA A MESMA EDGE FUNCTION que o AgendaForm para garantir consistência
+                    const response = await fetch(
+                        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+                        {
+                            method: "POST",
+                            headers,
+                            body: JSON.stringify(payload),
                         }
-                    });
+                    );
 
-                    if (availableSlots.length === 0) {
-                        updateHistory(`Desculpe, não há horários livres para ${data.selectedDoctor.full_name} no dia ${dateInput}. Todos os horários já estão ocupados. Por favor, escolha outra data.`);
+                    const data_slots = await response.json();
+
+                    console.log("🔍 Chatbox (Paciente) - Resposta da Edge Function:", data_slots);
+
+                    if (!response.ok) throw new Error(data_slots.error || "Erro ao buscar horários");
+
+                    // Usa exatamente a mesma lógica do AgendaForm
+                    const slotsDisponiveis = (data_slots?.slots || []).filter((s) => s.available);
+                    
+                    console.log("✅ Chatbox (Paciente) - Slots disponíveis após filtro:", slotsDisponiveis);
+                    console.log("🔍 Chatbox (Paciente) - Todos os slots (antes do filtro):", data_slots?.slots);
+                    console.log("❌ Chatbox (Paciente) - Slots NÃO disponíveis:", (data_slots?.slots || []).filter((s) => !s.available));
+
+                    if (slotsDisponiveis.length === 0) {
+                        updateHistory(`Desculpe, não há horários livres para ${data.selectedDoctor.full_name} no dia ${dateInput}. Por favor, escolha outra data.`);
                         return;
                     }
+
+                    // Converte para o formato que o chatbox espera
+                    const availableSlots = slotsDisponiveis.map((slot) => ({
+                        displayTime: slot.datetime.split("T")[1].substring(0, 5), // "HH:MM"
+                        originalDateTime: slot.datetime
+                    }));
 
                     // Mostra os horários disponíveis para o usuário
                     const slotsListText = availableSlots.map(slot => `- ${slot.displayTime}`).join('\n');
