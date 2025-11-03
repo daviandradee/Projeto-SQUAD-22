@@ -104,8 +104,8 @@ function AgendaForm() {
 
     setCarregandoHorarios(true);
 
-    const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
-    const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+    const startDate = `${date}T00:00:00.000Z`;
+    const endDate = `${date}T23:59:59.999Z`;
 
     const payload = {
       doctor_id: doctorId,
@@ -114,7 +114,8 @@ function AgendaForm() {
       appointment_type: appointmentType || "presencial",
     };
 
-    console.log("Payload enviado para get-available-slots:", payload);
+    console.log("🚀 AgendaForm - Payload enviado para get-available-slots:", payload);
+    console.log("🔑 AgendaForm - Token do usuário:", tokenUsuario ? "EXISTS" : "NULL");
 
     try {
       const response = await fetch(
@@ -133,9 +134,16 @@ function AgendaForm() {
       const data = await response.json();
       setApiResponse(data);
 
+      console.log("🔍 AgendaForm (Admin) - Resposta da Edge Function:", data);
+
       if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
 
       const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
+      
+      console.log("✅ AgendaForm (Admin) - Slots disponíveis após filtro:", slotsDisponiveis);
+      console.log("🔍 AgendaForm (Admin) - Todos os slots (antes do filtro):", data?.slots);
+      console.log("❌ AgendaForm (Admin) - Slots NÃO disponíveis:", (data?.slots || []).filter((s) => !s.available));
+      
       setHorariosDisponiveis(slotsDisponiveis);
 
       if (slotsDisponiveis.length === 0)
@@ -176,9 +184,7 @@ function AgendaForm() {
       return;
     }
   
-    const scheduled_at = new Date(
-      `${formData.scheduled_date}T${formData.scheduled_time}-03:00`
-    ).toISOString();
+    const scheduled_at = `${formData.scheduled_date}T${formData.scheduled_time}:00Z`;
   
     const payload = {
       patient_id: formData.patient_id,
@@ -410,11 +416,7 @@ function AgendaForm() {
                             : "Nenhum horário disponível"}
                       </option>
                       {horariosDisponiveis.map((slot) => {
-                        const dateObj = new Date(slot.datetime);
-                        const hora = dateObj.toLocaleTimeString("pt-BR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        });
+                        const hora = slot.datetime.split("T")[1].substring(0, 5);
                         return (
                           <option key={slot.datetime} value={hora}>
                             {hora}
