@@ -234,7 +234,7 @@ function Doctors() {
                       style={{ position: "absolute", zIndex: 1000 }}
                     >
                       {/* Ver Detalhes */}
-                      <button
+                      <Link
                         className="dropdown-item-custom"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -243,7 +243,7 @@ function Doctors() {
                         }}
                       >
                         <i className="fa fa-eye"></i> Ver Detalhes
-                      </button>
+                      </Link>
 
                       {/* Edit */}
                       <Link

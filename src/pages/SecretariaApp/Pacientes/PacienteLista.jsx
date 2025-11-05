@@ -93,10 +93,116 @@ function PacienteLista() {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const handleViewDetails = (patient) => {
-    setSelectedPatient(patient);
-    setShowModal(true);
+  const handleViewDetails = async (patientId) => {
+    try {
+      const tokenUsuario = getAccessToken();
+
+      const response = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${patientId}`,
+        {
+          method: "GET",
+          headers: {
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      const patient = data[0];
+
+      if (!patient) {
+        Swal.fire("Erro", "Não foi possível carregar os detalhes do paciente.", "error");
+        return;
+      }
+
+      // 🔹 Exibir modal SweetAlert2 com layout responsivo e cabeçalho
+      Swal.fire({
+        width: "800px",
+        showConfirmButton: true,
+        confirmButtonText: "Fechar",
+        confirmButtonColor: "#4dabf7",
+        background: document.body.classList.contains("dark-mode") ? "#1e1e2f" : "#fff",
+        color: document.body.classList.contains("dark-mode") ? "#f5f5f5" : "#000",
+        html: `
+        <div style="text-align:left;">
+          <!-- Cabeçalho -->
+          <div style="
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            border-bottom:1px solid rgba(0,0,0,0.1);
+            margin-bottom:15px;
+            padding-bottom:5px;
+          ">
+            <h5 style="margin:0;">Detalhes do Paciente</h5>
+            <button id="btn-close-modal" style="
+              background:none; 
+              border:none; 
+              font-size:22px; 
+              cursor:pointer; 
+              color:#999;
+            ">&times;</button>
+          </div>
+
+          <!-- Foto e Nome -->
+          <div style="text-align:center; margin-bottom:20px;">
+            <img 
+              src="${patient.profile_photo_url || "/img/AvatarForm.jpg"}" 
+              alt="${patient.full_name}"
+              style="
+                width:120px;
+                height:120px;
+                border-radius:50%;
+                object-fit:cover;
+                border:3px solid #4dabf7;
+                box-shadow:0 4px 8px rgba(0,0,0,0.1);
+              "
+            />
+            <h5 style="margin-top:10px;">${patient.full_name}</h5>
+            <p class="text-muted">Informações detalhadas sobre o paciente.</p>
+          </div>
+
+          <!-- Informações alinhadas à esquerda -->
+          <div style="display:flex; justify-content:space-between; gap:20px;">
+            <div style="width:48%;">
+              <p><strong>Telefone:</strong> ${patient.phone_mobile || "—"}</p>
+              <p><strong>CPF:</strong> ${patient.cpf ? patient.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.***.***-$4") : "—"}</p>
+              <p><strong>Peso (kg):</strong> ${patient.weight || "—"}</p>
+              <p><strong>Endereço:</strong> ${patient.address || "—"}</p>
+              <p><strong>Altura (m):</strong> ${patient.height || "—"}</p>
+            </div>
+
+            <div style="width:48%;">
+              <p><strong>Email:</strong> ${patient.email || "—"}</p>
+              <p><strong>Data de Nascimento:</strong> ${patient.birth_date || "—"}</p>
+              <p><strong>Tipo Sanguíneo:</strong> ${patient.blood_type || "—"}</p>
+              <p><strong>Sexo:</strong> ${patient.sex || "—"}</p>
+            </div>
+          </div>
+
+          <!-- Observações / Histórico -->
+          <div style="margin-top:25px;">
+            <h5>Observações</h5>
+            <p style="text-align:justify;">
+              ${patient.observations || "Nenhuma observação registrada para este paciente."}
+            </p>
+          </div>
+        </div>
+      `,
+        didOpen: () => {
+          document
+            .getElementById("btn-close-modal")
+            ?.addEventListener("click", () => Swal.close());
+        },
+      });
+    } catch (err) {
+      console.error("Erro ao buscar paciente:", err);
+      Swal.fire("Erro!", err.message || "Erro ao buscar paciente.", "error");
+    }
   };
+
 
   const filteredPatients = patients.filter(p => {
     if (!p) return false;
@@ -265,27 +371,17 @@ function PacienteLista() {
                             onClose={() => setOpenDropdown(null)}
                             className="dropdown-menu dropdown-menu-right show"
                           >
-                            {/*<Link
-                                  className="dropdown-item-custom"
-                                  to={`/profilepatient/${p.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-eye"></i> Ver Detalhes
-                                </Link>*/}
-
                             <Link
                               className="dropdown-item-custom"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);
-                                handleViewDetails(p);
+                                handleViewDetails(p.id);
                               }}
                             >
                               <i className="fa fa-eye m-r-5"></i> Ver Detalhes
                             </Link>
+
                             <Link
                               className="dropdown-item-custom"
                               onClick={(e) => {
@@ -363,65 +459,6 @@ function PacienteLista() {
 
             </ul>
           </nav>
-          {/* 🟢 ADICIONADO — modal de detalhes do paciente */}
-          {showModal && selectedPatient && (
-            <div
-              className="modal fade show"
-              style={{
-                display: "block",
-                backgroundColor: "rgba(0,0,0,0.5)",
-              }}
-            >
-              <div className="modal-dialog modal-lg modal-dialog-centered">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Detalhes do Paciente</h5>
-                    <button
-                      type="button"
-                      className="close"
-                      onClick={() => setShowModal(false)}
-                    >
-                      <span>&times;</span>
-                    </button>
-                  </div>
-
-                  <div className="modal-body">
-                    <p className="text-muted">
-                      Informações detalhadas sobre o paciente.
-                    </p>
-
-                    <div className="row">
-                      <div className="col-md-6">
-                        <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
-                        <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
-                        <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
-                        <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
-                        <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
-                      </div>
-
-                      <div className="col-md-6">
-                        <p><strong>Email:</strong> {selectedPatient.email}</p>
-                        <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
-                        <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
-                        <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowModal(false)}
-                    >
-                      Fechar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
     </div>
