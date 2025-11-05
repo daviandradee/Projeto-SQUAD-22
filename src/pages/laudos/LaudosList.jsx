@@ -75,6 +75,7 @@ function LaudoList() {
   const [period, setPeriod] = useState(""); // "", "today", "week", "month"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [laudos, setLaudos] = useState([])
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
@@ -176,7 +177,7 @@ function LaudoList() {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      });
+      }).replace(',', ' às');
     } catch {
       return dateString;
     }
@@ -269,35 +270,53 @@ function LaudoList() {
     const textMatch =
       (pacientesMap[l.patient_id]?.toLowerCase() || "").includes(q) ||
       (l.status || "").toLowerCase().includes(q) ||
-      (l.pedido || "").toString().toLowerCase().includes(q) ||
+      (l.order_number || "").toString().toLowerCase().includes(q) ||
       (l.exam || "").toLowerCase().includes(q) ||
-      (l.data || "").toLowerCase().includes(q);
+      (l.diagnosis || "").toLowerCase().includes(q) ||
+      (l.conclusion || "").toLowerCase().includes(q);
+
+    // Filtro por status
+    const matchesStatus = !statusFilter || l.status === statusFilter;
 
     let dateMatch = true;
-    const today = new Date();
-    const laudoDate = new Date(l.data);
+    if (l.created_at) {
+      const laudoDate = new Date(l.created_at);
+      const today = new Date();
 
-    if (period === "today") {
-      dateMatch = laudoDate.toDateString() === today.toDateString();
-    } else if (period === "week") {
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
-    } else if (period === "month") {
-      dateMatch = laudoDate.getMonth() === today.getMonth() && laudoDate.getFullYear() === today.getFullYear();
+      // Filtros por período rápido
+      if (period === "today") {
+        const todayStr = today.toDateString();
+        dateMatch = laudoDate.toDateString() === todayStr;
+      } else if (period === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
+      } else if (period === "month") {
+        dateMatch = laudoDate.getMonth() === today.getMonth() && 
+                   laudoDate.getFullYear() === today.getFullYear();
+      }
+
+      // Filtros por data específica
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Inclui o dia inteiro
+        dateMatch = dateMatch && laudoDate >= start && laudoDate <= end;
+      } else if (startDate) {
+        const start = new Date(startDate);
+        dateMatch = dateMatch && laudoDate >= start;
+      } else if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        dateMatch = dateMatch && laudoDate <= end;
+      }
     }
 
-    if (startDate && endDate) {
-      dateMatch = dateMatch && l.data >= startDate && l.data <= endDate;
-    } else if (startDate) {
-      dateMatch = dateMatch && l.data >= startDate;
-    } else if (endDate) {
-      dateMatch = dateMatch && l.data <= endDate;
-    }
-
-    return textMatch && dateMatch;
+    return textMatch && matchesStatus && dateMatch;
   });
 
   const [itemsPerPage1] = useState(10);
@@ -307,57 +326,162 @@ function LaudoList() {
   const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
   const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
   const navigate = useNavigate();
+  const [medicosMap, setMedicosMap] = useState({});
+  
+  // Função para definir períodos e limpar datas
+  const handlePeriodChange = (newPeriod) => {
+    // Se clicar no mesmo período, limpa o filtro
+    if (period === newPeriod) {
+      setPeriod("");
+    } else {
+      setPeriod(newPeriod);
+    }
+    
+    // Sempre limpa as datas específicas
+    setStartDate("");
+    setEndDate("");
+  };
+
   useEffect(() => {
     setCurrentPage1(1);
-  }, [search]);
+  }, [search, statusFilter, period, startDate, endDate]);
+
+  useEffect(() => {
+    if (!Array.isArray(laudos) || laudos.length === 0) return;
+
+    const buscarMedicos = async () => {
+      try {
+        const idsUnicos = [...new Set(laudos.map((c) => c.doctor_id).filter(Boolean))];
+        if (idsUnicos.length === 0) return;
+
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenUsuario}`,
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        };
+
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
+              method: "GET",
+              headers,
+            });
+            if (!res.ok) return { id, full_name: "Nome não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setMedicosMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar nomes dos médicos:", err);
+      }
+    };
+
+    buscarMedicos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [laudos]);
   return (
     <div className="page-wrapper">
       <div className="content">
-        <h4 className="page-title">Laudos</h4>
-
-        {/* Linha de pesquisa e filtros */}
-        <div className="row align-items-center mb-2">
-          {/* Esquerda: pesquisa */}
-          <div className="col d-flex align-items-center">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="🔍  Buscar laudo"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ minWidth: "200px" }}
-            />
-          </div>
-
-
-          {/* Direita: filtros de data + botões */}
-          <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
-
-            {/* Filtros de data primeiro */}
-            <div className="date-filter">
-              <label>De:</label>
-              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-              <label>Até:</label>
-              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-            </div>
-
-            {/* Botões rápidos */}
-            <div className="quick-filter">
-              <button className={`btn-filter ${period === "today" ? "active" : ""}`} onClick={() => setPeriod("today")}>Hoje</button>
-              <button className={`btn-filter ${period === "week" ? "active" : ""}`} onClick={() => setPeriod("week")}>Semana</button>
-              <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
-            </div>
-          </div>
+        {/* Header com título e botão */}
+        <div className="col-12">
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <h4 className="page-title mb-0">Laudos</h4>
           <Link
             to="/admin/laudo"
             onClick={(e) => {
               e.stopPropagation();
               setOpenDropdown(null);
-
-
-            }} className="btn btn-primary btn-rounded">
+            }} 
+            className="btn btn-primary btn-rounded"
+          >
             <i className="fa fa-plus"></i> Adicionar Laudo
           </Link>
+        </div>
+        </div>
+
+        {/* Todos os filtros em uma única linha */}
+        <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+          {/* Campo de busca */}
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="🔍 Buscar laudo"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ minWidth: "300px", maxWidth: "450px", }}
+          />
+          
+          {/* Filtro de status */}
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "80px", maxWidth: "125px", }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Status</option>
+            <option value="draft">Rascunho</option>
+            <option value="completed">Concluído</option>
+          </select>
+
+          {/* Filtro De */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={startDate} 
+              onChange={e => {
+                setStartDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
+            />
+          </div>
+          
+          {/* Filtro Até */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={endDate} 
+              onChange={e => {
+                setEndDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
+            />
+          </div>
+
+          {/* Botões rápidos */}
+          <button 
+            className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "60px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("today")}
+          >
+            Hoje
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "70px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("week")}
+          >
+            Semana
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "60px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("month")}
+          >
+            Mês
+          </button>
         </div>
 
         {/* Tabela */}
@@ -368,14 +492,14 @@ function LaudoList() {
                 <thead>
                   <tr>
                     <th>Pedido</th>
-                    <th>Pacient ID</th>
+                    <th>Paciente</th>
                     <th>Exame</th>
-                    <th>Diasgnostico</th>
+                    <th>Diagnóstico</th>
                     <th>Conclusão</th>
-                    <th>Status</th>
+                    <th className="text-center">Status</th>
                     <th>Executante</th>
                     <th>Criado em</th>
-                    <th className="text-right">Ações</th>
+                    <th className="text-center">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -386,8 +510,31 @@ function LaudoList() {
                       <td>{l.exam}</td>
                       <td>{l.diagnosis}</td>
                       <td>{l.conclusion}</td>
-                      <td>{l.status}</td>
-                      <td> {l.requested_by}</td>
+                      <td>
+                        <span 
+                          className={`custom-badge ${
+                            l.status === 'draft' ? 'status-orange' :
+                            l.status === 'completed' ? 'status-green' :
+                            'status-gray'
+                          }`}
+                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'center' }}
+                        >
+                          {l.status === 'draft' ? (
+                            <>
+                              <i className="fa fa-edit" style={{ marginRight: '6px' }}></i>
+                              Rascunho
+                            </>
+                          ) : l.status === 'completed' ? (
+                            <>
+                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                              Concluído
+                            </>
+                          ) : (
+                            l.status
+                          )}
+                        </span>
+                      </td>
+                      <td> {medicosMap[l.requested_by] || l.requested_by}</td>
                       <td>{formatDate(l.created_at)}</td>
                       <td className="text-rigth">
                         <div className="action-buttons-container">

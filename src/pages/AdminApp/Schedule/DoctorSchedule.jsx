@@ -88,6 +88,8 @@ function Doctorschedule() {
     const [medicos, setMedicos] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [search, setSearch] = useState("");
+    const [dayFilter, setDayFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
     const [deleteId, setDeleteId] = useState(null);
     const [editId, setEditId] = useState(null);
     const [editData, setEditData] = useState({
@@ -234,37 +236,92 @@ function Doctorschedule() {
     const filteredAgenda = agenda.filter((a) => {
       if (!a) return false;
       const q = search.toLowerCase();
-      return (
+      
+      // Filtro por texto (nome do médico, dia, tipo)
+      const matchesText = (
         (getDoctorName(a.doctor_id) || "").toLowerCase().includes(q) ||
         (a.weekday || "").toLowerCase().includes(q) ||
         (a.appointment_type || "").toLowerCase().includes(q)
       );
+      
+      // Filtro por dia da semana
+      const matchesDay = !dayFilter || a.weekday === dayFilter;
+      
+      // Filtro por tipo de consulta
+      const matchesType = !typeFilter || a.appointment_type === typeFilter;
+      
+      return matchesText && matchesDay && matchesType;
     });
+
+    // Paginação
+    const [itemsPerPage1] = useState(15);
+    const [currentPage1, setCurrentPage1] = useState(1);
+    const indexOfLastAgenda = currentPage1 * itemsPerPage1;
+    const indexOfFirstAgenda = indexOfLastAgenda - itemsPerPage1;
+    const currentAgenda = filteredAgenda.slice(indexOfFirstAgenda, indexOfLastAgenda);
+    const totalPages1 = Math.ceil(filteredAgenda.length / itemsPerPage1);
+
+    // Reset da paginação quando filtros mudam
+    useEffect(() => {
+      setCurrentPage1(1);
+    }, [search, dayFilter, typeFilter]);
   
     return (
       <div className="page-wrapper">
       <div className="content">
-        {/* Cabeçalho e botão Adicionar */}
-        <div className="row mb-3">
-          <div className="col-md-6">
-            <h4 className="page-title">Agenda Médica</h4>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="🔍 Buscar agenda"
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="col-sm-6 col-9 text-right m-b-20">
-            <Link  to ="/admin/addschedule" className="btn btn-primary btn-rounded">
-              <i className="fa fa-plus"></i> Adicionar agenda
-            </Link>
-          </div>
+        {/* Header com título e botão */}
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <h4 className="page-title mb-0">Agenda Médica</h4>
+          <Link to="/admin/addschedule" className="btn btn-primary btn-rounded">
+            <i className="fa fa-plus"></i> Adicionar agenda
+          </Link>
+        </div>
+
+        {/* Todos os filtros em uma única linha */}
+        <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+          {/* Campo de busca */}
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="🔍 Buscar agenda"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ minWidth: "300px", maxWidth: "450px", }}
+          />
+          
+          {/* Filtro por dia da semana */}
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "100px", maxWidth: "140px" }}
+            value={dayFilter}
+            onChange={(e) => setDayFilter(e.target.value)}
+          >
+            <option value="">Todos os dias</option>
+            <option value="monday">Segunda-feira</option>
+            <option value="tuesday">Terça-feira</option>
+            <option value="wednesday">Quarta-feira</option>
+            <option value="thursday">Quinta-feira</option>
+            <option value="friday">Sexta-feira</option>
+            <option value="saturday">Sábado</option>
+            <option value="sunday">Domingo</option>
+          </select>
+          
+          {/* Filtro por tipo de consulta */}
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "100px", maxWidth: "140px" }}
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            <option value="">Todos os tipos</option>
+            <option value="presencial">Presencial</option>
+            <option value="telemedicina">Telemedicina</option>
+          </select>
         </div>
   
         {/* Tabela */}
         <div className="table-responsive">
-          <table className="table table-bordered table-striped custom-table">
+          <table className="table table-border table-striped custom-table datatable mb-0">
             <thead>
               <tr>
                 <th>Nome</th>
@@ -273,63 +330,95 @@ function Doctorschedule() {
                 <th>Duração (min)</th>
                 <th>Tipo</th>
                 <th>Status</th>
-                <th className="text-end">Ação</th>
+                <th className="text-center">Ação</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAgenda.length > 0 ? (
-                filteredAgenda.map((a) => (
+              {currentAgenda.length > 0 ? (
+                currentAgenda.map((a) => (
                   <tr key={a.id}>
                     <td>{getDoctorName(a.doctor_id)}</td>
-                    <td>{a.weekday || ""}</td>
                     <td>
-                      {a.start_time || ""} - {a.end_time || ""}
+                      <span className="custom-badge status-blue" style={{ minWidth: '90px', display: 'inline-block', textAlign: 'center' }}>
+                        <i className="fa fa-calendar" style={{ marginRight: '6px' }}></i>
+                        {a.weekday === 'monday' ? 'Segunda' :
+                         a.weekday === 'tuesday' ? 'Terça' :
+                         a.weekday === 'wednesday' ? 'Quarta' :
+                         a.weekday === 'thursday' ? 'Quinta' :
+                         a.weekday === 'friday' ? 'Sexta' :
+                         a.weekday === 'saturday' ? 'Sábado' :
+                         a.weekday === 'sunday' ? 'Domingo' :
+                         a.weekday}
+                      </span>
+                    </td>
+                    <td>
+                      {a.start_time || ""} ás {a.end_time || ""}
                     </td>
                     <td>{a.slot_minutes || 30}</td>
-                    <td>{a.appointment_type || ""}</td>
+                    <td>
+                      <span 
+                        className={`custom-badge ${
+                          a.appointment_type === 'presencial' ? 'status-green' :
+                          a.appointment_type === 'telemedicina' ? 'status-blue' :
+                          'status-gray'
+                        }`}
+                        style={{ minWidth: '100px', display: 'inline-block', textAlign: 'center' }}
+                      >
+                        {a.appointment_type === 'presencial' ? (
+                          <>
+                            <i className="fa fa-hospital-o" style={{ marginRight: '6px' }}></i>
+                            Presencial
+                          </>
+                        ) : a.appointment_type === 'telemedicina' ? (
+                          <>
+                            <i className="fa fa-video-camera" style={{ marginRight: '6px' }}></i>
+                            Telemedicina
+                          </>
+                        ) : (
+                          a.appointment_type
+                        )}
+                      </span>
+                    </td>
                     <td>
                       <span
                         className={`custom-badge ${
                           a.active ? "status-green" : "status-red"
                         }`}
+                        style={{ minWidth: '80px', display: 'inline-block', textAlign: 'center' }}
                       >
-                        {a.active ? "Ativo" : "Inativo"}
+                        {a.active ? (
+                          <>
+                            <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                            Ativo
+                          </>
+                        ) : (
+                          <>
+                            <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
+                            Inativo
+                          </>
+                        )}
                       </span>
                     </td>
-                    <td className="text-end">
-                      <div style={{ display: "inline-block" }}>
-                        <button
-                          ref={(el) => (anchorRefs.current[a.id] = el)}
-                          className="action-icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenDropdown(openDropdown === a.id ? null : a.id);
-                          }}
-                        >
-                          <i className="fa fa-ellipsis-v"></i>
-                        </button>
-  
-                        <DropdownPortal
-                          anchorEl={anchorRefs.current[a.id]}
-                          isOpen={openDropdown === a.id}
-                          onClose={() => setOpenDropdown(null)}
-                          className="dropdown-menu dropdown-menu-right show"
-                        >
-                          <Link
-                            className="dropdown-item-custom"
+                    <td className="text-center">
+                        <div className="action-buttons-container">
+                          <button
+                            type="button"
+                            className="action-btn action-btn-edit"
                             onClick={() => handleEditClick(a.id)}
+                            title="Editar agenda"
                           >
-                            <i className="fa fa-pencil m-r-5"></i> Editar
-                          </Link>
-                          <Link
-                            className="dropdown-item-custom dropdown-item-delete"
+                            <span className="fa fa-pencil m-r-5"></span>
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn action-btn-delete"
                             onClick={() => handleDelete(a.id)}
+                            title="Excluir agenda"
                           >
-                            <i className="fa fa-trash-o m-r-5"></i> Excluir
-                          </Link>
-                        </DropdownPortal>
-                      </div>
-                    </td>
+                            <span className="fa fa-trash-o"></span>
+                          </button>
+                        </div>
+                      </td>
                   </tr>
                 ))
               ) : (
@@ -342,6 +431,52 @@ function Doctorschedule() {
             </tbody>
           </table>
         </div>
+        
+        {/* Paginação */}
+        <nav className="mt-3">
+          <ul className="pagination justify-content-center">
+            {/* Ir para a primeira página */}
+            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                {"<<"} 
+              </button>
+            </li>
+
+            {/* Botão de página anterior */}
+            <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+              <button
+                className="page-link"
+                onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+              >
+                &lt;
+              </button>
+            </li>
+
+            {/* Número da página atual */}
+            <li className="page-item active">
+              <span className="page-link">{currentPage1}</span>
+            </li>
+            
+            {/* Botão de próxima página */}
+            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+              <button
+                className="page-link"
+                onClick={() =>
+                  currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                }
+              >
+                &gt;
+              </button>
+            </li>
+
+            {/* Ir para a última página */}
+            <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                {">>"} 
+              </button>
+            </li>
+          </ul>
+        </nav>
   
         {/* Modal de Delete */}
         {deleteId && (
