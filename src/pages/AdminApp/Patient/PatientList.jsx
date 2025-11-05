@@ -1,6 +1,6 @@
-// PatientList.jsx
+
 import { Link } from "react-router-dom";
-import "../../../assets/css/index.css"
+import "../../../assets/css/index.css";
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import supabase from "../../../Supabase";
@@ -8,8 +8,6 @@ import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
 import AvatarForm from "../../../../public/img/AvatarForm.jpg";
-import { useNavigate } from "react-router-dom";
-
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -96,9 +94,68 @@ function PatientList() {
   const [showModal, setShowModal] = useState(false);
 
   const handleViewDetails = (patient) => {
-    setSelectedPatient(patient);
-    setShowModal(true);
+    const mascararCPF = (cpf = "") => {
+      if (cpf.length < 5) return cpf;
+      const inicio = cpf.slice(0, 3);
+      const fim = cpf.slice(-2);
+      return `${inicio}.***.***-${fim}`;
+    };
+
+    Swal.fire({
+      title: `<h4 style="margin-bottom:10px;">Detalhes do Paciente</h4>`,
+      html: `
+      <div style="text-align:center;">
+        <img 
+          src="${patient.profile_photo_url || AvatarForm}" 
+          alt="${patient.full_name}"
+          style="
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid #4dabf7;
+            box-shadow:0 4px 8px rgba(0,0,0,0.1);
+          "
+          onerror="this.src='${AvatarForm}'"
+        />
+        <h5 style="margin-top:10px;">${patient.full_name}</h5>
+        <p class="text-muted">Informações detalhadas sobre o paciente.</p>
+      </div>
+
+      <div style="text-align:left; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between;">
+          <div style="width:48%;">
+            <p><strong>Nome Completo:</strong> ${patient.full_name}</p>
+            <p><strong>Telefone:</strong> ${patient.phone_mobile}</p>
+            <p><strong>CPF:</strong> ${mascararCPF(patient.cpf)}</p>
+            <p><strong>Peso (kg):</strong> ${patient.weight || "—"}</p>
+            <p><strong>Endereço:</strong> ${patient.address || "—"}</p>
+          </div>
+          <div style="width:48%;">
+            <p><strong>Email:</strong> ${patient.email}</p>
+            <p><strong>Data de Nascimento:</strong> ${patient.birth_date}</p>
+            <p><strong>Tipo Sanguíneo:</strong> ${patient.blood_type || "—"}</p>
+            <p><strong>Altura (m):</strong> ${patient.height || "—"}</p>
+          </div>
+        </div>
+      </div>
+    `,
+      width: "800px",
+      showConfirmButton: true,
+      confirmButtonText: "Fechar",
+      confirmButtonColor: "#4dabf7",
+      background: document.body.classList.contains("dark-mode")
+        ? "#1e1e2f"
+        : "#fff",
+      color: document.body.classList.contains("dark-mode")
+        ? "#f5f5f5"
+        : "#000",
+      customClass: {
+        popup: 'swal2-modal-patient'
+      }
+    });
   };
+
 
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
@@ -163,10 +220,6 @@ function PatientList() {
         }
       }
     });
-
-    // Se quiser apagar no supabase, faça a chamada aqui.
-    // const { error } = await supabase.from("Patient").delete().eq("id", id);
-    // if (error) { console.error(error); return; }
   };
 
 
@@ -194,7 +247,7 @@ function PatientList() {
     const fim = cpf.slice(-2);
     return `${inicio}.***.***-${fim}`;
   };
-  const navigate = useNavigate();
+
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
@@ -221,16 +274,16 @@ function PatientList() {
           <div className="row">
             <div className="col-md-12">
               <div className="table-responsive">
-                <table className="table table-striped custom-table">
+                <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
-                      <th className="text-auto">Nome</th>
-                      <th className="text-center">CPF</th>
-                      <th className="text-center">Data Nasc.</th>
-                      <th className="text-center">Telefone</th>
-                      <th className="text-center">Email</th>
-                      <th className="text-center">Sexo</th>
-                      <th className="text-center">Ações</th>
+                      <th>Nome</th>
+                      <th>Cpf</th>
+                      <th>Data de Nascimento</th>
+                      <th>Telefone</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th className="text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -262,33 +315,55 @@ function PatientList() {
                           <td>{p.phone_mobile}</td>
                           <td>{p.email}</td>
                           <td>{p.sex}</td>
-                          <td className="text-rigth">
-                            <div className="action-buttons-container">
+                          <td className="text-right">
+                            <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
                               <button
                                 type="button"
-                                className="action-btn action-btn-view"
-                                onClick={() => handleViewDetails(p)}
-                                title="Ver detalhes do paciente"
+                                ref={(el) => (anchorRefs.current[p.id] = el)}
+                                className="action-icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdown(openDropdown === p.id ? null : p.id);
+                                }}
 
                               >
-                                <span className="fa fa-eye"></span>
+                                <i className="fa fa-ellipsis-v"></i>
                               </button>
-                              <button
-                                type="button"
-                                className="action-btn action-btn-edit"
-                                onClick={() => navigate(`/admin/editpatient/${p.id}`)}
-                                title="Ver detalhes do paciente"
+
+                              <DropdownPortal
+                                anchorEl={anchorRefs.current[p.id]}
+                                isOpen={openDropdown === p.id}
+                                onClose={() => setOpenDropdown(null)}
+                                className="dropdown-menu dropdown-menu-right show"
                               >
-                                <span className="fa fa-pencil m-r-5"></span>
-                              </button>
-                              <button
-                                type="button"
-                                className="action-btn action-btn-delete"
-                                onClick={() => handleDelete(p.id)}
-                                title="Excluir paciente"
-                              >
-                                <span className="fa fa-trash-o"></span>
-                              </button>
+                                <Link
+                                  className="dropdown-item-custom"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdown(null);
+                                    handleViewDetails(p);
+                                  }}
+                                >
+                                  <i className="fa fa-eye m-r-5"></i> Ver Detalhes
+                                </Link>
+                                <Link
+                                  className="dropdown-item-custom"
+                                  to={`/admin/editpatient/${p.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdown(null);
+                                  }}
+                                >
+                                  <i className="fa fa-pencil m-r-5"></i> Editar
+                                </Link>
+
+                                <button
+                                  className="dropdown-item-custom dropdown-item-delete"
+                                  onClick={() => handleDelete(p.id)}
+                                >
+                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
+                                </button>
+                              </DropdownPortal>
                             </div>
                           </td>
                         </tr>
@@ -339,84 +414,6 @@ function PatientList() {
                   </li>
                 </ul>
               </nav>
-              {showModal && selectedPatient && (
-                <div
-                  className="modal fade show"
-                  style={{
-                    display: "block",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                  }}
-                >
-                  <div className="modal-dialog modal-lg modal-dialog-centered">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title">Detalhes do Paciente</h5>
-                        <button
-                          type="button"
-                          className="close"
-                          onClick={() => setShowModal(false)}
-                        >
-                          <span>&times;</span>
-                        </button>
-                      </div>
-
-                      <div className="modal-body">
-                        {/* Foto do Paciente */}
-                        <div className="text-center mb-4">
-                          <img
-                            src={selectedPatient.profile_photo_url || AvatarForm}
-                            alt={selectedPatient.full_name}
-                            style={{
-                              width: "120px",
-                              height: "120px",
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              border: "3px solid #4dabf7",
-                              boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
-                            }}
-                            onError={(e) => {
-                              e.target.src = AvatarForm;
-                            }}
-                          />
-                          <h5 className="mt-3">{selectedPatient.full_name}</h5>
-                        </div>
-
-                        <p className="text-muted">
-                          Informações detalhadas sobre o paciente.
-                        </p>
-
-                        <div className="row">
-                          <div className="col-md-6">
-                            <p><strong>Nome Completo:</strong> {selectedPatient.full_name}</p>
-                            <p><strong>Telefone:</strong> {selectedPatient.phone_mobile}</p>
-                            <p><strong>CPF:</strong> {mascararCPF(selectedPatient.cpf)}</p>
-                            <p><strong>Peso (kg):</strong> {selectedPatient.weight || "—"}</p>
-                            <p><strong>Endereço:</strong> {selectedPatient.address || "—"}</p>
-                          </div>
-
-                          <div className="col-md-6">
-                            <p><strong>Email:</strong> {selectedPatient.email}</p>
-                            <p><strong>Data de Nascimento:</strong> {selectedPatient.birth_date}</p>
-                            <p><strong>Tipo Sanguíneo:</strong> {selectedPatient.blood_type || "—"}</p>
-                            <p><strong>Altura (m):</strong> {selectedPatient.height || "—"}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="modal-footer">
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setShowModal(false)}
-                        >
-                          Fechar
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
             </div>
           </div>
         </div>

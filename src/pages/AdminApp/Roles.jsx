@@ -13,6 +13,7 @@ function Roles() {
     full_name: "",
     email: "",
     phone: "",
+    cpf: "",
     role: "",
     password: ""
   });
@@ -77,7 +78,6 @@ function Roles() {
         title: "Erro!",
         text: "Erro ao carregar usuários",
         icon: "error",
-        draggable: true
       });
     } finally {
       setLoading(false);
@@ -101,78 +101,138 @@ function Roles() {
     setSubmitting(true);
 
     try {
+      // headers
       const myHeaders = new Headers();
       myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
       myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       myHeaders.append("Content-Type", "application/json");
 
-      const raw = JSON.stringify({
-        email: formData.email,
-        password: formData.password,
-        full_name: formData.full_name,
-        phone: formData.phone,
-        role: "secretaria",
-        redirect_url: ""
-      });
-
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-      };
-
-      const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user`,
-        requestOptions
-      );
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Erro ao criar usuário");
+      // validações básicas
+      if (!formData.email || !formData.password || !formData.full_name) {
+        Swal.fire("Campos obrigatórios", "Preencha nome, e-mail e senha.", "warning");
+        setSubmitting(false);
+        return;
+      }
+      if (formData.password.length < 6) {
+        Swal.fire("Senha inválida", "A senha deve ter pelo menos 6 caracteres.", "warning");
+        setSubmitting(false);
+        return;
       }
 
-      const result = await res.json();
-      console.log("Usuário criado:", result);
+      const role = (formData.role || "").toString().trim(); // garante string exata
 
-      Swal.fire({
-        title: "Sucesso!",
-        html: `
+      // payload 1: role como string (conforme docs)
+      const payload1 = {
+        email: formData.email.trim(),
+        password: formData.password,
+        full_name: formData.full_name.trim(),
+        phone: formData.phone || "",
+        cpf: formData.cpf || "",
+        role: role
+      };
+
+      console.log("Tentando criar usuário (payload1):", payload1);
+
+      let response = await fetch(
+        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password",
+        {
+          method: "POST",
+          headers: myHeaders,
+          body: JSON.stringify(payload1)
+        }
+      );
+
+      // tenta ler resposta (json se possível, senão texto)
+      let result;
+      try {
+        result = await response.json();
+      } catch (err) {
+        result = await response.text();
+      }
+      console.log("Resposta (payload1):", response.status, result);
+
+      // Se OK, finaliza
+      if (response.ok) {
+        Swal.fire({
+          title: "Sucesso!",
+          html: `
           <div class="text-start">
             <p><strong>Usuário criado com sucesso!</strong></p>
-            <p><strong>Nome:</strong> ${formData.full_name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Cargo:</strong> ${formData.role}</p>
-            <p><strong>Telefone:</strong> ${formData.phone || 'Não informado'}</p>
+            <p><strong>Nome:</strong> ${result.user?.full_name || formData.full_name}</p>
+            <p><strong>Email:</strong> ${result.user?.email || formData.email}</p>
+            <p><strong>Cargo:</strong> ${role}</p>
+            <p><strong>Telefone:</strong> ${formData.phone || "Não informado"}</p>
           </div>
         `,
-        icon: "success",
-        draggable: true
-      });
+          icon: "success",
+        });
 
-      setShowModal(false);
-      setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        role: "secretaria",
-        password: ""
-      });
+        setShowModal(false);
+        setFormData({ full_name: "", email: "", phone: "", role: "secretaria", password: "" });
+        await fetchUsersAndRoles();
+        return;
+      }
 
-      await fetchUsersAndRoles();
+      // Se 400 e menciona role ou resposta indicar role inválida, tenta reenviar usando roles: [role]
+      const errMsg = typeof result === "string" ? result : JSON.stringify(result);
+      const mentionsRole = /role|roles|invalid role|role inválida|role not allowed/i.test(errMsg);
 
+      if ((response.status === 400 || response.status === 422) && mentionsRole) {
+        const payload2 = {
+          email: formData.email.trim(),
+          password: formData.password,
+          full_name: formData.full_name.trim(),
+          phone: formData.phone || "",
+          cpf: formData.cpf || "",
+          roles: [role] // tentativa alternativa
+        };
+
+        console.log("Servidor rejeitou role. Tentando payload2 (roles array):", payload2);
+
+        const response2 = await fetch(
+          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password",
+          {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(payload2)
+          }
+        );
+
+        let result2;
+        try {
+          result2 = await response2.json();
+        } catch (err) {
+          result2 = await response2.text();
+        }
+        console.log("Resposta (payload2):", response2.status, result2);
+
+        if (response2.ok) {
+          Swal.fire("Sucesso!", result2.message || "Usuário criado com sucesso!", "success");
+          setShowModal(false);
+          setFormData({ full_name: "", email: "", phone: "", role: "secretaria", password: "" });
+          await fetchUsersAndRoles();
+          return;
+        } else {
+          // falha na segunda tentativa — mostra detalhe
+          const detail = typeof result2 === "string" ? result2 : JSON.stringify(result2);
+          throw new Error(detail || "Erro ao criar usuário (tentativa com roles array falhou)");
+        }
+      }
+
+      // Se não é erro de role ou tentativas falharam, lança o erro original
+      throw new Error(errMsg || "Erro ao criar usuário");
     } catch (err) {
       console.error("Erro ao criar usuário:", err);
       Swal.fire({
         title: "Erro!",
-        text: err.message,
+        text: err.message || "Falha ao criar usuário",
         icon: "error",
-        draggable: true
       });
     } finally {
       setSubmitting(false);
     }
   };
+
 
   const openCreateModal = () => setShowModal(true);
   const closeModal = () => {
@@ -181,6 +241,7 @@ function Roles() {
       full_name: "",
       email: "",
       phone: "",
+      cpf: "",
       role: "secretaria",
       password: ""
     });
@@ -349,6 +410,17 @@ function Roles() {
                     />
                   </div>
                   <div className="form-group">
+                    <label>CPF *</label>
+                    <input
+                      type="text"
+                      name="cpf"
+                      className="form-control"
+                      value={formData.cpf || ""}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
                     <label>Cargo *</label>
                     <select
                       className="form-control"
@@ -357,11 +429,14 @@ function Roles() {
                       onChange={handleInputChange}
                       required
                     >
-                      <option value="secretaria">Secretaria</option>
+                      <option value="secretaria">Secretária</option>
                       <option value="admin">Administrador</option>
-                      <option value="user">Paciente</option>
+                      <option value="gestor">Gestor</option>
+                      <option value="medico">Médico</option>
+                      <option value="paciente">Paciente</option>
                     </select>
                   </div>
+
                 </div>
                 <div className="modal-footer">
                   <button
