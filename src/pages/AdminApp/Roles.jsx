@@ -9,6 +9,10 @@ function Roles() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [roleFilter, setRoleFilter] = useState("");
+ const [period, setPeriod] = useState("");
+ const [startDate, setStartDate] = useState("");
+ const [endDate, setEndDate] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -234,6 +238,20 @@ function Roles() {
   };
 
 
+  // Função para definir períodos e limpar datas
+  const handlePeriodChange = (newPeriod) => {
+    // Se clicar no mesmo período, limpa o filtro
+    if (period === newPeriod) {
+      setPeriod("");
+    } else {
+      setPeriod(newPeriod);
+    }
+    
+    // Sempre limpa as datas específicas
+    setStartDate("");
+    setEndDate("");
+  };
+
   const openCreateModal = () => setShowModal(true);
   const closeModal = () => {
     setShowModal(false);
@@ -248,13 +266,58 @@ function Roles() {
   };
 
   const filteredUsers = users.filter(p => {
-    if (!p) return false;
-    const nome = (p.full_name || "").toLowerCase();
-    const cpf = (p.cpf || "").toLowerCase();
-    const email = (p.email || "").toLowerCase();
-    const q = search.toLowerCase();
-    return nome.includes(q) || cpf.includes(q) || email.includes(q);
-  });
+   if (!p) return false;
+   const nome = (p.full_name || "").toLowerCase();
+   const cpf = (p.cpf || "").toLowerCase();
+   const email = (p.email || "").toLowerCase();
+   const q = search.toLowerCase();
+  
+   // Filtro por texto (nome, cpf, email)
+   const matchesText = nome.includes(q) || cpf.includes(q) || email.includes(q);
+  
+   // Filtro por cargo
+   const matchesRole = !roleFilter || (p.role || "").toLowerCase().includes(roleFilter.toLowerCase());
+  
+   let dateMatch = true;
+   if (p.created_at) {
+     const userDate = new Date(p.created_at);
+     const now = new Date();
+
+     // Filtros por período
+     if (period === "today") {
+       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+       const tomorrow = new Date(today);
+       tomorrow.setDate(tomorrow.getDate() + 1);
+       dateMatch = userDate >= today && userDate < tomorrow;
+     } else if (period === "week") {
+       const weekStart = new Date(now);
+       weekStart.setDate(now.getDate() - now.getDay());
+       weekStart.setHours(0, 0, 0, 0);
+       dateMatch = userDate >= weekStart;
+     } else if (period === "month") {
+       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+       dateMatch = userDate >= monthStart;
+     }
+
+     // Filtros por data específica
+     if (startDate && endDate) {
+       const start = new Date(startDate);
+       const end = new Date(endDate);
+       end.setHours(23, 59, 59, 999); // Inclui o dia inteiro
+       dateMatch = dateMatch && userDate >= start && userDate <= end;
+     } else if (startDate) {
+       const start = new Date(startDate);
+       dateMatch = dateMatch && userDate >= start;
+     } else if (endDate) {
+       const end = new Date(endDate);
+       end.setHours(23, 59, 59, 999);
+       dateMatch = dateMatch && userDate <= end;
+     }
+   }
+
+
+   return matchesText && matchesRole && dateMatch;
+ });
 
   const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
@@ -262,35 +325,104 @@ function Roles() {
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
   const currentUsers = filteredUsers.slice(indexOfFirstPatient, indexOfLastPatient);
   const totalPages1 = Math.ceil(filteredUsers.length / itemsPerPage1);
+  
 
   useEffect(() => {
     setCurrentPage1(1);
-  }, [search]);
+  }, [search, roleFilter, period, startDate, endDate]);
 
   if (loading) return <p>Carregando usuários...</p>;
   return (
     <div className="page-wrapper">
       <div className="content">
-        <div className="row">
-          <div className="col-sm-4 col-3">
-            <h4 className="page-title">Lista de Usuários</h4>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="🔍  Buscar usuários"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <h4 className="page-title mb-0">Lista de Usuários</h4>
+          <button
+            className="btn btn-primary btn-rounded"
+            onClick={openCreateModal}
+         >
+           <i className="fa fa-plus"></i> Criar Usuário
+         </button>
+       </div>
+        {/* Todos os filtros em uma única linha */}
+        <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto",  height: "40px" }}>
+          {/* Campo de busca */}
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="🔍 Buscar usuários"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ minWidth: "300px", maxWidth: "450px", }}
+          />
+          
+          {/* Filtro por cargo */}
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "120px", maxWidth: "140px" }}
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
+            <option value="">Todos os cargos</option>
+            <option value="admin">Administrador</option>
+            <option value="secretaria">Secretaria</option>
+            <option value="paciente">Paciente</option>
+            <option value="gestor">Gestor</option>
+            <option value="medico">Médico</option>
+          </select>
+
+          {/* Filtro De */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={startDate} 
+              onChange={e => {
+                setStartDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
             />
-            <br />
           </div>
-          <div className="col-sm-8 col-9 text-right m-b-20">
-            <button
-              className="btn btn-primary btn-rounded"
-              onClick={openCreateModal}
-            >
-              <i className="fa fa-plus"></i> Criar Usuário
-            </button>
+          
+          {/* Filtro Até */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={endDate} 
+              onChange={e => {
+                setEndDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
+            />
           </div>
+
+          {/* Botões rápidos */}
+          <button 
+            className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "50px", fontSize: "0.8rem", padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("today")}
+          >
+            Hoje
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "55px", fontSize: "0.8rem", padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("week")}
+          >
+            Semana
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "45px", fontSize: "0.8rem", padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("month")}
+          >
+            Mês
+          </button>
         </div>
 
         <div className="row">
@@ -314,7 +446,55 @@ function Roles() {
                         <td>{user.full_name || "-"}</td>
                         <td style={{ wordBreak: "break-word" }}>{user.email || "-"}</td>
                         <td>{user.phone || "-"}</td>
-                        <td>{user.role || "-"}</td>
+                        <td>
+                        <span 
+                          className={`custom-badge ${
+                            user.role === 'admin' ? 'status-red' :
+                            user.role === 'secretaria' ? 'status-yellow' :
+                            user.role === 'gestor' ? 'status-blue' :
+                            user.role === 'paciente' ? 'status-green' :
+                            user.role === 'medico' || user.role === 'Médico' ? 'status-purple' :
+                            'status-gray'
+                          }`}
+                          
+                          
+                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'left' }}
+                        >
+                          {user.role === 'paciente' ? (
+                            <>
+                              <i className="fa fa-user" style={{ marginRight: '6px' }}></i>
+                              Paciente
+                            </>
+                          ) : user.role === 'medico' || user.role === 'Médico' ? (
+                            <>
+                              <i className="fa fa-stethoscope" style={{ marginRight: '6px' }}></i>
+                              Médico
+                            </>
+                          ) : user.role === 'admin' ? (
+                            <>
+                              <i className="fa fa-shield" style={{ marginRight: '6px' }}></i>
+                              Administrador
+                            </>
+                          ) : (
+                            user.role === 'secretaria' ? (
+                              <>
+                                <i className="fa fa-user-tie" style={{ marginRight: '6px' }}></i>
+                                Secretaria
+                              </>
+                            ) : user.role === 'gestor' ? (
+                              <>
+                                <i className="fa fa-briefcase" style={{ marginRight: '6px' }}></i>
+                                Gestor
+                              </>
+                            ) : (
+                              <>
+                                <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                                {user.role || "Sem cargo"}
+                              </>
+                            )
+                          )}
+                        </span>
+                      </td>
                         <td style={{ wordBreak: "break-word", fontSize: '12px' }}>{user.id}</td>
                         <td>{formatDate(user.created_at)}</td>
                       </tr>
