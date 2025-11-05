@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { getAccessToken } from "../../utils/auth";
 import Swal from 'sweetalert2';
 import { useResponsive } from '../../utils/useResponsive';
+import { useNavigate } from "react-router-dom";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -193,6 +194,17 @@ function LaudoList() {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
+
+        var requestOptions = {
+          method: 'DELETE',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${id}`, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
         setLaudos(prev => prev.filter(l => l.id !== id));
         setOpenDropdown(null);
         Swal.fire({
@@ -210,8 +222,8 @@ function LaudoList() {
     return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
   };
   const [pacientesMap, setPacientesMap] = useState({});
-// useEffect para atualizar todos os nomes
- useEffect(() => {
+  // useEffect para atualizar todos os nomes
+  useEffect(() => {
     if (!laudos || laudos.length === 0) return;
 
     const buscarPacientes = async () => {
@@ -228,7 +240,7 @@ function LaudoList() {
                 method: "GET",
                 headers: {
                   apikey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
                   Authorization: `Bearer ${tokenUsuario}`,
                 },
               }
@@ -294,169 +306,156 @@ function LaudoList() {
   const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
   const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
   const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
-
+  const navigate = useNavigate();
   useEffect(() => {
     setCurrentPage1(1);
   }, [search]);
   return (
     <div className="page-wrapper">
-    <div className="content">
-      <h4 className="page-title">Laudos</h4>
+      <div className="content">
+        <h4 className="page-title">Laudos</h4>
 
-      {/* Linha de pesquisa e filtros */}
-      <div className="row align-items-center mb-2">
-        {/* Esquerda: pesquisa */}
-        <div className="col d-flex align-items-center">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍  Buscar laudo"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ minWidth: "200px" }}
-          />
-        </div>
-
-
-        {/* Direita: filtros de data + botões */}
-        <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
-
-          {/* Filtros de data primeiro */}
-          <div className="date-filter">
-            <label>De:</label>
-            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-            <label>Até:</label>
-            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+        {/* Linha de pesquisa e filtros */}
+        <div className="row align-items-center mb-2">
+          {/* Esquerda: pesquisa */}
+          <div className="col d-flex align-items-center">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="🔍  Buscar laudo"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ minWidth: "200px" }}
+            />
           </div>
 
-          {/* Botões rápidos */}
-          <div className="quick-filter">
-            <button className={`btn-filter ${period === "today" ? "active" : ""}`} onClick={() => setPeriod("today")}>Hoje</button>
-            <button className={`btn-filter ${period === "week" ? "active" : ""}`} onClick={() => setPeriod("week")}>Semana</button>
-            <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
+
+          {/* Direita: filtros de data + botões */}
+          <div className="col-auto d-flex align-items-center" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
+
+            {/* Filtros de data primeiro */}
+            <div className="date-filter">
+              <label>De:</label>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+              <label>Até:</label>
+              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </div>
+
+            {/* Botões rápidos */}
+            <div className="quick-filter">
+              <button className={`btn-filter ${period === "today" ? "active" : ""}`} onClick={() => setPeriod("today")}>Hoje</button>
+              <button className={`btn-filter ${period === "week" ? "active" : ""}`} onClick={() => setPeriod("week")}>Semana</button>
+              <button className={`btn-filter ${period === "month" ? "active" : ""}`} onClick={() => setPeriod("month")}>Mês</button>
+            </div>
           </div>
+          <Link
+            to="/admin/laudo"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenDropdown(null);
+
+
+            }} className="btn btn-primary btn-rounded">
+            <i className="fa fa-plus"></i> Adicionar Laudo
+          </Link>
         </div>
-        <Link
-          to="/admin/laudo"
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpenDropdown(null);
 
-
-          }} className="btn btn-primary btn-rounded">
-          <i className="fa fa-plus"></i> Adicionar Laudo
-        </Link>
-      </div>
-
-      {/* Tabela */}
-      <div className="row">
-        <div className="col-12">
-          <div className="table-responsive">
-            <table className="table table-border table-striped custom-table datatable mb-0">
-              <thead>
-                <tr>
-                  <th>Pedido</th>
-                  <th>Pacient ID</th>
-                  <th>Exame</th>
-                  <th>Diasgnostico</th>
-                  <th>Conclusão</th>
-                  <th>Status</th>
-                  <th>Executante</th>
-                  <th>Criado em</th>
-                  <th className="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentLaudos.length > 0 ? currentLaudos.map(l => (
-                  <tr key={l.id}>
-                    <td className="nowrap">{l.order_number}</td>
-                    <td>{pacientesMap[l.patient_id] || "Carregando..."}</td>
-                    <td>{l.exam}</td>
-                    <td>{l.diagnosis}</td>
-                    <td>{l.conclusion}</td>
-                    <td>{l.status}</td>
-                    <td> {l.requested_by}</td>
-                    <td>{formatDate(l.created_at)}</td>
-                    <td className="text-right">
-                      <div className="dropdown dropdown-action">
-                        <button type="button" ref={el => anchorRefs.current[l.id] = el} className="action-icon"
-                          onClick={e => { e.stopPropagation(); setOpenDropdown(openDropdown === l.id ? null : l.id); }}>
-                          <i className="fa fa-ellipsis-v"></i>
-                        </button>
-                        <DropdownPortal anchorEl={anchorRefs.current[l.id]} isOpen={openDropdown === l.id}
-                          onClose={() => setOpenDropdown(null)} className="dropdown-menu dropdown-menu-right show">
-                          {/* BOTÃO VER DETALHES - SUBSTITUIU O BOTÃO LAUDO */}
-                          {/*<Link
-                            className="dropdown-item-custom"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdown(null);
-                              handleVerDetalhes(l);
-                            }}
-                          >
-                            <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                          </Link>*/}
-                          <Link
-                            to={`/admin/laudoedit/${l.id}`}
-                            className="dropdown-item-custom"
-
-                          >
-                            <i className="fa fa-pencil m-r-5"></i> Editar
-                          </Link>
-
-                          <button className="dropdown-item-custom dropdown-item-delete" onClick={() => handleDelete(l.id)}>
-                            <i className="fa fa-trash-o m-r-5"></i> Excluir
-                          </button>
-                        </DropdownPortal>
-                      </div>
-                    </td>
-                  </tr>
-                )) : (
+        {/* Tabela */}
+        <div className="row">
+          <div className="col-12">
+            <div className="table-responsive">
+              <table className="table table-border table-striped custom-table datatable mb-0">
+                <thead>
                   <tr>
-                    <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
+                    <th>Pedido</th>
+                    <th>Pacient ID</th>
+                    <th>Exame</th>
+                    <th>Diasgnostico</th>
+                    <th>Conclusão</th>
+                    <th>Status</th>
+                    <th>Executante</th>
+                    <th>Criado em</th>
+                    <th className="text-right">Ações</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentLaudos.length > 0 ? currentLaudos.map(l => (
+                    <tr key={l.id}>
+                      <td className="nowrap">{l.order_number}</td>
+                      <td>{pacientesMap[l.patient_id] || "Carregando..."}</td>
+                      <td>{l.exam}</td>
+                      <td>{l.diagnosis}</td>
+                      <td>{l.conclusion}</td>
+                      <td>{l.status}</td>
+                      <td> {l.requested_by}</td>
+                      <td>{formatDate(l.created_at)}</td>
+                      <td className="text-rigth">
+                        <div className="action-buttons-container">
+                          <button
+                            type="button"
+                            className="action-btn action-btn-edit"
+                            onClick={() => navigate(`/admin/laudoedit/${l.id}`)}
+                            title="Ver detalhes do paciente"
+                          >
+                            <span className="fa fa-pencil m-r-5"></span>
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn action-btn-delete"
+                            onClick={() => handleDelete(l.id)}
+                            title="Excluir paciente"
+                          >
+                            <span className="fa fa-trash-o"></span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <nav className="mt-3">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                    {"<<"}
+                  </button>
+                </li>
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                  >
+                    &lt;
+                  </button>
+                </li>
+                <li className="page-item active">
+                  <span className="page-link">{currentPage1}</span>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                    }
+                  >
+                    &gt;
+                  </button>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                    {">>"}
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
-          <nav className="mt-3">
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                  {"<<"}
-                </button>
-              </li>
-              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                >
-                  &lt;
-                </button>
-              </li>
-              <li className="page-item active">
-                <span className="page-link">{currentPage1}</span>
-              </li>
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                  }
-                >
-                  &gt;
-                </button>
-              </li>
-              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                  {">>"}
-                </button>
-              </li>
-            </ul>
-          </nav>
         </div>
       </div>
-    </div>
     </div>
   );
 }

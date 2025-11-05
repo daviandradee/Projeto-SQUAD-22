@@ -300,7 +300,7 @@ useEffect(() => {
                   Duração</th>
                   <th>Modo</th>
                   <th>Status</th>
-                  <th className="text-right">Ação</th>
+                  <th className="text-center">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -317,55 +317,34 @@ useEffect(() => {
                        {c.status}
                       </td>
                       <td className="text-right">
-                        <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                          <button
-                            type="button"
-                            ref={(el) => (anchorRefs.current[c.id] = el)}
-                            className="action-icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdown(openDropdown === c.id ? null : c.id);
-                            }}
+                        <div className="action-buttons-container">
+                              {/*<button
+                                type="button"
+                                className="action-btn action-btn-view"
+                                onClick={() => handleViewDetails(p)}
+                                title="Ver detalhes do paciente"
 
-                          >
-                            <i className="fa fa-ellipsis-v"></i>
-                          </button>
-
-                          <DropdownPortal
-                            anchorEl={anchorRefs.current[c.id]}
-                            isOpen={openDropdown === c.id}
-                            onClose={() => setOpenDropdown(null)}
-                            className="dropdown-menu dropdown-menu-right show"
-                          >
-                            {/*<Link
-                                                        className="dropdown-item-custom"
-                                                        to={`/profilepatient/${p.id}`}
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          setOpenDropdown(null);
-                                                        }}
-                                                      >
-                                                        <i className="fa fa-eye"></i> Ver Detalhes
-                                                      </Link>*/}
-                            <Link
-                              className="dropdown-item-custom"
-                              to={`/admin/agendaedit/${c.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
-                            >
-                              <i className="fa fa-pencil m-r-5"></i> Editar
-                            </Link>
-
-                            <button
-                              className="dropdown-item-custom dropdown-item-delete"
-                              onClick={() => handleDelete(c.id)}
-                            >
-                              <i className="fa fa-trash-o m-r-5"></i> Excluir
-                            </button>
-                          </DropdownPortal>
-                        </div>
+                              >
+                                <span className="fa fa-eye"></span>
+                              </button>}*/}
+                              <button
+                                type="button"
+                                className="action-btn action-btn-edit"
+                                onClick={() => navigate(`/admin/editpatient/${p.id}`)}
+                                title="Ver detalhes do paciente"
+                              >
+                                <span className="fa fa-pencil m-r-5"></span>
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn action-btn-delete"
+                                onClick={() => handleDelete(c.id)}
+                                title="Excluir paciente"
+                              >
+                                <span className="fa fa-trash-o"></span>
+                              </button>
+                            </div>
+                          
                       </td>
                     </tr>
                   ))
