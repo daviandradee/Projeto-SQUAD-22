@@ -1,7 +1,8 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
 import "../../assets/css/index.css";
 import Navbar from './../../components/Navbar'
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Chatbox from '../../components/Chatbox';
 import AccessibilityWidget from '../../components/AccessibilityWidget';
 
@@ -9,6 +10,7 @@ import AccessibilityWidget from '../../components/AccessibilityWidget';
 
 export default function PatientApp() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
       
   // 2. Adicione a função para alternar o estado
   const toggleSidebar = () => {
@@ -17,6 +19,35 @@ export default function PatientApp() {
 
   // 3. Crie a string de classe que será aplicada dinamicamente
   const mainWrapperClass = isSidebarOpen ? 'main-wrapper sidebar-open' : 'main-wrapper';
+  
+  // Função para verificar se a rota está ativa
+  const isActive = (path) => {
+    const currentPath = location.pathname;
+    
+    // Verificação exata primeiro
+    if (currentPath === path) return true;
+    
+    // Verificação de subrotas (ex: /patientapp/meuslaudos/view/123)
+    if (currentPath.startsWith(path + '/')) return true;
+    
+    // Verificações específicas para páginas de edição/criação
+    if (path === '/patientapp/medicosdisponiveis' && (
+        currentPath.includes('/patientapp/agendar/') || 
+        currentPath.includes('/patientapp/consultaform')
+      )) return true;
+      
+    if (path === '/patientapp/minhasconsultas' && (
+        currentPath.includes('/patientapp/consulta/') || 
+        currentPath.includes('/patientapp/editconsulta/')
+      )) return true;
+      
+    if (path === '/patientapp/meuslaudos' && (
+        currentPath.includes('/patientapp/laudo/') || 
+        currentPath.includes('/patientapp/viewlaudo/')
+      )) return true;
+    
+    return false;
+  };
   
   return (
     <div className={mainWrapperClass}>
@@ -31,45 +62,33 @@ export default function PatientApp() {
                 <span>Painel do Paciente</span>
               </li>
 
-              <li>
-                <NavLink
-                  to="/patientapp"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  <i className="fa fa-bar-chart"></i>
+              <li className={isActive('/patientapp') && location.pathname === '/patientapp' ? 'active' : ''}>
+                <Link to="/patientapp">
+                  <i className="fa fa-bar-chart-o"></i>
                   <span>Dashboard</span>
-                </NavLink>
+                </Link>
               </li>
               
-              
-              <li>
-                <NavLink
-                  to="/patientapp/medicosdisponiveis"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
+              <li className={isActive('/patientapp/medicosdisponiveis') ? 'active' : ''}>
+                <Link to="/patientapp/medicosdisponiveis">
                   <i className="fa fa-calendar-plus-o"></i>
                   <span>Agendar Consulta</span>
-                </NavLink>
+                </Link>
               </li>
 
-              <li>
-                <NavLink
-                 to="/patientapp/meuslaudos"
-                 className={({ isActive }) => (isActive ? "active" : "")}
-  >
-                <i className="fa fa-file-text"></i>
-                 <span>Meus Laudos</span>
-               </NavLink>
+              {/* Separador - Meus Dados */}
+              <li className={`separator ${isActive('/patientapp/meuslaudos') ? 'active' : ''}`}>
+                <Link to="/patientapp/meuslaudos">
+                  <i className="fa fa-file-text-o"></i>
+                  <span>Meus Laudos</span>
+                </Link>
               </li>
 
-              <li>
-                <NavLink
-                  to="/patientapp/minhasconsultas"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
+              <li className={isActive('/patientapp/minhasconsultas') ? 'active' : ''}>
+                <Link to="/patientapp/minhasconsultas">
                   <i className="fa fa-calendar-check-o"></i>
                   <span>Minhas Consultas</span>
-                </NavLink>
+                </Link>
               </li>
             </ul>
           </div>

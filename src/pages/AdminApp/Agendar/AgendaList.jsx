@@ -487,12 +487,34 @@ useEffect(() => {
                             c.status === 'cancelled' ? 'status-red' :
                             'status-gray'
                           }`}
+                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         >
-                          {c.status === 'requested' ? 'Solicitado' :
-                           c.status === 'confirmed' ? 'Confirmado' :
-                           c.status === 'completed' ? 'Concluído' :
-                           c.status === 'cancelled' ? 'Cancelado' :
-                           c.status}
+                          {c.status === 'requested' ? (
+                            <>
+                              <i className="fa fa-clock-o" style={{ marginRight: '6px' }}></i>
+                              Solicitado
+                            </>
+                          ) : c.status === 'confirmed' ? (
+                            <>
+                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                              Confirmado
+                            </>
+                          ) : c.status === 'completed' ? (
+                            <>
+                              <i className="fa fa-check" style={{ marginRight: '6px' }}></i>
+                              Concluído
+                            </>
+                          ) : c.status === 'cancelled' ? (
+                            <>
+                              <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
+                              Cancelado
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                              {c.status}
+                            </>
+                          )}
                         </span>
                       </td>
                       <td className="text-right">

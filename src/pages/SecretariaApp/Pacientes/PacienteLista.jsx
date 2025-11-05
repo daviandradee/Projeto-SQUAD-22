@@ -7,6 +7,7 @@ import { getAccessToken } from "../../../utils/auth"
 import Swal from 'sweetalert2';
 import '../../../assets/css/modal-details.css';
 import { useResponsive } from '../../../utils/useResponsive';
+import { useNavigate } from "react-router-dom";
 
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
@@ -92,7 +93,7 @@ function PacienteLista() {
   const anchorRefs = useRef({});
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const navigate = useNavigate();
   const handleViewDetails = async (patientId) => {
     try {
       const tokenUsuario = getAccessToken();
@@ -387,6 +388,7 @@ function PacienteLista() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdown(null);
+                                navigate(`/secretaria/pacienteeditar/${p.id}`);
                               }}
                             >
                               <i className="fa fa-pencil m-r-5"></i> Editar

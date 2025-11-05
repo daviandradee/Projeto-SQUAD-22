@@ -85,10 +85,15 @@ function SecretariaConsultaList() {
   const anchorRefs = useRef({});
   const [consulta, setConsultas] = useState([]);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
   const tokenUsuario = getAccessToken()
   const [pacientesMap, setPacientesMap] = useState({});
   const [medicosMap, setMedicosMap] = useState({});
-  const consultaid = consulta.id;
+  const [period, setPeriod] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const headers = {
     apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
     Authorization: `Bearer ${tokenUsuario}`,
@@ -132,6 +137,7 @@ function SecretariaConsultaList() {
           headers: myHeaders,
         }
       );
+      console.log("Resposta do delete:", response);
       if (response.ok) {
         setConsultas((prev) => prev.filter((c) => c.id !== id));
         setOpenDropdown(null);
@@ -155,10 +161,61 @@ function SecretariaConsultaList() {
   const filteredConsultas = consulta.filter(p => {
     if (!p) return false;
     const nome = (pacientesMap[p.patient_id] || "").toLowerCase();
+    const médicoNome = (medicosMap[p.doctor_id] || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
     const q = search.toLowerCase();
-    return nome.includes(q) || cpf.includes(q) || email.includes(q);
+    
+    
+    // Filtro por texto (nome, cpf, email)
+    const matchesText = nome.includes(q) || cpf.includes(q) || email.includes(q) || médicoNome.includes(q);
+    
+    // Filtro por status
+    const matchesStatus = !statusFilter || p.status === statusFilter;
+    
+    // Filtro por tipo de consulta
+    const matchesType = !typeFilter || p.appointment_type === typeFilter;
+    
+    
+    let dateMatch = true;
+    if (p.scheduled_at) {
+      const consultaDate = new Date(p.scheduled_at);
+      const today = new Date();
+      
+      // Filtros por período rápido
+      if (period === "today") {
+        const todayStr = today.toDateString();
+        dateMatch = consultaDate.toDateString() === todayStr;
+      } else if (period === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        dateMatch = consultaDate >= startOfWeek && consultaDate <= endOfWeek;
+      } else if (period === "month") {
+        dateMatch = consultaDate.getMonth() === today.getMonth() && 
+                   consultaDate.getFullYear() === today.getFullYear();
+      }
+
+      // Filtros por data específica
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Inclui o dia inteiro
+        dateMatch = dateMatch && consultaDate >= start && consultaDate <= end;
+      } else if (startDate) {
+        const start = new Date(startDate);
+        dateMatch = dateMatch && consultaDate >= start;
+      } else if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        dateMatch = dateMatch && consultaDate <= end;
+      }
+    }
+
+    return matchesText && matchesStatus && matchesType && dateMatch;
   });
   const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
@@ -168,7 +225,21 @@ function SecretariaConsultaList() {
   const totalPages1 = Math.ceil(filteredConsultas.length / itemsPerPage1);
   useEffect(() => {
     setCurrentPage1(1);
-  }, [search]);
+  }, [search, statusFilter, typeFilter, period, startDate, endDate]);
+
+  // Função para definir períodos e limpar datas
+  const handlePeriodChange = (newPeriod) => {
+    // Se clicar no mesmo período, limpa o filtro
+    if (period === newPeriod) {
+      setPeriod("");
+    } else {
+      setPeriod(newPeriod);
+    }
+    
+    // Sempre limpa as datas específicas
+    setStartDate("");
+    setEndDate("");
+  };
 useEffect(() => {
     if (!consulta || consulta.length === 0) return;
 
@@ -186,7 +257,7 @@ useEffect(() => {
                 method: "GET",
                 headers: {
                   apikey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
                   Authorization: `Bearer ${tokenUsuario}`,
                 },
               }
@@ -253,14 +324,12 @@ useEffect(() => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      // Extrai data e hora diretamente da string ISO sem conversão de timezone
+      const [datePart, timePart] = dateString.split('T');
+      const [year, month, day] = datePart.split('-');
+      const [hour, minute] = timePart.split(':');
+      
+      return `${day}/${month}/${year} ${hour}:${minute}`;
     } catch {
       return dateString;
     }
@@ -268,21 +337,92 @@ useEffect(() => {
   return (
     <div className="content">
       <div className="row">
-        <div className="col-sm-4 col-3">
-          <h4 className="page-title">Lista de consultas</h4>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍  Buscar consulta"
-            style={{ minWidth: "200px" }}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <br />
-        </div>
-        <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/secretaria/adicionarconsulta" className="btn btn-primary btn-rounded">
-            <i className="fa fa-plus"></i> Adicionar consulta
-          </Link>
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-start mb-3">
+            <h4 className="page-title mb-0">Lista de consultas</h4>
+            <Link to="/secretaria/adicionarconsulta" className="btn btn-primary btn-rounded" >
+              <i className="fa fa-plus"></i> Adicionar consulta
+            </Link>
+          </div>
+          
+          {/* Todos os filtros em uma única linha */}
+          <div className="d-flex align-items-center mb-3" style={{ gap: "0.30rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+            {/* Campo de busca */}
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="🔍  Buscar consulta"
+              style={{ minWidth: "300px", maxWidth: "450px", }}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            
+            {/* Filtro de status */}
+            <select
+              className="form-control form-control-sm"
+              style={{ minWidth: "80px", maxWidth: "125px", }}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">Status</option>
+              <option value="requested">Solicitado</option>
+              <option value="confirmed">Confirmado</option>
+              <option value="completed">Concluído</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+
+            {/* Filtro De */}
+            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+              <input 
+                type="date" 
+                className="form-control form-control-sm"
+                style={{ minWidth: "130px", }}
+                value={startDate} 
+                onChange={e => {
+                  setStartDate(e.target.value);
+                  if (e.target.value) setPeriod("");
+                }} 
+              />
+            </div>
+            
+            {/* Filtro Até */}
+            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+              <input 
+                type="date" 
+                className="form-control form-control-sm"
+                style={{ minWidth: "130px", }}
+                value={endDate} 
+                onChange={e => {
+                  setEndDate(e.target.value);
+                  if (e.target.value) setPeriod("");
+                }} 
+              />
+            </div>
+
+            {/* Botões rápidos */}
+            <button 
+              className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("today")}
+            >
+              Hoje
+            </button>
+            <button 
+              className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "70px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("week")}
+            >
+              Semana
+            </button>
+            <button 
+              className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("month")}
+            >
+              Mês
+            </button>
+          </div>
         </div>
       </div>
 
@@ -292,15 +432,15 @@ useEffect(() => {
             <table className="table table-striped custom-table">
               <thead>
                 <tr>
-                  <th>Pedido</th>
+                   <th>Pedido</th>
                   <th>Nome do Paciente</th>
                   <th>Nome do Médico</th>
                   <th>Agendado</th>
                   <th>
-Duração</th>
-                  <th>Modo</th>
-                  <th>Status</th>
-                  <th className="text-right">Ação</th>
+                  Duração</th>
+                  <th className="text-center">Modo</th>
+                  <th className="text-center">Status</th>
+                  <th className="text-center">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -312,68 +452,105 @@ Duração</th>
                       <td>{medicosMap[c.doctor_id] || "Carregando..."}</td>
                       <td>{formatDate(c.scheduled_at)}</td>
                       <td>{c.duration_minutes} min</td>
-                      <td>{c.appointment_type}</td>
                       <td>
-                       {c.status}
+                        <span 
+                          className={`custom-badge ${
+                            c.appointment_type === 'presencial' ? 'status-green' :
+                            c.appointment_type === 'telemedicina' ? 'status-blue' :
+                            'status-gray'
+                          }`}
+                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'center' }}
+                        >
+                          {c.appointment_type === 'presencial' ? (
+                            <>
+                              <i className="fa fa-hospital-o" style={{ marginRight: '6px' }}></i>
+                              Presencial
+                            </>
+                          ) : c.appointment_type === 'telemedicina' ? (
+                            <>
+                              <i className="fa fa-video-camera" style={{ marginRight: '6px' }}></i>
+                              Telemedicina
+                            </>
+                          ) : (
+                            c.appointment_type
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`custom-badge ${
+                            c.status === 'requested' ? 'status-orange' :
+                            c.status === 'confirmed' ? 'status-blue' :
+                            c.status === 'completed' ? 'status-green' :
+                            c.status === 'cancelled' ? 'status-red' :
+                            'status-gray'
+                          }`}
+                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          {c.status === 'requested' ? (
+                            <>
+                              <i className="fa fa-clock-o" style={{ marginRight: '6px' }}></i>
+                              Solicitado
+                            </>
+                          ) : c.status === 'confirmed' ? (
+                            <>
+                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                              Confirmado
+                            </>
+                          ) : c.status === 'completed' ? (
+                            <>
+                              <i className="fa fa-check" style={{ marginRight: '6px' }}></i>
+                              Concluído
+                            </>
+                          ) : c.status === 'cancelled' ? (
+                            <>
+                              <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
+                              Cancelado
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                              {c.status}
+                            </>
+                          )}
+                        </span>
                       </td>
                       <td className="text-right">
-                        <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                          <button
-                            type="button"
-                            ref={(el) => (anchorRefs.current[c.id] = el)}
-                            className="action-icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdown(openDropdown === c.id ? null : c.id);
-                            }}
+                        <div className="action-buttons-container">
+                              {/*<button
+                                type="button"
+                                className="action-btn action-btn-view"
+                                onClick={() => handleViewDetails(p)}
+                                title="Ver detalhes do paciente"
 
-                          >
-                            <i className="fa fa-ellipsis-v"></i>
-                          </button>
-
-                          <DropdownPortal
-                            anchorEl={anchorRefs.current[c.id]}
-                            isOpen={openDropdown === c.id}
-                            onClose={() => setOpenDropdown(null)}
-                            className="dropdown-menu dropdown-menu-right show"
-                          >
-                            {/*<Link
-                                                        className="dropdown-item-custom"
-                                                        to={`/profilepatient/${p.id}`}
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          setOpenDropdown(null);
-                                                        }}
-                                                      >
-                                                        <i className="fa fa-eye"></i> Ver Detalhes
-                                                      </Link>*/}
-
-                            <Link
-                              className="dropdown-item-custom"
-                              to={`/secretaria/editarconsulta/${c.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
-                            >
-                              <i className="fa fa-pencil m-r-5"></i> Editar
-                            </Link>
-
-                            <button
-                              className="dropdown-item-custom dropdown-item-delete"
-                              onClick={() => handleDelete(c.id)}
-                            >
-                              <i className="fa fa-trash-o m-r-5"></i> Excluir
-                            </button>
-                          </DropdownPortal>
-                        </div>
+                              >
+                                <span className="fa fa-eye"></span>
+                              </button>}*/}
+                              <button
+                                type="button"
+                                className="action-btn action-btn-edit"
+                                onClick={() => navigate(`/secretaria/editarconsulta/${c.id}`)}
+                                title="Editar consulta"
+                              >
+                                <span className="fa fa-pencil m-r-5"></span>
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn action-btn-delete"
+                                onClick={() => handleDelete(c.id)}
+                                title="Excluir paciente"
+                              >
+                                <span className="fa fa-trash-o"></span>
+                              </button>
+                            </div>
+                          
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="7" className="text-center text-muted">
-                      Nenhum paciente encontrado
+                      Nenhuma consulta encontrada.
                     </td>
                   </tr>
                 )}
