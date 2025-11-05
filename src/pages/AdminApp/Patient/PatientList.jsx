@@ -8,6 +8,7 @@ import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
 import AvatarForm from "../../../../public/img/AvatarForm.jpg";
+import { useNavigate } from "react-router-dom";
 
 
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
@@ -193,7 +194,7 @@ function PatientList() {
     const fim = cpf.slice(-2);
     return `${inicio}.***.***-${fim}`;
   };
-
+  const navigate = useNavigate();
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
@@ -220,35 +221,34 @@ function PatientList() {
           <div className="row">
             <div className="col-md-12">
               <div className="table-responsive">
-                <table className="table table-border table-striped custom-table datatable mb-0">
+                <table className="table table-striped custom-table">
                   <thead>
                     <tr>
-                      <th>Nome</th>
-                      <th>Cpf</th>
-                      <th>Data de Nascimento</th>
-                      <th>Telefone</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th className="text-right">Ações</th>
+                      <th className="text-auto">Nome</th>
+                      <th className="text-center">CPF</th>
+                      <th className="text-center">Data Nasc.</th>
+                      <th className="text-center">Telefone</th>
+                      <th className="text-center">Email</th>
+                      <th className="text-center">Sexo</th>
+                      <th className="text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentPatients.length > 0 ? (
                       currentPatients.map((p) => (
                         <tr key={p.id}>
-                          
-                              <td>
+                          <td>
                             <div className="table-avatar">
                               <div className="upload-img">
-                                <img 
-                                  alt={p.full_name} 
-                                  src={p.profile_photo_url || AvatarForm} 
-                                  style={{ 
-                                    width: "30px", 
-                                    height: "30px", 
+                                <img
+                                  alt={p.full_name}
+                                  src={p.profile_photo_url || AvatarForm}
+                                  style={{
+                                    width: "30px",
+                                    height: "30px",
                                     borderRadius: "50%",
-                                    objectFit: "cover" 
-                                  }} 
+                                    objectFit: "cover"
+                                  }}
                                   onError={(e) => {
                                     e.target.src = AvatarForm; // Fallback se a imagem não carregar
                                   }}
@@ -256,73 +256,41 @@ function PatientList() {
                                 <span style={{ marginLeft: "4px" }}>{p.full_name}</span>
                               </div>
                             </div>
-                            </td>
-                            <td>{mascararCPF(p.cpf)}</td>
-                            <td>{p.birth_date}</td>
-                            <td>{p.phone_mobile}</td>
-                            <td>{p.email}</td>
-                            <td>{p.sex}</td>
-                            <td className="text-right">
-                              <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                                <button
-                                  type="button"
-                                  ref={(el) => (anchorRefs.current[p.id] = el)}
-                                  className="action-icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(openDropdown === p.id ? null : p.id);
-                                  }}
+                          </td>
+                          <td>{mascararCPF(p.cpf)}</td>
+                          <td>{p.birth_date}</td>
+                          <td>{p.phone_mobile}</td>
+                          <td>{p.email}</td>
+                          <td>{p.sex}</td>
+                          <td className="text-rigth">
+                            <div className="action-buttons-container">
+                              <button
+                                type="button"
+                                className="action-btn action-btn-view"
+                                onClick={() => handleViewDetails(p)}
+                                title="Ver detalhes do paciente"
 
-                                >
-                                  <i className="fa fa-ellipsis-v"></i>
-                                </button>
-
-                                <DropdownPortal
-                                  anchorEl={anchorRefs.current[p.id]}
-                                  isOpen={openDropdown === p.id}
-                                  onClose={() => setOpenDropdown(null)}
-                                  className="dropdown-menu dropdown-menu-right show"
-                                >
-                                  {/*<Link
-                                  className="dropdown-item-custom"
-                                  to={`/profilepatient/${p.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-eye"></i> Ver Detalhes
-                                </Link>*/}
-                                  <Link
-                                    className="dropdown-item-custom"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenDropdown(null);
-                                      handleViewDetails(p);
-                                    }}
-                                  >
-                                    <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                                  </Link>
-                                  <Link
-                                    className="dropdown-item-custom"
-                                    to={`/admin/editpatient/${p.id}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenDropdown(null);
-                                    }}
-                                  >
-                                    <i className="fa fa-pencil m-r-5"></i> Editar
-                                  </Link>
-
-                                  <button
-                                    className="dropdown-item-custom dropdown-item-delete"
-                                    onClick={() => handleDelete(p.id)}
-                                  >
-                                    <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                  </button>
-                                </DropdownPortal>
-                              </div>
-                            </td>
+                              >
+                                <span className="fa fa-eye"></span>
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn action-btn-edit"
+                                onClick={() => navigate(`/admin/editpatient/${p.id}`)}
+                                title="Ver detalhes do paciente"
+                              >
+                                <span className="fa fa-pencil m-r-5"></span>
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn action-btn-delete"
+                                onClick={() => handleDelete(p.id)}
+                                title="Excluir paciente"
+                              >
+                                <span className="fa fa-trash-o"></span>
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     ) : (
@@ -395,8 +363,8 @@ function PatientList() {
                       <div className="modal-body">
                         {/* Foto do Paciente */}
                         <div className="text-center mb-4">
-                          <img 
-                            src={selectedPatient.profile_photo_url || AvatarForm} 
+                          <img
+                            src={selectedPatient.profile_photo_url || AvatarForm}
                             alt={selectedPatient.full_name}
                             style={{
                               width: "120px",
