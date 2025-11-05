@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { getAccessToken } from "../../utils/auth";
 
 
+
 const API_ROOT = "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1";
 const API_URL = `${API_ROOT}/doctor_exceptions`;
 const API_DOCTORS = `${API_ROOT}/doctors?select=id,full_name`;
@@ -146,6 +147,10 @@ export default function Doctorexceçao() {
       inputPlaceholder: "Selecione o médico",
       showCancelButton: true,
       confirmButtonText: "Continuar",
+      didOpen: (popup) => {
+        popup.style.position = "fixed";
+        popup.style.top = "230px";
+      }
     });
     if (!s1.isConfirmed || !s1.value) return;
     const doctor_id = s1.value;
@@ -161,6 +166,10 @@ export default function Doctorexceçao() {
       inputPlaceholder: "Selecione o tipo",
       showCancelButton: true,
       confirmButtonText: "Continuar",
+      didOpen: (popup) => {
+        popup.style.position = "fixed";
+        popup.style.top = "230px";
+      }
     });
     if (!s2.isConfirmed || !s2.value) return;
     const kind = s2.value;
@@ -172,6 +181,10 @@ export default function Doctorexceçao() {
       inputPlaceholder: "Ex: Congresso, folga, manutenção...",
       showCancelButton: true,
       confirmButtonText: "Criar exceção",
+      didOpen: (popup) => {
+        popup.style.position = "fixed";
+        popup.style.top = "230px";
+      }
     });
     if (!form.isConfirmed) return;
 
