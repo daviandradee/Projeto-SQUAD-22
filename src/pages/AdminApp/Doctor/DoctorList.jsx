@@ -47,12 +47,12 @@ function Doctors() {
       if (result.isConfirmed) {
         try {
           const tokenUsuario = getAccessToken(); // pega o token do usuário (mesmo que usa no form)
-  
+
           var myHeaders = new Headers();
           myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
           myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
           myHeaders.append("Content-Type", "application/json");
-  
+
           const response = await fetch(
             `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`,
             {
@@ -60,17 +60,17 @@ function Doctors() {
               headers: myHeaders,
             }
           );
-  
+
           if (!response.ok) {
             const err = await response.json();
             console.error("Erro ao deletar médico:", err);
             Swal.fire("Erro!", err.message || "Não foi possível excluir o registro.", "error");
             return;
           }
-  
+
           // Atualiza a lista local
           setDoctors((prev) => prev.filter((doc) => doc.id !== id));
-  
+
           Swal.fire("Excluído!", "O registro foi removido com sucesso.", "success");
         } catch (error) {
           console.error("Erro inesperado:", error);
@@ -78,6 +78,114 @@ function Doctors() {
         }
       }
     });
+  };
+
+  const handleViewDetails = async (id) => {
+    try {
+      const tokenUsuario = getAccessToken();
+
+      const response = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`,
+        {
+          method: "GET",
+          headers: {
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            Authorization: `Bearer ${tokenUsuario}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      const doctor = data[0];
+
+      if (!doctor) {
+        Swal.fire("Erro", "Não foi possível carregar os detalhes do médico.", "error");
+        return;
+      }
+
+      Swal.fire({
+        width: "800px",
+        showConfirmButton: true,
+        confirmButtonText: "Fechar",
+        confirmButtonColor: "#4dabf7",
+        background: document.body.classList.contains("dark-mode") ? "#1e1e2f" : "#fff",
+        color: document.body.classList.contains("dark-mode") ? "#f5f5f5" : "#000",
+        html: `
+        <div style="text-align:left;">
+          <!-- Cabeçalho -->
+          <div style="
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            border-bottom:1px solid rgba(0,0,0,0.1);
+            margin-bottom:15px;
+            padding-bottom:5px;
+          ">
+            <h5 style="margin:0;">Perfil Médico</h5>
+            <button id="btn-close-modal" style="
+              background:none; 
+              border:none; 
+              font-size:22px; 
+              cursor:pointer; 
+              color:#999;
+            ">&times;</button>
+          </div>
+
+          <!-- Foto e Nome -->
+          <div style="text-align:center; margin-bottom:20px;">
+            <img 
+              src="${doctor.foto || AvatarForm}" 
+              alt="${doctor.full_name}"
+              style="
+                width:120px;
+                height:120px;
+                border-radius:50%;
+                object-fit:cover;
+                border:3px solid #4dabf7;
+                box-shadow:0 4px 8px rgba(0,0,0,0.1);
+              "
+              onerror="this.src='${AvatarForm}'"
+            />
+            <h5 style="margin-top:10px;">${doctor.full_name}</h5>
+            <p class="text-muted">${doctor.specialty || "Especialidade não informada"}</p>
+          </div>
+
+          <!-- Informações pessoais -->
+          <div style="display:flex; justify-content:space-between; gap:20px;">
+            <div style="width:48%;">
+              <p><strong>Telefone:</strong> ${doctor.phone_mobile || "—"}</p>
+              <p><strong>Email:</strong> ${doctor.email || "—"}</p>
+              <p><strong>Data de nascimento:</strong> ${doctor.birth_date || "—"}</p>
+              <p><strong>Sexo:</strong> ${doctor.gender || "—"}</p>
+            </div>
+            <div style="width:48%;">
+              <p><strong>Região:</strong> ${doctor.city || "—"}, ${doctor.state || "—"}, Brasil</p>
+              <p><strong>CRM:</strong> ${doctor.crm || "—"}</p>
+              <p><strong>Especialidade:</strong> ${doctor.specialty || "—"}</p>
+              <p><strong>Experiência:</strong> ${doctor.experience_years || "—"} anos</p>
+            </div>
+          </div>
+
+          <!-- Biografia -->
+          <div style="margin-top:25px;">
+            <h5>Biografia</h5>
+            <p style="text-align:justify;">
+              ${doctor.biografia || "Este médico ainda não possui biografia cadastrada."}
+            </p>
+          </div>
+        </div>
+      `,
+        didOpen: () => {
+          document
+            .getElementById("btn-close-modal")
+            ?.addEventListener("click", () => Swal.close());
+        },
+      });
+    } catch (err) {
+      console.error("Erro ao buscar médico:", err);
+      Swal.fire("Erro!", err.message || "Erro ao buscar médico.", "error");
+    }
   };
 
   return (
@@ -126,13 +234,17 @@ function Doctors() {
                       style={{ position: "absolute", zIndex: 1000 }}
                     >
                       {/* Ver Detalhes */}
-                      <Link
+                      <button
                         className="dropdown-item-custom"
-                        to={`/admin/profiledoctor/${doctor.id}`}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdown(null);
+                          handleViewDetails(doctor.id);
+                        }}
                       >
                         <i className="fa fa-eye"></i> Ver Detalhes
-                      </Link>
+                      </button>
+
                       {/* Edit */}
                       <Link
                         className="dropdown-item-custom"
