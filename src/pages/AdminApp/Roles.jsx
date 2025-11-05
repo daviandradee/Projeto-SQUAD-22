@@ -18,7 +18,7 @@ function Roles() {
     email: "",
     phone: "",
     cpf: "",
-    role: "",
+    role: "secretaria",
     password: ""
   });
   const [submitting, setSubmitting] = useState(false);
@@ -122,6 +122,11 @@ function Roles() {
         setSubmitting(false);
         return;
       }
+      if (!formData.role || formData.role.trim() === "") {
+        Swal.fire("Cargo obrigatório", "Selecione um cargo para o usuário.", "warning");
+        setSubmitting(false);
+        return;
+      }
 
       const role = (formData.role || "").toString().trim(); // garante string exata
 
@@ -132,7 +137,11 @@ function Roles() {
         full_name: formData.full_name.trim(),
         phone: formData.phone || "",
         cpf: formData.cpf || "",
-        role: role
+        role: role,
+        ...(role === "paciente" && { 
+          create_patient_record: true,
+          phone_mobile: formData.phone || ""
+        })
       };
 
       console.log("Tentando criar usuário (payload1):", payload1);
@@ -188,7 +197,11 @@ function Roles() {
           full_name: formData.full_name.trim(),
           phone: formData.phone || "",
           cpf: formData.cpf || "",
-          roles: [role] // tentativa alternativa
+          roles: [role], // tentativa alternativa
+          ...(role === "paciente" && { 
+            create_patient_record: true,
+            phone_mobile: formData.phone || ""
+          })
         };
 
         console.log("Servidor rejeitou role. Tentando payload2 (roles array):", payload2);
@@ -369,6 +382,7 @@ function Roles() {
             <option value="paciente">Paciente</option>
             <option value="gestor">Gestor</option>
             <option value="medico">Médico</option>
+            <option value="user">Usuário</option>
           </select>
 
           {/* Filtro De */}
@@ -447,54 +461,55 @@ function Roles() {
                         <td style={{ wordBreak: "break-word" }}>{user.email || "-"}</td>
                         <td>{user.phone || "-"}</td>
                         <td>
-                        <span 
-                          className={`custom-badge ${
-                            user.role === 'admin' ? 'status-red' :
-                            user.role === 'secretaria' ? 'status-yellow' :
-                            user.role === 'gestor' ? 'status-blue' :
-                            user.role === 'paciente' ? 'status-green' :
-                            user.role === 'medico' || user.role === 'Médico' ? 'status-purple' :
-                            'status-gray'
-                          }`}
-                          
-                          
-                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'left' }}
-                        >
-                          {user.role === 'paciente' ? (
-                            <>
-                              <i className="fa fa-user" style={{ marginRight: '6px' }}></i>
-                              Paciente
-                            </>
-                          ) : user.role === 'medico' || user.role === 'Médico' ? (
-                            <>
-                              <i className="fa fa-stethoscope" style={{ marginRight: '6px' }}></i>
-                              Médico
-                            </>
-                          ) : user.role === 'admin' ? (
-                            <>
-                              <i className="fa fa-shield" style={{ marginRight: '6px' }}></i>
-                              Administrador
-                            </>
-                          ) : (
-                            user.role === 'secretaria' ? (
-                              <>
-                                <i className="fa fa-user-tie" style={{ marginRight: '6px' }}></i>
-                                Secretaria
-                              </>
-                            ) : user.role === 'gestor' ? (
-                              <>
-                                <i className="fa fa-briefcase" style={{ marginRight: '6px' }}></i>
-                                Gestor
-                              </>
-                            ) : (
-                              <>
-                                <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
-                                {user.role || "Sem cargo"}
-                              </>
-                            )
-                          )}
-                        </span>
-                      </td>
+                          {(() => {
+                            if (!user.role || user.role === "Sem cargo") {
+                              return (
+                                <span className="custom-badge status-gray" style={{ minWidth: '110px', display: 'inline-block', textAlign: 'left' }}>
+                                  <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                                  Sem cargo
+                                </span>
+                              );
+                            }
+                            
+                            const rolesArray = user.role.split(', ').map(r => r.trim());
+                            const roleMap = {
+                              'admin': { icon: 'fa fa-shield', label: 'Admin', color: 'status-red' },
+                              'medico': { icon: 'fa fa-stethoscope', label: 'Médico', color: 'status-purple' },
+                              'gestor': { icon: 'fa fa-briefcase', label: 'Gestor', color: 'status-blue' },
+                              'secretaria': { icon: 'fa fa-phone', label: 'Secretaria', color: 'status-orange' },
+                              'paciente': { icon: 'fa fa-user', label: 'Paciente', color: 'status-green' },
+                              'user': { icon: 'fa fa-user-circle', label: 'User', color: 'status-pink' }
+                            };
+                            
+                            return (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {rolesArray.map((role, index) => {
+                                  const roleInfo = roleMap[role.toLowerCase()] || { icon: 'fa-question-circle', label: role, color: 'status-gray' };
+                                  return (
+                                    <span 
+                                      key={index}
+                                      className={`custom-badge ${roleInfo.color}`} 
+                                      style={{ 
+                                        minWidth: '80px',
+                                        width: '80px',
+                                        display: 'inline-flex', 
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.75rem',
+                                        padding: '3px 6px',
+                                        marginBottom: '2px',
+                                        textAlign: 'center'
+                                      }}
+                                    >
+                                      <i className={roleInfo.icon} style={{ marginRight: '4px' }}></i>
+                                      {roleInfo.label}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
+                        </td>
                         <td style={{ wordBreak: "break-word", fontSize: '12px' }}>{user.id}</td>
                         <td>{formatDate(user.created_at)}</td>
                       </tr>
@@ -609,11 +624,13 @@ function Roles() {
                       onChange={handleInputChange}
                       required
                     >
+                      <option value="">Selecione um cargo</option>
                       <option value="secretaria">Secretária</option>
                       <option value="admin">Administrador</option>
                       <option value="gestor">Gestor</option>
                       <option value="medico">Médico</option>
                       <option value="paciente">Paciente</option>
+                      <option value="user">Usuário</option>
                     </select>
                   </div>
 
