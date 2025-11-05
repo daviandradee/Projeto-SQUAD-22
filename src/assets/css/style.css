@@ -56,12 +56,12 @@ Version      : 1.0
 	1. General
 -----------------------*/
 
-@import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 html {
 	height: 100%;
 }
 body {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 	font-size: 0.875rem;
 	color: #666;
 	background-color: #fafafa;
@@ -824,7 +824,7 @@ textarea.form-control {
 	top: 50px;
 	width: 230px;
 	z-index: 1039;
-	background-color: #fff;
+	background-color: #FFFFFF;
 	bottom: 0;
 	margin-top: 0px;
 	position: fixed;
@@ -844,27 +844,77 @@ textarea.form-control {
 	font-size: 14px;
 	list-style-type: none;
 	margin: 0;
-	padding: 0;
+	padding: 8px 0;
 }
 .sidebar-menu li a {
-	color: #888;
-	display: block;
-	font-size: 15px;
+	color: #777;
+	display: flex;
+	align-items: center;
+	font-family: 'Inter', sans-serif;
+	font-size: 14px;
+	font-weight: 400;
 	height: auto;
-	padding: 0 20px;
+	padding: 12px 16px;
+	margin: 2px 8px;
+	border-radius: 10px;
+	transition: all 0.3s ease;
+	text-decoration: none;
+}
+.sidebar-menu li a i {
+	color: #777;
+	margin-right: 12px;
+	width: 16px;
+	text-align: center;
+	transition: color 0.3s ease;
 }
 .sidebar-menu li a:hover {
-	color: #009efb;
+	color: #007BFF;
+	background-color: #E8F2FF;
+	transform: translateX(4px);
 }
-.sidebar-menu li.active a {
-	color: #009efb;
-	background-color: #f3f3f3;
+.sidebar-menu li a:hover i {
+	color: #007BFF;
 }
+.sidebar-menu li.active a,
+.sidebar-menu li a.active {
+	color: #007BFF;
+	background-color: #E8F2FF;
+	font-weight: 500;
+}
+.sidebar-menu li.active a i,
+.sidebar-menu li a.active i {
+	color: #007BFF;
+}
+
+/* Separadores de seção */
+.sidebar-menu li.separator {
+	border-top: 1px solid #EAEAEA;
+	margin: 16px 0;
+	padding-top: 16px;
+}
+
+/* Melhor espaçamento para o ul */
+.sidebar-menu ul {
+	font-size: 14px;
+	list-style-type: none;
+	margin: 0;
+	padding: 8px 0;
+}
+
+/* Estilo para span dentro dos links */
+.sidebar-menu li a span {
+	font-family: 'Inter', sans-serif;
+	font-weight: inherit;
+}
+
 .menu-title {
 	color: #333;
-	font-size: 15px;
-	font-weight: 500;
-	padding: 12px 20px;
+	font-family: 'Inter', sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 16px 16px 8px 16px;
 }
 .menu-title > i {
 	float: right;
@@ -2609,12 +2659,12 @@ a.fc-event:not([href]) {
 .fc-toolbar h2 {
 	font-size: 18px;
 	font-weight: 600;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Inter', sans-serif;
 	line-height: 30px;
 	text-transform: uppercase;
 }
 .fc-day-grid-event .fc-time {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Inter', sans-serif;
 }
 .fc-day {
 	background: #fff;
@@ -2688,12 +2738,12 @@ a.fc-event:not([href]) {
 .fc-basic-view td.fc-week-number span {
 	padding-right: 8px;
 	font-weight: 700;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Inter', sans-serif;
 }
 .fc-basic-view td.fc-day-number {
 	padding-right: 8px;
 	font-weight: 700;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Inter', sans-serif;
 }
 
 /*-----------------
