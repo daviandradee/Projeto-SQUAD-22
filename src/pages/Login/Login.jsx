@@ -183,6 +183,25 @@ export default function Login() {
           <button type="submit" style={styles.button}>
             Entrar
           </button>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+          <p style={{ margin: 0 }}>Não é cadastrado?</p>
+          <button
+            type="button"
+            onClick={() => navigate("/Cadastro")}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#007bff",
+            textDecoration: "underline",
+            cursor: "pointer",
+            padding: 0,
+            fontSize: "inherit"
+          }}
+  >
+    Cadastrar-se
+  </button>
+</div>
         </form>
       </div>
     </div>

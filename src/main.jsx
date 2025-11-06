@@ -9,6 +9,7 @@ import { themedSwal } from "./utils/sweetalertTheme";
 //Login
 import Login from "./pages/Login/Login.jsx";
 import MagicLink from "./pages/Login/Acessounico.jsx"
+import Cadastro from "./pages/Login/Cadastro.jsx";
 // Layouts
 import App from "./pages/Layout/AdminApp.jsx";           // Layout Admin
 import DoctorApp from "./pages/Layout/DoctorApp.jsx";
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
   {
     path: "/AcessoUnico",
     element: <MagicLink/>
+  },
+  {
+    path: "/Cadastro",
+    element: <Cadastro/>
   },
 
   // Rotas Admin - todas com prefixo /admin/
