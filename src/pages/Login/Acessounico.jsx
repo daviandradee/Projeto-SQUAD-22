@@ -1,46 +1,65 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAccessToken } from "../../utils/auth";
+import Swal from "sweetalert2"; 
 import { useResponsive } from '../../utils/useResponsive';
 
 export default function MagicLink() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const tokenUsuario =getAccessToken()
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const myHeaders = new Headers();
       myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
-      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       myHeaders.append("Content-Type", "application/json");
-      var raw = JSON.stringify({
+
+      const raw = JSON.stringify({
         email: email,
         options: {
           emailRedirectTo: "https://mediconnect-neon.vercel.app/"
         }
       });
-      
-      var requestOptions = {
-        method: 'POST',
+
+      const requestOptions = {
+        method: "POST",
         headers: myHeaders,
         body: raw,
-        redirect: 'follow'
+        redirect: "follow",
       };
+
       const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/otp", requestOptions
+        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/otp",
+        requestOptions
       );
 
-      const result = await response.json();
-      console.log("🔗 Retorno da API de acesso único:", result);
-
-      alert("Se o e-mail estiver cadastrado, enviamos um link de acesso!");
-      setEmail("");
-
+      if (response.ok) {
+        Swal.fire({
+          title: "Link mágico enviado!",
+          text: "Verifique seu e-mail para continuar o acesso.",
+          icon: "success",
+          confirmButtonColor: "#1976d2",
+        });
+        setEmail("");
+      } else {
+        const errorText = await response.text();
+        console.error("Erro na resposta:", errorText);
+        Swal.fire({
+          title: "Erro ao enviar link!",
+          text: "Tente novamente ou verifique o e-mail informado.",
+          icon: "error",
+          confirmButtonColor: "#1976d2",
+        });
+      }
     } catch (error) {
       console.error("❌ Erro ao enviar magic link:", error);
-      alert("Erro ao enviar o link de acesso. Tente novamente.");
+      Swal.fire({
+        title: "Erro de conexão!",
+        text: "Não foi possível se conectar ao servidor.",
+        icon: "error",
+        confirmButtonColor: "#1976d2",
+      });
     }
   };
 
