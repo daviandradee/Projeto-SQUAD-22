@@ -41,8 +41,7 @@ function Sidebar() {
         
       if (path === '/admin/patientlist' && (
           currentPath.includes('/admin/editpatient/') || 
-          currentPath.includes('/admin/patientform') ||
-          currentPath.includes('/admin/patient/')
+          currentPath.includes('/admin/patient') 
         )) return true;
         
       if (path === '/admin/agendalist' && (
@@ -102,13 +101,13 @@ function Sidebar() {
 
                                 <li className={isActive('/admin/calendar') ? 'active' : ''}>
                                     <Link to="/admin/calendar">
-                                        <i className="fa fa-calendar-o" /> <span>Calendario</span>
+                                        <i className="fa fa-calendar" /> <span>Calendario</span>
                                     </Link>
                                 </li>
 
                                 <li className={isActive('/admin/doctorschedule') ? 'active' : ''}>
                                     <Link to="/admin/doctorschedule">
-                                        <i className="fa fa-calendar-check-o" /> <span>Agenda Médica</span>
+                                        <i className="fa fa-clock-o" /> <span>Agenda Médica</span>
                                     </Link>
                                 </li>
 

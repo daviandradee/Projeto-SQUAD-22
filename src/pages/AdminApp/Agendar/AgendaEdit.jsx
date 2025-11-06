@@ -28,7 +28,8 @@ function AgendaEdit() {
     insurance_provider: "",
     patient_id: "",
     patient_notes: "",
-    scheduled_at: "",
+    scheduled_date: "",
+    scheduled_time: "",
   });
 
   // Define a data mínima
@@ -70,7 +71,8 @@ function AgendaEdit() {
             insurance_provider: consulta.insurance_provider || "",
             patient_id: consulta.patient_id || "",
             patient_notes: consulta.patient_notes || "",
-            scheduled_at: consulta.scheduled_at || "",
+            scheduled_date: date,
+            scheduled_time: time,
           });
         }
       } catch (err) {
@@ -117,8 +119,8 @@ function AgendaEdit() {
 
     setCarregandoHorarios(true);
 
-    const startDate = new Date(`${date}T00:00:00-03:00`).toISOString();
-    const endDate = new Date(`${date}T23:59:59-03:00`).toISOString();
+    const startDate = `${date}T00:00:00.000Z`;
+    const endDate = `${date}T23:59:59.999Z`;
 
     const payload = {
       doctor_id: doctorId,
@@ -164,12 +166,19 @@ function AgendaEdit() {
     }
   };
 
-  // Atualiza horários sempre que o médico ou data mudam
+  // Atualiza horários sempre que o médico, data ou tipo de consulta mudam
   useEffect(() => {
     if (formData.doctor_id && formData.scheduled_date) {
-      fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date);
+      console.log("Buscando horários para:", {
+        doctor_id: formData.doctor_id,
+        scheduled_date: formData.scheduled_date,
+        appointment_type: formData.appointment_type
+      });
+      fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date, formData.appointment_type);
+    } else {
+      setHorariosDisponiveis([]);
     }
-  }, [formData.doctor_id, formData.scheduled_date]);
+  }, [formData.doctor_id, formData.scheduled_date, formData.appointment_type]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -179,6 +188,11 @@ function AgendaEdit() {
   // Atualiza consulta
   const handleEdit = async (e) => {
     e.preventDefault();
+
+    if (!formData.scheduled_date || !formData.scheduled_time) {
+      Swal.fire("Atenção", "Selecione uma data e horário válidos", "warning");
+      return;
+    }
 
     const result = await Swal.fire({
       title: "Deseja salvar as alterações?",
@@ -191,12 +205,16 @@ function AgendaEdit() {
 
     if (!result.isConfirmed) return;
 
-    const scheduled_at = new Date(
-      `${formData.scheduled_date}T${formData.scheduled_time}:00`
-    ).toISOString();
+    const scheduled_at = `${formData.scheduled_date}T${formData.scheduled_time}:00Z`;
 
     const updatedData = {
-      ...formData,
+      appointment_type: formData.appointment_type,
+      chief_complaint: formData.chief_complaint,
+      doctor_id: formData.doctor_id,
+      duration_minutes: formData.duration_minutes,
+      insurance_provider: formData.insurance_provider,
+      patient_id: formData.patient_id,
+      patient_notes: formData.patient_notes,
       scheduled_at,
     };
 
@@ -357,7 +375,7 @@ function AgendaEdit() {
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>Data</label>
+                    <label>Data da consulta<span className="text-danger">*</span></label>
                     <input
                       type="date"
                       className="form-control"
@@ -365,35 +383,45 @@ function AgendaEdit() {
                       name="scheduled_date"
                       value={formData.scheduled_date || ""}
                       onChange={handleChange}
+                      required
                     />
                   </div>
                 </div>
 
+                {/* Horário */}
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>Horário</label>
-                    <select
-                      className="select form-control"
-                      name="scheduled_time"
-                      value={formData.scheduled_time || ""}
-                      onChange={handleChange}
-                      required
-                      disabled={!horariosDisponiveis.length}
-                    >
-                      <option value="">
-                        {horariosDisponiveis.length
-                          ? "Selecione um horário"
-                          : "Nenhum horário disponível"}
-                      </option>
-                      {horariosDisponiveis.map((slot) => {
-                        const time = slot.datetime.split("T")[1].substring(0, 5);
-                        return (
-                          <option key={slot.datetime} value={time}>
-                            {time}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    <label>Horário<span className="text-danger">*</span></label>
+                    {carregandoHorarios ? (
+                      <select className="select form-control" disabled>
+                        <option>Carregando horários...</option>
+                      </select>
+                    ) : (
+                      <select
+                        className="select form-control"
+                        name="scheduled_time"
+                        value={formData.scheduled_time || ""}
+                        onChange={handleChange}
+                        required
+                        disabled={!horariosDisponiveis.length && formData.doctor_id && formData.scheduled_date}
+                      >
+                        <option value="">
+                          {!formData.doctor_id || !formData.scheduled_date
+                            ? "Selecione médico e data primeiro"
+                            : horariosDisponiveis.length
+                            ? "Selecione um horário"
+                            : "Nenhum horário disponível"}
+                        </option>
+                        {horariosDisponiveis.map((slot) => {
+                          const time = slot.datetime.split("T")[1].substring(0, 5);
+                          return (
+                            <option key={slot.datetime} value={time}>
+                              {time}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    )}
                   </div>
                 </div>
               </div>
@@ -411,9 +439,30 @@ function AgendaEdit() {
                 ></textarea>
               </div>
 
+              {/* Debug info - remover em produção */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="alert alert-info mt-3">
+                  <strong>Debug:</strong>
+                  <br />
+                  <small>
+                    Doctor ID: {formData.doctor_id || "não selecionado"} | 
+                    Data: {formData.scheduled_date || "não selecionada"} | 
+                    Horários disponíveis: {horariosDisponiveis.length} | 
+                    Carregando: {carregandoHorarios ? "sim" : "não"}
+                  </small>
+                </div>
+              )}
+
               <div className="m-t-20 text-center">
-                <button className="btn btn-primary submit-btn" type="submit">
-                  Salvar alterações
+                <Link to="/admin/agendalist" className="btn btn-secondary mr-3">
+                  <i className="fa fa-arrow-left"></i> Voltar
+                </Link>
+                <button 
+                  className="btn btn-primary submit-btn" 
+                  type="submit"
+                  disabled={!formData.doctor_id || !formData.patient_id || !formData.scheduled_date || !formData.scheduled_time}
+                >
+                  <i className="fa fa-save"></i> Salvar alterações
                 </button>
               </div>
             </form>
