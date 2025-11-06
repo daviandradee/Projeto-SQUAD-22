@@ -1,11 +1,10 @@
-import "../../../assets/css/index.css";
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { Link } from "react-router-dom";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
-import Swal from "sweetalert2"; // 🧁 importando SweetAlert2
 import { getAccessToken } from "../../../utils/auth";
+import Swal from 'sweetalert2';
 import { useResponsive } from '../../../utils/useResponsive';
-import { getDoctorId } from "../../../utils/userInfo";
+import { useNavigate } from "react-router-dom";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -19,6 +18,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
   useLayoutEffect(() => {
     if (!isOpen || !anchorEl || !menuRef.current) return;
+
     const anchorRect = anchorEl.getBoundingClientRect();
     const menuRect = menuRef.current.getBoundingClientRect();
     const scrollY = window.scrollY || window.pageYOffset;
@@ -26,6 +26,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
     let left = anchorRect.right + scrollX - menuRect.width;
     let top = anchorRect.bottom + scrollY;
+
     if (left < 0) left = scrollX + 4;
     if (top + menuRect.height > window.innerHeight + scrollY) {
       top = anchorRect.top + scrollY - menuRect.height;
@@ -42,17 +43,18 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    function handleDocClick(e) {
-      const menu = menuRef.current;
-      if (menu && !menu.contains(e.target) && anchorEl && !anchorEl.contains(e.target)) {
+
+    const handleDocClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target) &&
+        anchorEl && !anchorEl.contains(e.target)) {
         onClose();
       }
-    }
-    function handleScroll() {
-      onClose();
-    }
+    };
+    const handleScroll = () => onClose();
+
     document.addEventListener("mousedown", handleDocClick);
     document.addEventListener("scroll", handleScroll, true);
+
     return () => {
       document.removeEventListener("mousedown", handleDocClick);
       document.removeEventListener("scroll", handleScroll, true);
@@ -69,221 +71,102 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 }
 
 function LaudoListDoctor() {
+  const [search, setSearch] = useState("");
+  const [period, setPeriod] = useState(""); // "", "today", "week", "month"
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [laudos, setLaudos] = useState([])
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
-  const [consultas, setConsultas] = useState([]);
-  const [search, setSearch] = useState("");
-  const [itemsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const tokenUsuario = getAccessToken();
-  const navigate = useNavigate();
-  const [pacientesMap, setPacientesMap] = useState({});
-  
-  const ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const tokenUsuario = getAccessToken()
 
-  const doctor_id = 	getDoctorId();
-
-  // 🔹 Listar consultas do médico logado
-  useEffect(() => {
   var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append(
+    "apikey",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"
+  );
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-
   var requestOptions = {
     method: 'GET',
     headers: myHeaders,
     redirect: 'follow'
   };
 
-    fetch(
-      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports`, requestOptions
-
-    )
-      .then((res) => res.json())
-      .then((result) => setConsultas(Array.isArray(result) ? result : []))
-      .catch((err) => console.error("Erro ao buscar consultas:", err));
-  }, [doctor_id, tokenUsuario]);
   useEffect(() => {
-    if (!consultas || consultas.length === 0) return;
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
+      .then(response => response.json())
+      .then(result => setLaudos(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
 
-    const buscarPacientes = async () => {
-      try {
-        // Pega IDs únicos de pacientes
-        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
 
-        // Faz apenas 1 fetch por paciente
-        const promises = idsUnicos.map(async (id) => {
-          try {
-            const res = await fetch(
-              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
-              {
-                method: "GET",
-                headers: {
-                  apikey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-                  Authorization: `Bearer ${tokenUsuario}`,
-                },
-              }
-            );
-            const data = await res.json();
-            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
-          } catch (err) {
-            return { id, full_name: "Nome não encontrado" };
-          }
-        });
 
-        const results = await Promise.all(promises);
-
-        const map = {};
-        results.forEach((r) => (map[r.id] = r.full_name));
-        setPacientesMap(map);
-      } catch (err) {
-        console.error("Erro ao buscar pacientes:", err);
-      }
-    };
-
-    buscarPacientes();
-  }, [consultas]);
-  // 👁️ Ver detalhes da consulta
-  const handleView = async (id) => {
-    const headers = new Headers({
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${tokenUsuario}`,
-      "Content-Type": "application/json",
-    });
-
-    try {
-      const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
-        { method: "GET", headers }
-      );
-      const data = await res.json();
-      const consulta = Array.isArray(data) ? data[0] : data;
-
-      if (!consulta) {
-        Swal.fire("Erro", "Consulta não encontrada.", "error");
-        return;
-      }
-
-      Swal.fire({
-        title: "Detalhes da Consulta",
-        html: `
-          <b>Paciente:</b> ${consulta.patient_id || "—"}<br/>
-          <b>Médico:</b> ${consulta.doctor_name || "—"}<br/>
-          <b>Especialidade:</b> ${consulta.specialty || "—"}<br/>
-          <b>Data:</b> ${consulta.date || "—"}<br/>
-          <b>Hora:</b> ${consulta.time || "—"}<br/>
-          <b>Status:</b> ${consulta.status || "—"}<br/>
-        `,
-        icon: "info",
-        confirmButtonText: "Fechar",
-        confirmButtonColor: "#3085d6",
-      });
-    } catch (err) {
-      Swal.fire("Erro", "Falha ao buscar detalhes da consulta.", "error");
-    }
-
-    setOpenDropdown(null);
-  };
-  useEffect(() => {
-    if (!consultas || consultas.length === 0) return;
-
-    const buscarPacientes = async () => {
-      try {
-        // Pega IDs únicos de pacientes
-        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
-
-        // Faz apenas 1 fetch por paciente
-        const promises = idsUnicos.map(async (id) => {
-          try {
-            const res = await fetch(
-              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
-              {
-                method: "GET",
-                headers: {
-                  apikey:
-                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-                  Authorization: `Bearer ${tokenUsuario}`,
-                },
-              }
-            );
-            const data = await res.json();
-            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
-          } catch (err) {
-            return { id, full_name: "Nome não encontrado" };
-          }
-        });
-
-        const results = await Promise.all(promises);
-
-        const map = {};
-        results.forEach((r) => (map[r.id] = r.full_name));
-        setPacientesMap(map);
-      } catch (err) {
-        console.error("Erro ao buscar pacientes:", err);
-      }
-    };
-
-    buscarPacientes();
-  }, [consultas]);
-
-  // 🗑️ Excluir consulta
-  const handleDelete = async (id) => {
-    const confirmDel = await Swal.fire({
-      title: "Tem certeza?",
-      text: "Esta consulta será excluída permanentemente!",
-      icon: "warning",
+  const handleVerDetalhes = (laudo) => {
+    Swal.fire({
+      title: "Detalhes do Laudo",
+      html: `
+        <div class="text-start" style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <div class="mb-3">
+            <h6 class="text-primary">Informações do Pedido</h6>
+            <p><strong>Nº Pedido:</strong> ${laudo.order_number || 'N/A'}</p>
+            <p><strong>Paciente ID:</strong> ${laudo.patient_id || 'N/A'}</p>
+            <p><strong>Tipo:</strong> ${laudo.tipo || 'N/A'}</p>         
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Detalhes do Exame</h6>
+            <p><strong>Exame:</strong> ${laudo.exam || 'N/A'}</p>
+            <p><strong>Diagnóstico:</strong> ${laudo.diagnosis || 'Nenhum diagnóstico'}</p>
+            <p><strong>Conclusão:</strong> ${laudo.conclusion || 'Nenhuma conclusão'}</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Responsáveis</h6>
+            <p><strong>Executante:</strong> ${laudo.requested_by || 'N/A'}</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-primary">Datas</h6>
+            <p><strong>Criado em:</strong> ${formatDate(laudo.created_at) || 'N/A'}</p>
+          </div>
+        </div>
+      `,
       showCancelButton: true,
-      confirmButtonText: "Excluir",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Abrir Laudo",
+      cancelButtonText: "Fechar",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      icon: "info",
+      width: "600px",
+      draggable: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Abrir o form de laudo
+        abrirFormLaudo(laudo.id);
+      }
     });
-
-    if (!confirmDel.isConfirmed) {
-      setOpenDropdown(null);
-      return;
-    }
-
-    const headers = new Headers({
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${tokenUsuario}`,
-    });
-
-    try {
-      const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
-        { method: "DELETE", headers }
-      );
-
-      if (!res.ok) throw new Error("Falha ao excluir consulta");
-
-      setConsultas((prev) => prev.filter((c) => String(c.id) !== String(id)));
-
-      Swal.fire("Excluída!", "A consulta foi removida com sucesso.", "success");
-    } catch (err) {
-      Swal.fire("Erro", "Não foi possível excluir a consulta.", "error");
-    }
-
-    setOpenDropdown(null);
   };
 
-  const filtered = consultas.filter((c) => {
-    const q = search.toLowerCase();
-    return (
-      (c.patient_name || "").toLowerCase().includes(q) ||
-      (c.doctor_name || "").toLowerCase().includes(q) ||
-      (c.specialty || "").toLowerCase().includes(q)
-    );
-  });
+  const abrirFormLaudo = (laudoId) => {
+    // Navega para o form de laudo com o ID
+    window.location.href = `/doctor/laudoform?id=${laudoId}`;
+  };
 
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const current = filtered.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'concluído':
+      case 'finalizado':
+        return 'bg-success';
+      case 'pendente':
+        return 'bg-warning';
+      case 'cancelado':
+        return 'bg-danger';
+      default:
+        return 'bg-secondary';
+    }
+  };
 
-  useEffect(() => setCurrentPage(1), [search]);
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
@@ -294,160 +177,431 @@ function LaudoListDoctor() {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      });
+      }).replace(',', ' às');
     } catch {
       return dateString;
     }
   };
-  console.log("👨‍⚕️ Laudos do médico:", consultas);
-  return (
-    <div className="content">
-      <div className="row">
-        <div className="col-sm-4 col-3">
-          <h4 className="page-title">Laudos</h4>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍  Buscar consulta"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <br />
-        </div>
 
-        <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/doctor/laudoform" className="btn btn-primary btn-rounded">
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Tem certeza?",
+      text: "Tem certeza que deseja excluir este laudo?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Excluir!",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        var requestOptions = {
+          method: 'DELETE',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+
+        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${id}`, requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+        setLaudos(prev => prev.filter(l => l.id !== id));
+        setOpenDropdown(null);
+        Swal.fire({
+          title: "Excluído!",
+          text: "Laudo excluído com sucesso.",
+          icon: "success",
+          draggable: true
+        });
+      }
+    });
+  };
+
+  const mascararCPF = (cpf = "") => {
+    if (cpf.length < 5) return cpf;
+    return `${cpf.slice(0, 3)}.***.***-${cpf.slice(-2)}`;
+  };
+  const [pacientesMap, setPacientesMap] = useState({});
+  // useEffect para atualizar todos os nomes
+  useEffect(() => {
+    if (!laudos || laudos.length === 0) return;
+
+    const buscarPacientes = async () => {
+      try {
+        // Pega IDs únicos de pacientes
+        const idsUnicos = [...new Set(laudos.map((l) => l.patient_id))];
+
+        // Faz apenas 1 fetch por paciente
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(
+              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              {
+                method: "GET",
+                headers: {
+                  apikey:
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  Authorization: `Bearer ${tokenUsuario}`,
+                },
+              }
+            );
+            const data = await res.json();
+            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
+          } catch (err) {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setPacientesMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar pacientes:", err);
+      }
+    };
+
+    buscarPacientes();
+  }, [laudos]);
+  const filteredLaudos = laudos.filter(l => {
+    const q = search.toLowerCase();
+    const textMatch =
+      (pacientesMap[l.patient_id]?.toLowerCase() || "").includes(q) ||
+      (l.status || "").toLowerCase().includes(q) ||
+      (l.order_number || "").toString().toLowerCase().includes(q) ||
+      (l.exam || "").toLowerCase().includes(q) ||
+      (l.diagnosis || "").toLowerCase().includes(q) ||
+      (l.conclusion || "").toLowerCase().includes(q);
+
+    // Filtro por status
+    const matchesStatus = !statusFilter || l.status === statusFilter;
+
+    let dateMatch = true;
+    if (l.created_at) {
+      const laudoDate = new Date(l.created_at);
+      const today = new Date();
+
+      // Filtros por período rápido
+      if (period === "today") {
+        const todayStr = today.toDateString();
+        dateMatch = laudoDate.toDateString() === todayStr;
+      } else if (period === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        dateMatch = laudoDate >= startOfWeek && laudoDate <= endOfWeek;
+      } else if (period === "month") {
+        dateMatch = laudoDate.getMonth() === today.getMonth() && 
+                   laudoDate.getFullYear() === today.getFullYear();
+      }
+
+      // Filtros por data específica
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Inclui o dia inteiro
+        dateMatch = dateMatch && laudoDate >= start && laudoDate <= end;
+      } else if (startDate) {
+        const start = new Date(startDate);
+        dateMatch = dateMatch && laudoDate >= start;
+      } else if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        dateMatch = dateMatch && laudoDate <= end;
+      }
+    }
+
+    return textMatch && matchesStatus && dateMatch;
+  });
+
+  const [itemsPerPage1] = useState(10);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastLaudos = currentPage1 * itemsPerPage1;
+  const indexOfFirstLaudos = indexOfLastLaudos - itemsPerPage1;
+  const currentLaudos = filteredLaudos.slice(indexOfFirstLaudos, indexOfLastLaudos);
+  const totalPages1 = Math.ceil(filteredLaudos.length / itemsPerPage1);
+  const navigate = useNavigate();
+  const [medicosMap, setMedicosMap] = useState({});
+  
+  // Função para definir períodos e limpar datas
+  const handlePeriodChange = (newPeriod) => {
+    // Se clicar no mesmo período, limpa o filtro
+    if (period === newPeriod) {
+      setPeriod("");
+    } else {
+      setPeriod(newPeriod);
+    }
+    
+    // Sempre limpa as datas específicas
+    setStartDate("");
+    setEndDate("");
+  };
+
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search, statusFilter, period, startDate, endDate]);
+
+  useEffect(() => {
+    if (!Array.isArray(laudos) || laudos.length === 0) return;
+
+    const buscarMedicos = async () => {
+      try {
+        const idsUnicos = [...new Set(laudos.map((c) => c.doctor_id).filter(Boolean))];
+        if (idsUnicos.length === 0) return;
+
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenUsuario}`,
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        };
+
+        const promises = idsUnicos.map(async (id) => {
+          try {
+            const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, {
+              method: "GET",
+              headers,
+            });
+            if (!res.ok) return { id, full_name: "Nome não encontrado" };
+            const data = await res.json();
+            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
+          } catch {
+            return { id, full_name: "Nome não encontrado" };
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const map = {};
+        results.forEach((r) => (map[r.id] = r.full_name));
+        setMedicosMap(map);
+      } catch (err) {
+        console.error("Erro ao buscar nomes dos médicos:", err);
+      }
+    };
+
+    buscarMedicos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [laudos]);
+  return (
+      <div className="content">
+        {/* Header com título e botão */}
+        <div className="col-12">
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <h4 className="page-title mb-0">Laudos</h4>
+          <Link
+            to="/doctor/laudoform"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenDropdown(null);
+            }} 
+            className="btn btn-primary btn-rounded"
+          >
             <i className="fa fa-plus"></i> Adicionar Laudo
           </Link>
         </div>
-      </div>
+        </div>
 
-      <div className="row">
-        <div className="col-md-12">
-          <div className="table-responsive">
-            <table className="table table-striped custom-table">
-              <thead>
-                <tr>
-                  <th>Pedido</th>
-                  <th>Pacient ID</th>
-                  <th>Exame</th>
-                  <th>Diagnóstico</th>
-                  <th>Conclusão</th>
-                  <th>Criado em</th>
-                  <th>Status</th>
-                  <th className="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {current.length > 0 ? (
-                  current.map((c) => (
-                    <tr key={c.id}>
-                      <td>{c.order_number}</td>
-                      <td>{pacientesMap[c.patient_id] || "—"}</td>
-                      <td>{c.exam || "—"}</td>
-                      <td>{c.diagnosis || "—"}</td>
-                      <td>{c.conclusion || "—"}</td>
-                      <td>{formatDate(c.created_at)|| "—"}</td> 
+        {/* Todos os filtros em uma única linha */}
+        <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+          {/* Campo de busca */}
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="🔍 Buscar laudo"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ minWidth: "300px", maxWidth: "450px", }}
+          />
+          
+          {/* Filtro de status */}
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "80px", maxWidth: "125px", }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Status</option>
+            <option value="draft">Rascunho</option>
+            <option value="completed">Concluído</option>
+          </select>
+
+          {/* Filtro De */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={startDate} 
+              onChange={e => {
+                setStartDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
+            />
+          </div>
+          
+          {/* Filtro Até */}
+          <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
+            <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+            <input 
+              type="date" 
+              className="form-control form-control-sm"
+              style={{ minWidth: "130px", }}
+              value={endDate} 
+              onChange={e => {
+                setEndDate(e.target.value);
+                if (e.target.value) setPeriod("");
+              }} 
+            />
+          </div>
+
+          {/* Botões rápidos */}
+          <button 
+            className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "60px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("today")}
+          >
+            Hoje
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "70px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("week")}
+          >
+            Semana
+          </button>
+          <button 
+            className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
+            style={{ minWidth: "60px", fontSize: "0.8rem",  padding: "4px 8px" }}
+            onClick={() => handlePeriodChange("month")}
+          >
+            Mês
+          </button>
+        </div>
+
+        {/* Tabela */}
+        <div className="row">
+          <div className="col-12">
+            <div className="table-responsive">
+              <table className="table table-border table-striped custom-table datatable mb-0">
+                <thead>
+                  <tr>
+                    <th>Pedido</th>
+                    <th>Paciente</th>
+                    <th>Exame</th>
+                    <th>Diagnóstico</th>
+                    <th>Conclusão</th>
+                    <th className="text-center">Status</th>
+                    <th>Executante</th>
+                    <th>Criado em</th>
+                    <th className="text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentLaudos.length > 0 ? currentLaudos.map(l => (
+                    <tr key={l.id}>
+                      <td className="nowrap">{l.order_number}</td>
+                      <td>{pacientesMap[l.patient_id] || "Carregando..."}</td>
+                      <td>{l.exam}</td>
+                      <td>{l.diagnosis}</td>
+                      <td>{l.conclusion}</td>
                       <td>
-                        <span
+                        <span 
                           className={`custom-badge ${
-                            c.status === "Ativa" ? "status-green" : "status-grey"
+                            l.status === 'draft' ? 'status-orange' :
+                            l.status === 'completed' ? 'status-green' :
+                            'status-gray'
                           }`}
+                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'center' }}
                         >
-                          {c.status || "—"}
+                          {l.status === 'draft' ? (
+                            <>
+                              <i className="fa fa-edit" style={{ marginRight: '6px' }}></i>
+                              Rascunho
+                            </>
+                          ) : l.status === 'completed' ? (
+                            <>
+                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                              Concluído
+                            </>
+                          ) : (
+                            l.status
+                          )}
                         </span>
                       </td>
-                      <td className="text-right">
-                        <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
+                      <td> {medicosMap[l.requested_by] || l.requested_by}</td>
+                      <td>{formatDate(l.created_at)}</td>
+                      <td className="text-rigth">
+                        <div className="action-buttons-container">
                           <button
                             type="button"
-                            ref={(el) => (anchorRefs.current[c.id] = el)}
-                            className="action-icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdown(openDropdown === c.id ? null : c.id);
-                            }}
+                            className="action-btn action-btn-edit"
+                            onClick={() => navigate(`/doctor/laudoedit/${l.id}`)}
+                            title="Ver detalhes do paciente"
                           >
-                            <i className="fa fa-ellipsis-v"></i>
+                            <span className="fa fa-pencil m-r-5"></span>
                           </button>
-
-                          <DropdownPortal
-                            anchorEl={anchorRefs.current[c.id]}
-                            isOpen={openDropdown === c.id}
-                            onClose={() => setOpenDropdown(null)}
-                            className="dropdown-menu dropdown-menu-right show"
+                          <button
+                            type="button"
+                            className="action-btn action-btn-delete"
+                            onClick={() => handleDelete(l.id)}
+                            title="Excluir paciente"
                           >
-                            <Link
-                              className="dropdown-item-custom"
-                              to={`/doctor/laudoedit/${c.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
-                            >
-                              <i className="fa fa-eye m-r-5"></i> Ver
-                            </Link>
-
-                            <button
-                              className="dropdown-item-custom dropdown-item-delete"
-                              onClick={() => handleDelete(c.id)}
-                            >
-                              <i className="fa fa-trash-o m-r-5"></i> Excluir
-                            </button>
-                          </DropdownPortal>
+                            <span className="fa fa-trash-o"></span>
+                          </button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center text-muted">
-                      Nenhuma consulta encontrada
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )) : (
+                    <tr>
+                      <td colSpan="10" className="text-center text-muted">Nenhum laudo encontrado</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <nav className="mt-3">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                    {"<<"}
+                  </button>
+                </li>
+                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
+                  >
+                    &lt;
+                  </button>
+                </li>
+                <li className="page-item active">
+                  <span className="page-link">{currentPage1}</span>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() =>
+                      currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
+                    }
+                  >
+                    &gt;
+                  </button>
+                </li>
+                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                    {">>"}
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
-
-          <nav className="mt-3">
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage(1)}>
-                  {"<<"}
-                </button>
-              </li>
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                >
-                  &lt;
-                </button>
-              </li>
-              <li className="page-item active">
-                <span className="page-link">{currentPage}</span>
-              </li>
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    currentPage < totalPages && setCurrentPage(currentPage + 1)
-                  }
-                >
-                  &gt;
-                </button>
-              </li>
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage(totalPages)}>
-                  {">>"}
-                </button>
-              </li>
-            </ul>
-          </nav>
         </div>
       </div>
-    </div>
   );
 }
 

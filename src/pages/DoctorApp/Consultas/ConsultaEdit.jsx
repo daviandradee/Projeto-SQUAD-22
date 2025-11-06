@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { withMask } from "use-mask-input";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
-import { getUserId } from "../../../utils/userInfo";
-import { useResponsive } from '../../../utils/useResponsive';
-import { sendSMS } from "../../../utils/sendSMS.js";
+import Swal from "sweetalert2";
 
-function DoctorConsultaForm() {
+
+function ConsultaEdit() {
+  const tokenUsuario = getAccessToken()
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [minDate, setMinDate] = useState("");
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
-  const [apiResponse, setApiResponse] = useState(null);
   const [carregandoHorarios, setCarregandoHorarios] = useState(false);
-  const tokenUsuario = getAccessToken();
+  const [apiResponse, setApiResponse] = useState(null);
+
+  // Dados do formulário
 
   const [formData, setFormData] = useState({
     appointment_type: "presencial",
@@ -28,9 +32,7 @@ function DoctorConsultaForm() {
     scheduled_time: "",
   });
 
-  const navigate = useNavigate();
-
-  // 🔹 Define a data mínima
+  // Define a data mínima
   useEffect(() => {
     const today = new Date();
     const offset = today.getTimezoneOffset();
@@ -38,12 +40,12 @@ function DoctorConsultaForm() {
     setMinDate(today.toISOString().split("T")[0]);
   }, []);
 
-  // 🔹 Buscar pacientes
+  // Busca consulta existente
   useEffect(() => {
-    const fetchPacientes = async () => {
+    const fetchConsulta = async () => {
       try {
-        const response = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
+        const res = await fetch(
+          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
           {
             headers: {
               apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
@@ -51,47 +53,60 @@ function DoctorConsultaForm() {
             },
           }
         );
+        const data = await res.json();
+        if (data.length > 0) {
+          const consulta = data[0];
+          const date = consulta.scheduled_at
+            ? consulta.scheduled_at.split("T")[0]
+            : "";
+          const time = consulta.scheduled_at
+            ? consulta.scheduled_at.split("T")[1].substring(0, 5)
+            : "";
 
-        if (response.ok) {
-          const data = await response.json();
-          setPacientes(data);
-        } else {
-          console.error("Erro ao buscar pacientes");
+          setFormData({
+            appointment_type: consulta.appointment_type || "presencial",
+            chief_complaint: consulta.chief_complaint || "",
+            doctor_id: consulta.doctor_id || "",
+            duration_minutes: consulta.duration_minutes || 30,
+            insurance_provider: consulta.insurance_provider || "",
+            patient_id: consulta.patient_id || "",
+            patient_notes: consulta.patient_notes || "",
+            scheduled_date: date,
+            scheduled_time: time,
+          });
         }
-      } catch (error) {
-        console.error("Erro:", error);
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Erro", "Falha ao carregar os dados da consulta.", "error");
       }
     };
+    fetchConsulta();
+  }, [id]);
 
-    fetchPacientes();
+  // Busca pacientes
+  useEffect(() => {
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
+      headers: {
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        Authorization: `Bearer ${tokenUsuario}`,
+      },
+    })
+      .then((r) => r.json())
+      .then(setPacientes)
+      .catch((err) => console.error(err));
   }, []);
 
-  // 🔹 Buscar médicos
+  // Busca médicos
   useEffect(() => {
-    const fetchMedicos = async () => {
-      try {
-        const response = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors",
-          {
-            headers: {
-              apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-              Authorization: `Bearer ${tokenUsuario}`,
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setMedicos(data);
-        } else {
-          console.error("Erro ao buscar médicos");
-        }
-      } catch (error) {
-        console.error("Erro:", error);
-      }
-    };
-
-    fetchMedicos();
+    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors", {
+      headers: {
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        Authorization: `Bearer ${tokenUsuario}`,
+      },
+    })
+      .then((r) => r.json())
+      .then(setMedicos)
+      .catch((err) => console.error(err));
   }, []);
 
   // 🔹 Buscar horários disponíveis
@@ -114,8 +129,7 @@ function DoctorConsultaForm() {
       appointment_type: appointmentType || "presencial",
     };
 
-    console.log("🚀 AgendaForm - Payload enviado para get-available-slots:", payload);
-    console.log("🔑 AgendaForm - Token do usuário:", tokenUsuario ? "EXISTS" : "NULL");
+    console.log("Payload get-available-slots:", payload);
 
     try {
       const response = await fetch(
@@ -124,7 +138,8 @@ function DoctorConsultaForm() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
             Authorization: `Bearer ${tokenUsuario}`,
           },
           body: JSON.stringify(payload),
@@ -134,16 +149,9 @@ function DoctorConsultaForm() {
       const data = await response.json();
       setApiResponse(data);
 
-      console.log("🔍 AgendaForm (Admin) - Resposta da Edge Function:", data);
-
       if (!response.ok) throw new Error(data.error || "Erro ao buscar horários");
 
       const slotsDisponiveis = (data?.slots || []).filter((s) => s.available);
-      
-      console.log("✅ AgendaForm (Admin) - Slots disponíveis após filtro:", slotsDisponiveis);
-      console.log("🔍 AgendaForm (Admin) - Todos os slots (antes do filtro):", data?.slots);
-      console.log("❌ AgendaForm (Admin) - Slots NÃO disponíveis:", (data?.slots || []).filter((s) => !s.available));
-      
       setHorariosDisponiveis(slotsDisponiveis);
 
       if (slotsDisponiveis.length === 0)
@@ -158,106 +166,94 @@ function DoctorConsultaForm() {
     }
   };
 
-  // 🔹 Atualiza campos
+  // Atualiza horários sempre que o médico, data ou tipo de consulta mudam
+  useEffect(() => {
+    if (formData.doctor_id && formData.scheduled_date) {
+      console.log("Buscando horários para:", {
+        doctor_id: formData.doctor_id,
+        scheduled_date: formData.scheduled_date,
+        appointment_type: formData.appointment_type
+      });
+      fetchHorariosDisponiveis(formData.doctor_id, formData.scheduled_date, formData.appointment_type);
+    } else {
+      setHorariosDisponiveis([]);
+    }
+  }, [formData.doctor_id, formData.scheduled_date, formData.appointment_type]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔹 Atualiza horários quando médico ou data mudam
-  useEffect(() => {
-    if (formData.doctor_id && formData.scheduled_date) {
-      fetchHorariosDisponiveis(
-        formData.doctor_id,
-        formData.scheduled_date,
-        formData.appointment_type
-      );
-    }
-  }, [formData.doctor_id, formData.scheduled_date, formData.appointment_type]);
-
-  // 🔹 Envia formulário
-  const handleSubmit = async (e) => {
+  // Atualiza consulta
+  const handleEdit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.scheduled_date || !formData.scheduled_time) {
       Swal.fire("Atenção", "Selecione uma data e horário válidos", "warning");
       return;
     }
-  
+
+    const result = await Swal.fire({
+      title: "Deseja salvar as alterações?",
+      text: "As modificações serão salvas permanentemente.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Salvar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
     const scheduled_at = `${formData.scheduled_date}T${formData.scheduled_time}:00Z`;
-  
-    const payload = {
-      patient_id: formData.patient_id,
-      doctor_id: formData.doctor_id,
-      scheduled_at,
-      duration_minutes: formData.duration_minutes,
+
+    const updatedData = {
       appointment_type: formData.appointment_type,
       chief_complaint: formData.chief_complaint,
-      patient_notes: formData.patient_notes,
+      doctor_id: formData.doctor_id,
+      duration_minutes: formData.duration_minutes,
       insurance_provider: formData.insurance_provider,
-      created_by: getUserId(),
+      patient_id: formData.patient_id,
+      patient_notes: formData.patient_notes,
+      scheduled_at,
     };
-  
+
     try {
-      const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+      const res = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
             Authorization: `Bearer ${tokenUsuario}`,
             Prefer: "return=representation",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(updatedData),
         }
       );
-  
-      if (response.ok) {
-        const consultaCriada = await response.json();
-  
-        // 🔹 Busca o telefone do paciente selecionado
-        const pacienteSelecionado = pacientes.find(
-          (p) => p.id === formData.patient_id
+
+      if (res.ok) {
+        Swal.fire("Sucesso!", "Consulta atualizada com sucesso!", "success").then(() =>
+          navigate("/doctor/consultas")
         );
-        const telefone = pacienteSelecionado?.phone || pacienteSelecionado?.telefone;
-  
-        if (telefone) {
-          const mensagem = `Lembrete: sua consulta é dia ${formData.scheduled_date} às ${formData.scheduled_time} na Clínica MediConnect.`;
-          try {
-            await sendSMS(telefone, mensagem, formData.patient_id);
-            console.log("✅ SMS enviado com sucesso!");
-          } catch (smsError) {
-            console.error("❌ Erro ao enviar SMS:", smsError);
-          }
-        } else {
-          console.warn("⚠️ Paciente sem telefone cadastrado — SMS não enviado.");
-        }
-  
-        Swal.fire({
-          title: "Sucesso!",
-          text: "Consulta criada com sucesso!",
-          icon: "success",
-          confirmButtonText: "OK",
-        }).then(() => {
-          navigate("/doctor/consultas");
-        });
       } else {
-        const error = await response.json();
+        const error = await res.json();
         console.error(error);
-        Swal.fire("Erro", "Não foi possível criar a consulta", "error");
+        Swal.fire("Erro", "Não foi possível atualizar a consulta.", "error");
       }
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Erro", "Erro de conexão com o servidor", "error");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Erro", "Falha de conexão com o servidor.", "error");
     }
   };
 
   return (
+
       <div className="content">
         <div className="row">
           <div className="col-lg-8 offset-lg-2">
-            <h1>Nova consulta</h1>
+            <h1>Editar consulta</h1>
             <hr />
             <h3>Informações do paciente</h3>
           </div>
@@ -265,7 +261,7 @@ function DoctorConsultaForm() {
 
         <div className="row">
           <div className="col-lg-8 offset-lg-2">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleEdit}>
               <div className="row">
                 {/* Paciente */}
                 <div className="col-md-6">
@@ -298,7 +294,7 @@ function DoctorConsultaForm() {
                   </div>
                 </div>
 
-                {/* Tipo da consulta */}
+                {/* Tipo */}
                 <div className="col-md-6">
                   <div className="form-group">
                     <label>Tipo da consulta</label>
@@ -318,13 +314,11 @@ function DoctorConsultaForm() {
               <hr />
               <h3>Informações do atendimento</h3>
 
-              {/* Médico e Convênio */}
+              {/* Médico */}
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>
-                      Médico<span className="text-danger">*</span>
-                    </label>
+                    <label>Médico<span className="text-danger">*</span></label>
                     <select
                       className="select form-control"
                       name="doctor_id"
@@ -350,6 +344,7 @@ function DoctorConsultaForm() {
                   </div>
                 </div>
 
+                {/* Convênio */}
                 <div className="col-md-6">
                   <div className="form-group">
                     <label>Convênio</label>
@@ -357,9 +352,8 @@ function DoctorConsultaForm() {
                       type="text"
                       className="form-control"
                       name="insurance_provider"
-                      value={formData.insurance_provider}
+                      value={formData.insurance_provider || ""}
                       onChange={handleChange}
-                      placeholder="Ex: Unimed, Bradesco..."
                     />
                   </div>
                 </div>
@@ -372,62 +366,67 @@ function DoctorConsultaForm() {
                   type="text"
                   className="form-control"
                   name="chief_complaint"
-                  value={formData.chief_complaint}
+                  value={formData.chief_complaint || ""}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
-              {/* Data e hora */}
+              {/* Data e horário */}
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>Data</label>
+                    <label>Data da consulta<span className="text-danger">*</span></label>
                     <input
                       type="date"
                       className="form-control"
                       min={minDate}
                       name="scheduled_date"
-                      value={formData.scheduled_date}
+                      value={formData.scheduled_date || ""}
                       onChange={handleChange}
                       required
                     />
                   </div>
                 </div>
 
+                {/* Horário */}
                 <div className="col-md-6">
                   <div className="form-group">
-                    <label>Horário</label>
-
-                    <select
-                      className="select form-control"
-                      name="scheduled_time"
-                      value={formData.scheduled_time}
-                      onChange={handleChange}
-                      required
-                      disabled={carregandoHorarios || !horariosDisponiveis.length}
-                    >
-                      <option value="">
-                        {carregandoHorarios
-                          ? "Carregando horários..."
-                          : horariosDisponiveis.length
+                    <label>Horário<span className="text-danger">*</span></label>
+                    {carregandoHorarios ? (
+                      <select className="select form-control" disabled>
+                        <option>Carregando horários...</option>
+                      </select>
+                    ) : (
+                      <select
+                        className="select form-control"
+                        name="scheduled_time"
+                        value={formData.scheduled_time || ""}
+                        onChange={handleChange}
+                        required
+                        disabled={!horariosDisponiveis.length && formData.doctor_id && formData.scheduled_date}
+                      >
+                        <option value="">
+                          {!formData.doctor_id || !formData.scheduled_date
+                            ? "Selecione médico e data primeiro"
+                            : horariosDisponiveis.length
                             ? "Selecione um horário"
                             : "Nenhum horário disponível"}
-                      </option>
-                      {horariosDisponiveis.map((slot) => {
-                        const hora = slot.datetime.split("T")[1].substring(0, 5);
-                        return (
-                          <option key={slot.datetime} value={hora}>
-                            {hora}
-                          </option>
-                        );
-                      })}
-                    </select>
+                        </option>
+                        {horariosDisponiveis.map((slot) => {
+                          const time = slot.datetime.split("T")[1].substring(0, 5);
+                          return (
+                            <option key={slot.datetime} value={time}>
+                              {time}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    )}
                   </div>
                 </div>
               </div>
 
-
+              {/* Notas */}
               <div className="form-group">
                 <label>Anotações do paciente</label>
                 <textarea
@@ -435,21 +434,27 @@ function DoctorConsultaForm() {
                   rows="4"
                   className="form-control"
                   name="patient_notes"
-                  value={formData.patient_notes}
+                  value={formData.patient_notes || ""}
                   onChange={handleChange}
                 ></textarea>
               </div>
-
               <div className="m-t-20 text-center">
-                <button className="btn btn-primary submit-btn" type="submit">
-                  Criar consulta
+                <Link to="/doctor/consultas" className="btn btn-secondary mr-3">
+                  <i className="fa fa-arrow-left"></i> Voltar
+                </Link>
+                <button 
+                  className="btn btn-primary submit-btn" 
+                  type="submit"
+                  disabled={!formData.doctor_id || !formData.patient_id || !formData.scheduled_date || !formData.scheduled_time}
+                >
+                  <i className="fa fa-save"></i> Salvar alterações
                 </button>
               </div>
             </form>
           </div>
         </div>
-      </div>
+        </div>
   );
 }
 
-export default DoctorConsultaForm;
+export default ConsultaEdit;

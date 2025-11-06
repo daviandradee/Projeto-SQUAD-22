@@ -102,7 +102,7 @@ function DoctorApp() {
                 </Link>
               </li>
               {/* Separador - Gerenciamento */}
-              <li className={`separator ${isActive('/doctor/laudolist') ? 'active' : ''}`}>
+              <li className={`${isActive('/doctor/laudolist') ? 'active' : ''}`}>
                 <Link to="/doctor/laudolist">
                   <i className="fa fa-file-text-o"></i>
                   <span>Laudos</span>
@@ -110,7 +110,7 @@ function DoctorApp() {
               </li>
               
               {/* Separador - Configurações */}
-              <li className={`separator ${isActive('/doctor/doctorexceçao') ? 'active' : ''}`}>
+              <li className={`${isActive('/doctor/doctorexceçao') ? 'active' : ''}`}>
                 <Link to="/doctor/doctorexceçao">
                   <i className="fa fa-calendar-times-o" /> <span>Exceções</span>
                 </Link>
