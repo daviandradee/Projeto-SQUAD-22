@@ -1,84 +1,59 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth";
-import { getUserId } from "../../utils/userInfo";
-import "./../../assets/css/index.css";
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import { styled } from '@mui/material/styles';
-import DoctorCalendar from "./DoctorCalendar";
-import { useResponsive } from '../../utils/useResponsive';
+import "../../../src/assets/css/index.css"; 
+import { getFullName, getUserId } from "../../utils/userInfo";
+import AvatarForm from "../../../public/img/AvatarForm.jpg";
+import banner from '../../../public/img/banner.png';
+import { 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+} from 'chart.js';
+import { Bar as ChartJSBar } from 'react-chartjs-2';
 
+// Registrar componentes do Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  ChartTooltip,
+  ChartLegend
+);
 
 function DoctorDashboard() {
-  const anchorRefs = useRef({});
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [patients, setPatients] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [consulta, setConsulta] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [pacientesMap, setPacientesMap] = useState({});
-  const [countPaciente, setCountPaciente] = useState(0);
-  const [countMedico, setCountMedico] = useState(0);
+  const [todayAppointments, setTodayAppointments] = useState([]);
+  const [recentConsults, setRecentConsults] = useState([]);
+  const [followUpPatients, setFollowUpPatients] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  // Estados para os gráficos médicos
+  
+  const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [previewUrl, setPreviewUrl] = useState(AvatarForm);
 
   const tokenUsuario = getAccessToken();
-
-  const [currentPage1, setCurrentPage1] = useState(1);
-  const itemsPerPage1 = 8;
-  const indexOfLastPatient = currentPage1 * itemsPerPage1;
-  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
-  const currentPatients = Array.isArray(patients)
-    ? patients.slice(indexOfFirstPatient, indexOfLastPatient)
-    : [];
-  const totalPages1 = Math.ceil(currentPatients.length / itemsPerPage1);
-
-  const [currentPage2, setCurrentPage2] = useState(1);
-  const itemsPerPage2 = 8;
-  const indexOfLastDoctor = currentPage2 * itemsPerPage2;
-  const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage2;
-  const currentDoctors = Array.isArray(doctors)
-    ? doctors.slice(indexOfFirstDoctor, indexOfLastDoctor)
-    : [];
-  const totalPages2 = Math.ceil(currentDoctors.length / itemsPerPage2);
-
-  const [currentPage3, setCurrentPage3] = useState(1);
-  const itemsPerPage3 = 5;
-  const indexOfLastConsulta = currentPage3 * itemsPerPage3;
-  const indexOfFirstConsulta = indexOfLastConsulta - itemsPerPage3;
-  const currentConsulta = Array.isArray(consulta)
-    ? consulta.slice(indexOfFirstConsulta, indexOfLastConsulta)
-    : [];
-  const totalPages3 = Math.ceil(currentConsulta.length / itemsPerPage3);
-
-  const [value, setValue] = React.useState(0);
-
-  const [laudos, setLaudos] = useState([]);
-
-  useEffect(() => {
-    var requestOptions = {
-      method: 'GET',
-      headers: {
-        apikey:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-        Authorization: `Bearer ${tokenUsuario}`,
-      },
-      redirect: 'follow'
-    };
-
-    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports", requestOptions)
-      .then(response => response.text())
-      .then(result => setLaudos(Array.isArray(result) ? result : []))
-      .catch(error => console.log('error', error));
-  }, []);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const TabPanel = ({ children, value, index }) => {
-    return value === index ? <div>{children}</div> : null;
-  };
+  const userId = getUserId();
 
   const requestOptions = {
     method: "GET",
@@ -91,450 +66,333 @@ function DoctorDashboard() {
   };
 
   useEffect(() => {
-    fetch(
-      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
-      requestOptions
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const arr = Array.isArray(data) ? data : [];
-        setPatients(arr);
-        setConsulta(arr); // assumindo consultas estão nos pacientes
-        setCountPaciente(arr.length);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    fetch(
-      "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors",
-      requestOptions
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const arr = Array.isArray(data) ? data : [];
-        setDoctors(arr);
-        setCountMedico(arr.length);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  // Buscar consultas do médico logado
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      const doctor_id = getUserId();
-      if (!doctor_id) return;
-
+    const loadDoctorData = async () => {
       try {
-        const response = await fetch(
-          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments`,
+        setLoading(true);
+        
+        // Buscar pacientes
+        const patientsResponse = await fetch(
+          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
           requestOptions
         );
+        const patientsData = await patientsResponse.json();
+        const patientsArr = Array.isArray(patientsData) ? patientsData : [];
+        setPatients(patientsArr);
 
-        const result = await response.json();
-        const consultas = Array.isArray(result) ? result : [];
-        setAppointments(consultas);
-
-        // Buscar nomes dos pacientes
-        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
-        const promises = idsUnicos.map(async (id) => {
-          try {
-            const res = await fetch(
-              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
-              {
-                method: "GET",
-                headers: {
-                  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-                  Authorization: `Bearer ${tokenUsuario}`,
-                },
-              }
-            );
-            if (!res.ok) return { id, full_name: "Paciente não encontrado" };
-            const data = await res.json();
-            return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
-          } catch {
-            return { id, full_name: "Nome não encontrado" };
-          }
+        // Buscar consultas do médico (filtrar pelo doctor_id se disponível)
+        const appointmentsResponse = await fetch(
+          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+          requestOptions
+        );
+        const appointmentsData = await appointmentsResponse.json();
+        const appointmentsArr = Array.isArray(appointmentsData) ? appointmentsData : [];
+        setAppointments(appointmentsArr);
+        
+        // Processar dados específicos do médico
+        processTodayAppointments(appointmentsArr, patientsArr);
+        processRecentConsults(appointmentsArr, patientsArr);
+        processFollowUpPatients(appointmentsArr, patientsArr);
+        processConsultasMensais(appointmentsArr);
+        processComparecimentoData(appointmentsArr);
+        processAlerts(appointmentsArr);
+        
+        console.log("Dados do médico carregados:", {
+          patients: patientsArr.length,
+          appointments: appointmentsArr.length
         });
-
-        const pacientes = await Promise.all(promises);
-        const map = {};
-        pacientes.forEach((p) => (map[p.id] = p.full_name));
-        setPacientesMap(map);
+        
       } catch (error) {
-        console.error("Erro ao buscar consultas:", error);
+        console.error("Erro ao carregar dados do médico:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAppointments();
-  }, [tokenUsuario]);
+    loadDoctorData();
+  }, []);
 
-  const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
-    ({ theme }) => ({
-      textTransform: 'none',
-      fontWeight: theme.typography.fontWeightRegular,
-      fontSize: theme.typography.pxToRem(15),
-      marginRight: theme.spacing(1),
-      color: "#4dabf7",
-      '&.Mui-selected': {
-        color: "#3e7bf6ff",
-      },
-      '&.Mui-focusVisible': {
-        backgroundColor: 'rgba(100, 95, 228, 0.32)',
-      },
-    }),
-  );
+  // useEffect para atualizar o relógio em tempo real
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Atualiza a cada segundo
 
+    return () => clearInterval(timer); // Limpa o timer quando o componente é desmontado
+  }, []);
+
+  // useEffect para carregar avatar do usuário (mesma lógica da navbar)
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!userId) return;
+
+      const myHeaders = new Headers();
+      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+
+      const requestOptions = {
+        headers: myHeaders,
+        method: 'GET',
+        redirect: 'follow'
+      };
+
+      try {
+        const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.png`, requestOptions);
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          setPreviewUrl(imageUrl);
+          return; // Avatar encontrado
+        }
+      } catch (error) {
+        console.log('Avatar não encontrado com extensão png');
+      }
+      
+      // Se chegou até aqui, não encontrou avatar - mantém o padrão
+      console.log('Nenhum avatar encontrado, usando imagem padrão');
+    };
+
+    loadAvatar();
+  }, [userId]);
+
+  // Processar agenda do dia
+  const processTodayAppointments = (appointmentsData, patientsData) => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayAppts = appointmentsData.filter(apt => {
+      if (!apt.scheduled_at) return false;
+      const aptDate = apt.scheduled_at.split('T')[0];
+      return aptDate === today;
+    });
+
+    const todayWithPatients = todayAppts.map(apt => {
+      const patient = patientsData.find(p => p.id === apt.patient_id);
+      return {
+        ...apt,
+        patient_name: patient?.name || patient?.full_name || 'Paciente não encontrado',
+        time: apt.scheduled_at ? apt.scheduled_at.split('T')[1].substring(0, 5) : ''
+      };
+    }).sort((a, b) => a.time.localeCompare(b.time));
+
+    setTodayAppointments(todayWithPatients);
+  };
+
+  // Processar consultas recentes
+  const processRecentConsults = (appointmentsData, patientsData) => {
+    const recent = appointmentsData
+      .filter(apt => apt.scheduled_at && new Date(apt.scheduled_at) < new Date())
+      .sort((a, b) => new Date(b.scheduled_at) - new Date(a.scheduled_at))
+      .slice(0, 5)
+      .map(apt => {
+        const patient = patientsData.find(p => p.id === apt.patient_id);
+        return {
+          ...apt,
+          patient_name: patient?.name || patient?.full_name || 'Paciente não encontrado',
+          date: apt.scheduled_at ? new Date(apt.scheduled_at).toLocaleDateString('pt-BR') : ''
+        };
+      });
+
+    setRecentConsults(recent);
+  };
   return (
-    <div className="doc-content">
-      {/* Widgets */}
-      <div className="row">
-        <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg2">
-              <i className="fa fa-user-o" />
-            </span>
-            <div className="doc-dash-widget-info">
-              <h3>{countPaciente}</h3>
-              <span>Pacientes</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg3">
-              <i className="fa fa-user-md" />
-            </span>
-            <div className="doc-dash-widget-info">
-              <h3>{appointments.length}</h3>
-              <span>Consultas</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg1">
-              <i className="fa fa-stethoscope" />
-            </span>
-            <div className="doc-dash-widget-info">
-              <h3>{laudos.length}</h3>
-              <span>Laudos</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="doc-dash-widget">
-            <span className="doc-dash-widget-bg4">
-              <i className="fa fa-heartbeat" />
-            </span>
-            <div className="doc-dash-widget-info">
-              <h3>80</h3>
-              <span>Atendidos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="row">
-        {/* Coluna do Calendário */}
-        <div className="col-lg-7 col-md-12">
-          <div
-            className="calendar-container"
-            style={{
-              padding: 20,
-              marginTop: 20,
-              borderRadius: 10,
-              backgroundColor: "#fff",
-              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-            }}
-          >
-            <DoctorCalendar />
-          </div>
-        </div>
-
-        {/* Coluna dos Pacientes */}
-        <div className="col-lg-5 col-md-12">
-          <Box sx={{ width: '100%', bgcolor: "white", borderRadius: 2 }}>
-            <Tabs value={value} onChange={handleChange} centered>
-              <StyledTab label="Pacientes" />
-              <StyledTab label="Consultas" />
-              <StyledTab label="Prontuários" />
-            </Tabs>
-          </Box>
-          <div className="card-block"
-            style={{
-              padding: "6px 8px",
-              backgroundColor: "#fff",
-              fontSize: "0.85rem",
-              lineHeight: "1.1rem",
-              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-              height: "71vh",
-              overflowY: "auto",
-              overflowX: "hidden",
-              wordWrap: "break-word",
-              whiteSpace: "normal",
-            }}
-          >
-            <div className="table-responsive"
-              style={{
-                fontSize: "0.8rem",
-              }}
-            >
-
-              {/* Aba Pacientes */}
-              <TabPanel value={value} index={0}>
-                <table className="table table-border table-striped custom-table datatable mb-0">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Telefone</th>
-                      <th>Status</th>
-
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentPatients.length > 0 ? (
-                      currentPatients.map((p) => (
-                        <tr key={p.id}>
-                          <td>{p.full_name}</td>
-                          <td>{p.phone_mobile}</td>
-                          <td>Ativo</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" className="text-center text-muted">
-                          Nenhum paciente encontrado
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <nav className="mt-3">
-                  <ul className="pagination justify-content-center">
-                    {/* Ir para a primeira página */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                        {"<<"} {/* ou "Início" */}
-                      </button>
-                    </li>
-
-                    {/* Botão de página anterior */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                      >
-                        &lt;
-                      </button>
-                    </li>
-
-                    {/* Números de página */}
-
-                    <li className="page-item active">
-                      <span className="page-link">{currentPage1}</span>
-                    </li>
-                    {/* Botão de próxima página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() =>
-                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                        }
-                      >
-                        &gt;
-                      </button>
-                    </li>
-
-
-                    {/* Ir para a última página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                        {">>"} {/* ou "Fim" */}
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </TabPanel>
-
-              {/* Aba Consultas */}
-              <TabPanel value={value} index={1}>
-                <table className="table table-border table-striped custom-table datatable mb-0">
-                  <thead>
-                    <tr>
-                      <th>Paciente</th>
-                      <th>Data</th>
-                      <th>Hora</th>
-                      <th>Tipo</th>
-
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {appointments.length > 0 ? (
-                      appointments.slice(0, 8).map((c) => {
-                        const scheduledDate = new Date(c.scheduled_at);
-                        const date = scheduledDate.toLocaleDateString("pt-BR");
-                        const time = scheduledDate.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
-
-                        return (
-                          <tr key={c.id}>
-                            <td>{pacientesMap[c.patient_id] || "Carregando..."}</td>
-                            <td>{date}</td>
-                            <td>{time}</td>
-                            <td>
-                              <span className={`badge ${c.appointment_type === 'presencial' ? 'bg-primary' : 'bg-success'}`}>
-                                {c.appointment_type === 'presencial' ? 'Presencial' : 'Online'}
+        <div className="content">
+          <div className="sdc-content">
+            {/* Banner de Boas-vindas */}
+            <div className="row mb-4">
+              <div className="col-12">
+                <div className="card shadow-sm rounded">
+                  <div className="card-body p-4" style={{ backgroundColor: '#f8f9fa' }}>
+                    <div className="row align-items-center">
+                      <div className="col-md-8">
+                        <div className="d-flex align-items-center">
+                          <div style={{ marginRight: '20px' }}>
+                            
+                              <img alt="" src={previewUrl} style={{ marginTop: "5px", borderRadius: "50%", objectFit: "cover", width: "80px", height: "80px" }} />
+                          
+                          </div>
+                          <div>
+                            <h3 className="fw-semibold mb-1 text-dark">
+                              Bem-vindo de volta, Dr.{getFullName()}!
+                            </h3>
+                            <p className="text-muted mb-2">
+                             Hoje é mais um dia para transformar vidas. Revise sua agenda, acompanhe seus pacientes e siga fazendo a diferença com o MediConnect. 💙
+                            </p>
+                            <small className="text-muted">
+                              <i className="fa fa-calendar" style={{ marginRight: '5px' }}></i>
+                              {currentTime.toLocaleDateString('pt-BR')}
+                              <span style={{ marginLeft: '15px' }}>
+                                <i className="fa fa-clock-o" style={{ marginRight: '5px' }}></i>
+                                {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                               </span>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="text-center text-muted">
-                          Nenhuma consulta encontrada
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <nav className="mt-3">
-                  <ul className="pagination justify-content-center">
-                    {/* Ir para a primeira página */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                        {"<<"} {/* ou "Início" */}
-                      </button>
-                    </li>
-
-                    {/* Botão de página anterior */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                      >
-                        &lt;
-                      </button>
-                    </li>
-
-                    {/* Números de página */}
-
-                    <li className="page-item active">
-                      <span className="page-link">{currentPage1}</span>
-                    </li>
-                    {/* Botão de próxima página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() =>
-                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                        }
-                      >
-                        &gt;
-                      </button>
-                    </li>
-
-
-                    {/* Ir para a última página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                        {">>"} {/* ou "Fim" */}
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </TabPanel>
-
-              {/* Aba Prontuários */}
-              <TabPanel value={value} index={2}>
-                <table className="table table-border table-striped custom-table datatable mb-0">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Telefone</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentPatients.length > 0 ? (
-                      currentPatients.map((p) => (
-                        <tr key={p.id}>
-                          <td>{p.full_name}</td>
-                          <td>{p.phone_mobile}</td>
-                          <td>Ativo</td>
-                          <td>
-                            <span className={`badge ${p.status === 'ativo' ? 'bg-success' :
-                              p.status === 'inativo' ? 'bg-secondary' : 'bg-warning'
-                              }`}>
-                              {p.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="text-center text-muted">
-                          Nenhum prontuário encontrado
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <nav className="mt-3">
-                  <ul className="pagination justify-content-center">
-                    {/* Ir para a primeira página */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
-                        {"<<"} {/* ou "Início" */}
-                      </button>
-                    </li>
-
-                    {/* Botão de página anterior */}
-                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
-                      >
-                        &lt;
-                      </button>
-                    </li>
-
-                    {/* Números de página */}
-
-                    <li className="page-item active">
-                      <span className="page-link">{currentPage1}</span>
-                    </li>
-                    {/* Botão de próxima página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button
-                        className="page-link"
-                        onClick={() =>
-                          currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
-                        }
-                      >
-                        &gt;
-                      </button>
-                    </li>
-
-
-                    {/* Ir para a última página */}
-                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
-                        {">>"} {/* ou "Fim" */}
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </TabPanel>
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4 text-right">
+                        <div className="d-flex justify-content-end align-items-center">
+                         
+                      
+                            <img alt="" src={banner} style={{ marginTop: "5px", borderRadius: "8px", objectFit: "cover", width: "50%", height: "50%" }} />
+                          </div>
+                      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-          </div>
-        </div>
+            {/* Widgets do Médico */}
+            <div className="row">
+              <div className="col-md-3">
+                <div className="sdc-dash-widget">
+                  <span className="sdc-dash-widget-bg1">
+                    <i className="fa fa-calendar" />
+                  </span>
+                  <div className="sdc-dash-widget-info">
+                    <h3>{todayAppointments.length}</h3>
+                    <span>Hoje</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className="sdc-dash-widget">
+                  <span className="sdc-dash-widget-bg2">
+                    <i className="fa fa-users" />
+                  </span>
+                  <div className="sdc-dash-widget-info">
+                    <h3>{patients.length}</h3>
+                    <span>Acompanhamento</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className="sdc-dash-widget">
+                  <span className="sdc-dash-widget-bg3">
+                    <i className="fa fa-file-text" />
+                  </span>
+                  <div className="sdc-dash-widget-info">
+                    <h3>3</h3>
+                    <span>Laudos</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3">
+                <div className="sdc-dash-widget">
+                  <span className="sdc-dash-widget-bg4">
+                    <i className="fa fa-bell" />
+                  </span>
+                  <div className="sdc-dash-widget-info">
+                    <h3>{alerts.length}</h3>
+                    <span>Alertas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Alertas 
+            {alerts.length > 0 && (
+              <div className="row mt-3">
+                <div className="col-12">
+                  <div className="card shadow-sm">
+                    <div className="card-body p-3">
+                      <h5 className="mb-3"><i className="fa fa-bell text-warning"></i> Alertas</h5>
+                      {alerts.map((alert, index) => (
+                        <div key={index} className={`alert alert-${alert.type === 'danger' ? 'danger' : alert.type === 'warning' ? 'warning' : 'info'} d-flex align-items-center mb-2`}>
+                          <i className={`fa ${alert.icon} me-2`}></i>
+                          <span className="flex-grow-1">{alert.message}</span>
+                          <button className="btn btn-sm btn-outline-secondary ms-2">{alert.action}</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Seções Específicas do Médico */}
+            {/* Primeira linha - Agenda do Dia e Consultas Recentes */}
+            <div className="row mt-4">
+              <div className="col-md-6 mb-4">
+                <div className="card shadow-sm rounded p-3">
+                  <h4 className="fw-semibold mb-3">
+                    <i className="fa fa-calendar text-primary"></i> Agenda de Hoje
+                  </h4>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando agenda...</p>
+                      </div>
+                    </div>
+                  ) : todayAppointments.length > 0 ? (
+                    <div className="agenda-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                      {todayAppointments.map((apt, index) => (
+                        <div key={index} className="d-flex align-items-center p-3 border-bottom">
+                          <div className="time-badge bg-primary text-white px-2 py-1 rounded me-3" style={{ minWidth: '60px', textAlign: 'center' }}>
+                            {apt.time}
+                          </div>
+                          <div className="flex-grow-1">
+                            <h6 className="mb-1">{apt.patient_name}</h6>
+                            <small className="text-muted">{apt.chief_complaint || 'Consulta de rotina'}</small>
+                          </div>
+                          <div>
+                            <span className={`badge ${apt.status === 'completed' ? 'bg-success' : 'bg-warning'}`}>
+                              {apt.status === 'completed' ? 'Realizada' : 'Agendada'}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-5">
+                      <i className="fa fa-calendar-o fa-3x mb-3"></i>
+                      <p>Nenhuma consulta agendada para hoje</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="col-md-6 mb-4">
+                <div className="card shadow-sm rounded p-3">
+                  <h4 className="fw-semibold mb-3">
+                    <i className="fa fa-history text-info"></i> Consultas Recentes
+                  </h4>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando consultas...</p>
+                      </div>
+                    </div>
+                  ) : recentConsults.length > 0 ? (
+                    <div className="recent-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                      {recentConsults.map((consult, index) => (
+                        <div key={index} className="d-flex align-items-center p-3 border-bottom">
+                          <div className="patient-avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }}>
+                            {consult.patient_name.charAt(0)}
+                          </div>
+                          <div className="flex-grow-1">
+                            <h6 className="mb-1">{consult.patient_name}</h6>
+                            <small className="text-muted">{consult.date}</small>
+                          </div>
+                          <button className="btn btn-sm btn-outline-primary">Ver Laudo</button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-5">
+                      <i className="fa fa-file-text-o fa-3x mb-3"></i>
+                      <p>Nenhuma consulta recente</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Segunda linha - Pacientes em Acompanhamento e Gráficos */}
+            
+        </div> 
       </div>
-    </div>
   );
 }
 

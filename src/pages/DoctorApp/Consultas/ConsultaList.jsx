@@ -1,11 +1,11 @@
-import "../../../assets/css/index.css";
-import { Link, useNavigate } from "react-router-dom";
+import "../../../assets/css/index.css"
+import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import Swal from "sweetalert2"; // 🧁 importando SweetAlert2
 import { getAccessToken } from "../../../utils/auth";
+import Swal from "sweetalert2";
 import { useResponsive } from '../../../utils/useResponsive';
-import { getDoctorId } from "../../../utils/userInfo";
+import { useNavigate } from "react-router-dom";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -17,20 +17,26 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
     zIndex: 1000,
   });
 
+  // Posiciona o menu após renderar (medir tamanho do menu)
   useLayoutEffect(() => {
-    if (!isOpen || !anchorEl || !menuRef.current) return;
+    if (!isOpen) return;
+    if (!anchorEl || !menuRef.current) return;
+
     const anchorRect = anchorEl.getBoundingClientRect();
     const menuRect = menuRef.current.getBoundingClientRect();
     const scrollY = window.scrollY || window.pageYOffset;
     const scrollX = window.scrollX || window.pageXOffset;
 
+    // tenta alinhar à direita do botão (como dropdown-menu-right)
     let left = anchorRect.right + scrollX - menuRect.width;
     let top = anchorRect.bottom + scrollY;
+
+    // evita sair da esquerda da tela
     if (left < 0) left = scrollX + 4;
+    // se extrapolar bottom, abre para cima
     if (top + menuRect.height > window.innerHeight + scrollY) {
       top = anchorRect.top + scrollY - menuRect.height;
     }
-
     setStylePos({
       position: "absolute",
       top: `${Math.round(top)}px`,
@@ -40,6 +46,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
     });
   }, [isOpen, anchorEl, children]);
 
+  // fecha ao clicar fora / ao rolar
   useEffect(() => {
     if (!isOpen) return;
     function handleDocClick(e) {
@@ -52,6 +59,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
       onClose();
     }
     document.addEventListener("mousedown", handleDocClick);
+    // captura scroll em qualquer elemento (true)
     document.addEventListener("scroll", handleScroll, true);
     return () => {
       document.removeEventListener("mousedown", handleDocClick);
@@ -61,7 +69,12 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
   if (!isOpen) return null;
   return createPortal(
-    <div ref={menuRef} className={className} style={stylePos} onClick={(e) => e.stopPropagation()}>
+    <div
+      ref={menuRef}
+      className={className} // mantém as classes que você já usa no CSS
+      style={stylePos}
+      onClick={(e) => e.stopPropagation()}
+    >
       {children}
     </div>,
     document.body
@@ -71,50 +84,170 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 function ConsultaList() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
-  const [consultas, setConsultas] = useState([]);
+  const [consulta, setConsultas] = useState([]);
   const [search, setSearch] = useState("");
-  const [itemsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const tokenUsuario = getAccessToken();
-  const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const tokenUsuario = getAccessToken()
   const [pacientesMap, setPacientesMap] = useState({});
-  
-  const ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const [medicosMap, setMedicosMap] = useState({});
+  const [period, setPeriod] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const doctor_id = getDoctorId();
+  const headers = {
+    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+    Authorization: `Bearer ${tokenUsuario}`,
+    "Content-Type": "application/json",
+  };
 
-  // 🔹 Listar consultas do médico logado
-  useEffect(() => {
-    var myHeaders = new Headers();
+  var myHeaders = new Headers();
   myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
-
   var requestOptions = {
     method: 'GET',
     headers: myHeaders,
     redirect: 'follow'
   };
-  console.log("Buscando consultas para doctor_id:", doctor_id);
-
-    fetch(
-      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${doctor_id}`, requestOptions
-
-    )
-      .then((res) => res.json())
-      .then((result) => {
-        setConsultas(Array.isArray(result) ? result : [])
-        console.log("Consultas fetchadas:", result);
-      })
-      .catch((err) => console.error("Erro ao buscar consultas:", err));
-  }, [doctor_id, tokenUsuario]);
   useEffect(() => {
-    if (!consultas || consultas.length === 0) return;
+    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments`, requestOptions)
+      .then(response => response.json())
+      .then(result => setConsultas(Array.isArray(result) ? result : []))
+      .catch(error => console.log('error', error));
+  }, [])
+
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Tem certeza?",
+      text: "Deseja realmente excluir esta consulta? Essa ação não poderá ser desfeita.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Excluir!",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const response = await fetch(
+        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+        {
+          method: "DELETE",
+          headers: myHeaders,
+        }
+      );
+      console.log("Resposta do delete:", response);
+      if (response.ok) {
+        setConsultas((prev) => prev.filter((c) => c.id !== id));
+        setOpenDropdown(null);
+
+        Swal.fire({
+          title: "Excluída!",
+          text: "A consulta foi removida com sucesso.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire("Erro", "Falha ao excluir a consulta. Tente novamente.", "error");
+      }
+    } catch (error) {
+      console.error("Erro ao deletar:", error);
+      Swal.fire("Erro", "Não foi possível conectar ao servidor.", "error");
+    }
+  };
+
+  const filteredConsultas = consulta.filter(p => {
+    if (!p) return false;
+    const nome = (pacientesMap[p.patient_id] || "").toLowerCase();
+    const médicoNome = (medicosMap[p.doctor_id] || "").toLowerCase();
+    const cpf = (p.cpf || "").toLowerCase();
+    const email = (p.email || "").toLowerCase();
+    const q = search.toLowerCase();
+    
+    
+    // Filtro por texto (nome, cpf, email)
+    const matchesText = nome.includes(q) || cpf.includes(q) || email.includes(q) || médicoNome.includes(q);
+    
+    // Filtro por status
+    const matchesStatus = !statusFilter || p.status === statusFilter;
+    
+    // Filtro por tipo de consulta
+    const matchesType = !typeFilter || p.appointment_type === typeFilter;
+    
+    
+    let dateMatch = true;
+    if (p.scheduled_at) {
+      const consultaDate = new Date(p.scheduled_at);
+      const today = new Date();
+      
+      // Filtros por período rápido
+      if (period === "today") {
+        const todayStr = today.toDateString();
+        dateMatch = consultaDate.toDateString() === todayStr;
+      } else if (period === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        dateMatch = consultaDate >= startOfWeek && consultaDate <= endOfWeek;
+      } else if (period === "month") {
+        dateMatch = consultaDate.getMonth() === today.getMonth() && 
+                   consultaDate.getFullYear() === today.getFullYear();
+      }
+
+      // Filtros por data específica
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Inclui o dia inteiro
+        dateMatch = dateMatch && consultaDate >= start && consultaDate <= end;
+      } else if (startDate) {
+        const start = new Date(startDate);
+        dateMatch = dateMatch && consultaDate >= start;
+      } else if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        dateMatch = dateMatch && consultaDate <= end;
+      }
+    }
+
+    return matchesText && matchesStatus && matchesType && dateMatch;
+  });
+  const [itemsPerPage1] = useState(15);
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const indexOfLastPatient = currentPage1 * itemsPerPage1;
+  const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
+  const currentConsultas = filteredConsultas.slice(indexOfFirstPatient, indexOfLastPatient);
+  const totalPages1 = Math.ceil(filteredConsultas.length / itemsPerPage1);
+  useEffect(() => {
+    setCurrentPage1(1);
+  }, [search, statusFilter, typeFilter, period, startDate, endDate]);
+
+  // Função para definir períodos e limpar datas
+  const handlePeriodChange = (newPeriod) => {
+    // Se clicar no mesmo período, limpa o filtro
+    if (period === newPeriod) {
+      setPeriod("");
+    } else {
+      setPeriod(newPeriod);
+    }
+    
+    // Sempre limpa as datas específicas
+    setStartDate("");
+    setEndDate("");
+  };
+useEffect(() => {
+    if (!consulta || consulta.length === 0) return;
 
     const buscarPacientes = async () => {
       try {
         // Pega IDs únicos de pacientes
-        const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
+        const idsUnicos = [...new Set(consulta.map((c) => c.patient_id))];
 
         // Faz apenas 1 fetch por paciente
         const promises = idsUnicos.map(async (id) => {
@@ -125,7 +258,7 @@ function ConsultaList() {
                 method: "GET",
                 headers: {
                   apikey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
                   Authorization: `Bearer ${tokenUsuario}`,
                 },
               }
@@ -148,139 +281,110 @@ function ConsultaList() {
     };
 
     buscarPacientes();
-  }, [consultas]);
-  // 👁️ Ver detalhes da consulta
-  const handleView = async (id) => {
-    const headers = new Headers({
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${tokenUsuario}`,
-      "Content-Type": "application/json",
-    });
-
-    try {
-      const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
-        { method: "GET", headers }
-      );
-      const data = await res.json();
-      const consulta = Array.isArray(data) ? data[0] : data;
-
-      if (!consulta) {
-        Swal.fire("Erro", "Consulta não encontrada.", "error");
-        return;
-      }
-
-      Swal.fire({
-        title: "Detalhes da Consulta",
-        html: `
-          <b>Paciente:</b> ${consulta.patient_id || "—"}<br/>
-          <b>Médico:</b> ${consulta.doctor_name || "—"}<br/>
-          <b>Especialidade:</b> ${consulta.specialty || "—"}<br/>
-          <b>Data:</b> ${consulta.date || "—"}<br/>
-          <b>Hora:</b> ${consulta.time || "—"}<br/>
-          <b>Status:</b> ${consulta.status || "—"}<br/>
-        `,
-        icon: "info",
-        confirmButtonText: "Fechar",
-        confirmButtonColor: "#3085d6",
-      });
-    } catch (err) {
-      Swal.fire("Erro", "Falha ao buscar detalhes da consulta.", "error");
-    }
-
-    setOpenDropdown(null);
-  };
-
-  // 🗑️ Excluir consulta
-  const handleDelete = async (id) => {
-    const confirmDel = await Swal.fire({
-      title: "Tem certeza?",
-      text: "Esta consulta será excluída permanentemente!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Excluir",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-    });
-
-    if (!confirmDel.isConfirmed) {
-      setOpenDropdown(null);
-      return;
-    }
-
-    const headers = new Headers({
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${tokenUsuario}`,
-    });
-
-    try {
-      const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
-        { method: "DELETE", headers }
-      );
-
-      if (!res.ok) throw new Error("Falha ao excluir consulta");
-
-      setConsultas((prev) => prev.filter((c) => String(c.id) !== String(id)));
-
-      Swal.fire("Excluída!", "A consulta foi removida com sucesso.", "success");
-    } catch (err) {
-      Swal.fire("Erro", "Não foi possível excluir a consulta.", "error");
-    }
-
-    setOpenDropdown(null);
-  };
-
-  const filtered = consultas.filter((c) => {
-    const q = search.toLowerCase();
-    return (
-      (c.patient_name || "").toLowerCase().includes(q) ||
-      (c.doctor_name || "").toLowerCase().includes(q) ||
-      (c.specialty || "").toLowerCase().includes(q)
-    );
-  });
-
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const current = filtered.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-
-  useEffect(() => setCurrentPage(1), [search]);
+  }, [consulta]);
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      // Extrai data e hora diretamente da string ISO sem conversão de timezone
+      const [datePart, timePart] = dateString.split('T');
+      const [year, month, day] = datePart.split('-');
+      const [hour, minute] = timePart.split(':');
+      
+      return `${day}/${month}/${year} ${hour}:${minute}`;
     } catch {
       return dateString;
     }
   };
+  const navigate = useNavigate();
   return (
     <div className="content">
       <div className="row">
-        <div className="col-sm-4 col-3">
-          <h4 className="page-title">Consultas</h4>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍  Buscar consulta"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <br />
-        </div>
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-start mb-3">
+            <h4 className="page-title mb-0">Lista de consultas</h4>
+            <Link to="/doctor/DoctorConsultaForm" className="btn btn-primary btn-rounded" >
+              <i className="fa fa-plus"></i> Adicionar consulta
+            </Link>
+          </div>
+          
+          {/* Todos os filtros em uma única linha */}
+          <div className="d-flex align-items-center mb-3" style={{ gap: "0.30rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+            {/* Campo de busca */}
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="🔍  Buscar consulta"
+              style={{ minWidth: "300px", maxWidth: "450px", }}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            
+            {/* Filtro de status */}
+            <select
+              className="form-control form-control-sm"
+              style={{ minWidth: "80px", maxWidth: "125px", }}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">Status</option>
+              <option value="requested">Solicitado</option>
+              <option value="confirmed">Confirmado</option>
+              <option value="completed">Concluído</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
 
-        <div className="col-sm-8 col-9 text-right m-b-20">
-          <Link to="/doctor/DoctorConsultaForm" className="btn btn-primary btn-rounded">
-            <i className="fa fa-plus"></i> Adicionar consulta
-          </Link>
+            {/* Filtro De */}
+            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+              <input 
+                type="date" 
+                className="form-control form-control-sm"
+                style={{ minWidth: "130px", }}
+                value={startDate} 
+                onChange={e => {
+                  setStartDate(e.target.value);
+                  if (e.target.value) setPeriod("");
+                }} 
+              />
+            </div>
+            
+            {/* Filtro Até */}
+            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+              <input 
+                type="date" 
+                className="form-control form-control-sm"
+                style={{ minWidth: "130px", }}
+                value={endDate} 
+                onChange={e => {
+                  setEndDate(e.target.value);
+                  if (e.target.value) setPeriod("");
+                }} 
+              />
+            </div>
+
+            {/* Botões rápidos */}
+            <button 
+              className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("today")}
+            >
+              Hoje
+            </button>
+            <button 
+              className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "70px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("week")}
+            >
+              Semana
+            </button>
+            <button 
+              className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
+              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
+              onClick={() => handlePeriodChange("month")}
+            >
+              Mês
+            </button>
+          </div>
         </div>
       </div>
 
@@ -290,124 +394,170 @@ function ConsultaList() {
             <table className="table table-striped custom-table">
               <thead>
                 <tr>
-                  <th>Paciente</th>
+                   <th>Pedido</th>
+                  <th>Nome do Paciente</th>
                   <th>Agendado</th>
-                  <th>Queixa Principal</th>
-                  <th>Duração</th>
-                  <th>Modo</th>
-                  <th>Status</th>
-                  <th className="text-right">Ações</th>
+                  <th>
+                  Duração</th>
+                  <th className="text-center">Modo</th>
+                  <th className="text-center">Status</th>
+                  <th className="text-center">Ação</th>
                 </tr>
               </thead>
               <tbody>
-                {current.length > 0 ? (
-                  current.map((c) => (
+                {currentConsultas.length > 0 ? (
+                  currentConsultas.map((c) => (
                     <tr key={c.id}>
-                      <td>{pacientesMap[c.patient_id] || "—"}</td>
-                      <td>{formatDate(c.scheduled_at)|| "—"}</td> 
-                      <td>{c.chief_complaint || "—"}</td>
+                      <td>{c.order_number}</td>
+                      <td>{pacientesMap[c.patient_id] || "Carregando..."}</td>
+                      <td>{formatDate(c.scheduled_at)}</td>
                       <td>{c.duration_minutes} min</td>
-                      <td>{c.appointment_type || "—"}</td>
-                      <td>
-                        <span
+                      <td className="text-center">
+                        <span 
                           className={`custom-badge ${
-                            c.status === "Ativa" ? "status-green" : "status-grey"
+                            c.appointment_type === 'presencial' ? 'status-green' :
+                            c.appointment_type === 'telemedicina' ? 'status-blue' :
+                            'status-gray'
                           }`}
+                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'center' }}
                         >
-                          {c.status || "—"}
+                          {c.appointment_type === 'presencial' ? (
+                            <>
+                              <i className="fa fa-hospital-o" style={{ marginRight: '6px' }}></i>
+                              Presencial
+                            </>
+                          ) : c.appointment_type === 'telemedicina' ? (
+                            <>
+                              <i className="fa fa-video-camera" style={{ marginRight: '6px' }}></i>
+                              Telemedicina
+                            </>
+                          ) : (
+                            c.appointment_type
+                          )}
                         </span>
                       </td>
-                      <td className="text-right">
-                        <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
-                          <button
-                            type="button"
-                            ref={(el) => (anchorRefs.current[c.id] = el)}
-                            className="action-icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenDropdown(openDropdown === c.id ? null : c.id);
-                            }}
-                          >
-                            <i className="fa fa-ellipsis-v"></i>
-                          </button>
+                      <td className="text-center">
+                        <span
+                          className={`custom-badge ${
+                            c.status === 'requested' ? 'status-orange' :
+                            c.status === 'confirmed' ? 'status-blue' :
+                            c.status === 'completed' ? 'status-green' :
+                            c.status === 'cancelled' ? 'status-red' :
+                            'status-gray'
+                          }`}
+                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          {c.status === 'requested' ? (
+                            <>
+                              <i className="fa fa-clock-o" style={{ marginRight: '6px' }}></i>
+                              Solicitado
+                            </>
+                          ) : c.status === 'confirmed' ? (
+                            <>
+                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                              Confirmado
+                            </>
+                          ) : c.status === 'completed' ? (
+                            <>
+                              <i className="fa fa-check" style={{ marginRight: '6px' }}></i>
+                              Concluído
+                            </>
+                          ) : c.status === 'cancelled' ? (
+                            <>
+                              <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
+                              Cancelado
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                              {c.status}
+                            </>
+                          )}
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        <div className="action-buttons-container">
+                              {/*<button
+                                type="button"
+                                className="action-btn action-btn-view"
+                                onClick={() => handleViewDetails(p)}
+                                title="Ver detalhes do paciente"
 
-                          <DropdownPortal
-                            anchorEl={anchorRefs.current[c.id]}
-                            isOpen={openDropdown === c.id}
-                            onClose={() => setOpenDropdown(null)}
-                            className="dropdown-menu dropdown-menu-right show"
-                          >
-                            <button
-                              className="dropdown-item-custom"
-                              onClick={() => handleView(c.id)}
-                            >
-                              <i className="fa fa-eye m-r-5"></i> Ver
-                            </button>
-
-                            <Link
-                              className="dropdown-item-custom"
-                              to={`/editappointment/${c.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenDropdown(null);
-                              }}
-                            >
-                              <i className="fa fa-pencil m-r-5"></i> Editar
-                            </Link>
-
-                            <button
-                              className="dropdown-item-custom dropdown-item-delete"
-                              onClick={() => handleDelete(c.id)}
-                            >
-                              <i className="fa fa-trash-o m-r-5"></i> Excluir
-                            </button>
-                          </DropdownPortal>
-                        </div>
+                              >
+                                <span className="fa fa-eye"></span>
+                              </button>}*/}
+                              <button
+                                type="button"
+                                className="action-btn action-btn-edit"
+                                onClick={() => navigate(`/doctor/consultaedit/${c.id}`)}
+                                title="Ver detalhes do paciente"
+                              >
+                                <span className="fa fa-pencil m-r-5"></span>
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn action-btn-delete"
+                                onClick={() => handleDelete(c.id)}
+                                title="Excluir paciente"
+                              >
+                                <span className="fa fa-trash-o"></span>
+                              </button>
+                            </div>
+                          
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="7" className="text-center text-muted">
-                      Nenhuma consulta encontrada
+                      Nenhum paciente encontrado
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-
           <nav className="mt-3">
             <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage(1)}>
-                  {"<<"}
+              {/* Ir para a primeira página */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                  {"<<"} {/* ou "Início" */}
                 </button>
               </li>
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+
+              {/* Botão de página anterior */}
+              <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"
-                  onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                  onClick={() => currentPage1 > 1 && setCurrentPage1(currentPage1 - 1)}
                 >
                   &lt;
                 </button>
               </li>
+
+              {/* Números de página */}
+
               <li className="page-item active">
-                <span className="page-link">{currentPage}</span>
+                <span className="page-link">{currentPage1}</span>
               </li>
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+              {/* Botão de próxima página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"
                   onClick={() =>
-                    currentPage < totalPages && setCurrentPage(currentPage + 1)
+                    currentPage1 < totalPages1 && setCurrentPage1(currentPage1 + 1)
                   }
                 >
                   &gt;
                 </button>
               </li>
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                <button className="page-link" onClick={() => setCurrentPage(totalPages)}>
-                  {">>"}
+
+
+              {/* Ir para a última página */}
+              <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                  {">>"} {/* ou "Fim" */}
                 </button>
               </li>
             </ul>

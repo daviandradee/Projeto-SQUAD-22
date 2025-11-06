@@ -50,7 +50,7 @@ import LaudoList from "./pages/laudos/LaudosList.jsx"
 import Laudo from "./pages/laudos/Laudo.jsx";
 import DoctorProntuarioList from "./pages/DoctorApp/DoctorProntuarioList.jsx";
 import DoctorProntuario from "./pages/DoctorApp/DoctorProntuario.jsx";
-
+import ConsultaEdit from "./pages/DoctorApp/Consultas/ConsultaEdit.jsx";
 
 // paginas do paciente
 import PatientDashboard from "./pages/PacienteApp/PatientDashboard.jsx";
@@ -160,6 +160,7 @@ const router = createBrowserRouter([
       { path: "doctoragenda", element: <AgendaDoctor /> },
       { path: "doctoragendaadd", element: <AgendaAdd /> },
       { path: "doctorexceçao", element: <Doctorexceçao /> },
+      { path: "consultaedit/:id", element: <ConsultaEdit /> },
     ],
   },
   // Rotas Paciente

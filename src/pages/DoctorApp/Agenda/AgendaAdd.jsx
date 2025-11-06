@@ -1,12 +1,12 @@
-import "../../../assets/css/index.css"  
+import "../../../assets/css/index.css"
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../utils/auth";
-import { useResponsive } from '../../../utils/useResponsive';
+
 
 
 function AgendaAdd() {
-   const [doctors, setDoctors] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [doctorId, setDoctorId] = useState("");
   const [weekday, setWeekday] = useState("");
   const [startTime, setStartTime] = useState("");
