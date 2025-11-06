@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import { useResponsive } from '../../../utils/useResponsive';
+import { useNavigate } from "react-router-dom";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -334,6 +335,7 @@ useEffect(() => {
       return dateString;
     }
   };
+  const navigate = useNavigate();
   return (
     <div className="main-wrapper">
     <div className="page-wrapper">
@@ -531,7 +533,7 @@ useEffect(() => {
                               <button
                                 type="button"
                                 className="action-btn action-btn-edit"
-                                onClick={() => navigate(`/admin/editpatient/${p.id}`)}
+                                onClick={() => navigate(`/admin/agendaedit/${c.id}`)}
                                 title="Ver detalhes do paciente"
                               >
                                 <span className="fa fa-pencil m-r-5"></span>

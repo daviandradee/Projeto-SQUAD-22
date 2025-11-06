@@ -8,6 +8,8 @@ import AvatarForm from "../../../../public/img/AvatarForm.jpg"
 
 
 function Doctors() {
+  const [search, setSearch] = useState("");
+  const [specialtyFilter, setSpecialtyFilter] = useState(""); // Filtro por especialidade
   const [doctors, setDoctors] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const tokenUsuario = getAccessToken()
@@ -188,25 +190,96 @@ function Doctors() {
     }
   };
 
+  // Função de filtragem (mesmo padrão do PatientList)
+  const filteredDoctors = doctors.filter(doctor => {
+    if (!doctor) return false;
+    
+    // Filtro por texto (nome, especialidade, CRM, email)
+    const nome = (doctor.full_name || "").toLowerCase();
+    const crm = (doctor.crm || "").toLowerCase();
+    const email = (doctor.email || "").toLowerCase();
+    const cidade = (doctor.city || "").toLowerCase();
+    const q = search.toLowerCase();
+    const matchesSearch = nome.includes(q) || especialidade.includes(q) || crm.includes(q) || email.includes(q) || cidade.includes(q);
+    
+    // Filtro por especialidade
+    let matchesSpecialty = true;
+    if (specialtyFilter) {
+      const doctorSpecialty = (doctor.specialty || "").toLowerCase().trim();
+      matchesSpecialty = doctorSpecialty.includes(specialtyFilter.toLowerCase());
+    }
+    
+    return matchesSearch && matchesSpecialty;
+  });
+
   return (
     <div className="page-wrapper">
       <div className="content">
         <div className="row">
-          <div className="col-sm-4 col-3">
-            <h4 className="page-title">Médicos</h4>
-          </div>
-          <div className="col-sm-8 col-9 text-right m-b-20">
-            <Link
-              to="/admin/doctorform"
-              className="btn btn-primary btn-rounded float-right"
-            >
-              <i className="fa fa-plus"></i> Adicionar Médico
-            </Link>
+          <div className="col-12">
+            <div className="d-flex justify-content-between align-items-start mb-3">
+              <h4 className="page-title mb-0">Lista de Médicos</h4>
+              <Link
+                to="/admin/doctorform"
+                className="btn btn-primary btn-rounded"
+              >
+                <i className="fa fa-plus"></i> Adicionar Médico
+              </Link>
+            </div>
+            
+            {/* Filtros em uma única linha (mesmo padrão do PatientList) */}
+            <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+              {/* Campo de busca */}
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="🔍 Buscar médicos"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ minWidth: "300px", maxWidth: "450px" }}
+              />
+              
+              {/* Filtro por especialidade */}
+              <select
+                className="form-control form-control-sm"
+                style={{ minWidth: "150px", maxWidth: "200px" }}
+                value={specialtyFilter}
+                onChange={(e) => setSpecialtyFilter(e.target.value)}
+              >
+                <option value="">Todas as especialidades</option>
+                <option value="cardiologia">Cardiologia</option>
+                <option value="pediatria">Pediatria</option>
+                <option value="neurologia">Neurologia</option>
+                <option value="ortopedia">Ortopedia</option>
+                <option value="ginecologia">Ginecologia</option>
+                <option value="dermatologia">Dermatologia</option>
+                <option value="psiquiatria">Psiquiatria</option>
+                <option value="oftalmologia">Oftalmologia</option>
+                <option value="urologia">Urologia</option>
+                <option value="endocrinologia">Endocrinologia</option>
+                <option value="gastroenterologia">Gastroenterologia</option>
+                <option value="pneumologia">Pneumologia</option>
+                <option value="oncologia">Oncologia</option>
+                <option value="reumatologia">Reumatologia</option>
+                <option value="otorrinolaringologia">Otorrinolaringologia</option>
+                <option value="anestesiologia">Anestesiologia</option>
+                <option value="cirurgia geral">Cirurgia Geral</option>
+                <option value="medicina interna">Medicina Interna</option>
+                <option value="medicina de família">Medicina de Família</option>
+                <option value="radiologia">Radiologia</option>
+              </select>
+              
+              {/* Contador de resultados */}
+              <span className="text-muted" style={{ fontSize: "0.875rem", minWidth: "150px" }}>
+                {filteredDoctors.length} médico(s) encontrado(s)
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="row doctor-grid">
-          {doctors.map((doctor) => (
+          {filteredDoctors.length > 0 ? (
+            filteredDoctors.map((doctor) => (
             <div key={doctor.id} className="col-md-4 col-sm-4 col-lg-3">
               <div className="profile-widget">
                 <div className="doctor-img">
@@ -275,7 +348,20 @@ function Doctors() {
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          ) : (
+            <div className="col-12">
+              <div className="text-center py-5">
+                <i className="fa fa-user-md fa-3x text-muted mb-3"></i>
+                <h5 className="text-muted">Nenhum médico encontrado</h5>
+                <p className="text-muted">
+                  {search || specialtyFilter 
+                    ? "Tente ajustar os filtros de busca" 
+                    : "Nenhum médico cadastrado no sistema"}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

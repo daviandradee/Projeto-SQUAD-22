@@ -8,7 +8,7 @@ import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import '../../../assets/css/modal-details.css';
 import AvatarForm from "../../../../public/img/AvatarForm.jpg";
-
+import { useNavigate } from "react-router-dom";
 // Componente que renderiza o menu em um portal (document.body) e posiciona em relação ao botão
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -86,6 +86,7 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 
 function PatientList() {
   const [search, setSearch] = useState("");
+  const [sexFilter, setSexFilter] = useState(""); // Filtro por sexo
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({}); // guarda referência do botão de cada linha
@@ -225,11 +226,30 @@ function PatientList() {
 
   const filteredPatients = patients.filter(p => {
     if (!p) return false;
+    
+    // Filtro por texto (nome, cpf, email)
     const nome = (p.full_name || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
+    const data = (p.birth_date || "").toLowerCase();
     const q = search.toLowerCase();
-    return nome.includes(q) || cpf.includes(q) || email.includes(q);
+    const matchesSearch = nome.includes(q) || cpf.includes(q) || email.includes(q) || data.includes(q);
+    
+    // Filtro por sexo (flexível - aceita diferentes variações)
+    let matchesSex = true;
+    if (sexFilter) {
+      const patientSex = (p.sex || "").toLowerCase().trim();
+      
+      if (sexFilter === "masculino") {
+        matchesSex = patientSex === "masculino" || patientSex === "m" || patientSex === "male";
+      } else if (sexFilter === "feminino") {
+        matchesSex = patientSex === "feminino" || patientSex === "f" || patientSex === "female";
+      } else if (sexFilter === "outros") {
+        matchesSex = !["masculino", "m", "male", "feminino", "f", "female", ""].includes(patientSex);
+      }
+    }
+    
+    return matchesSearch && matchesSex;
   });
   const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
@@ -239,7 +259,7 @@ function PatientList() {
   const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
   useEffect(() => {
     setCurrentPage1(1);
-  }, [search]);
+  }, [search, sexFilter]);
 
   const mascararCPF = (cpf = "") => {
     if (cpf.length < 5) return cpf;
@@ -248,26 +268,92 @@ function PatientList() {
     return `${inicio}.***.***-${fim}`;
   };
 
+  const renderSexBadge = (sex) => {
+    const sexo = (sex || "").toLowerCase().trim();
+    
+    if (sexo === "masculino" || sexo === "m" || sexo === "male") {
+      return (
+        <span 
+          className="custom-badge status-blue"
+          style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <i className="fa fa-mars" style={{ marginRight: '6px' }}></i>
+          Masculino
+        </span>
+      );
+    } else if (sexo === "feminino" || sexo === "f" || sexo === "female") {
+      return (
+        <span 
+          className="custom-badge status-pink"
+          style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <i className="fa fa-venus" style={{ marginRight: '6px' }}></i>
+          Feminino
+        </span>
+      );
+    } else if (sexo === "") {
+      return (
+        <span 
+          className="custom-badge status-red"
+          style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <i className="fa fa-question" style={{ marginRight: '6px' }}></i>
+          Em branco
+        </span>
+      );
+    } else {
+      return (
+        <span 
+          className="custom-badge status-purple"
+          style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <i className="fa fa-genderless" style={{ marginRight: '6px' }}></i>
+          {sexo || "Outros"}
+        </span>
+      );
+    }
+  };
+
+  const navigate = useNavigate();
+  
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
         <div className="content">
-          <div className="row ">
-            <div className="col-sm-4 col-3">
-              <h4 className="page-title">Lista de Pacientes</h4>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="🔍  Buscar pacientes"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <br />
-            </div>
-            <div className="col-sm-8 col-9 text-right m-b-20">
-              <Link to="/admin/patient" className="btn btn-primary btn-rounded">
-                <i className="fa fa-plus"></i> Adicionar Paciente
-              </Link>
+          <div className="row">
+            <div className="col-12">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <h4 className="page-title mb-0">Lista de Pacientes</h4>
+                <Link to="/admin/patient" className="btn btn-primary btn-rounded">
+                  <i className="fa fa-plus"></i> Adicionar Paciente
+                </Link>
+              </div>
+              
+              {/* Todos os filtros em uma única linha */}
+              <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+                {/* Campo de busca */}
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="🔍 Buscar pacientes"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ minWidth: "300px", maxWidth: "450px" }}
+                />
+                
+                {/* Filtro por sexo */}
+                <select
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "100px", maxWidth: "140px" }}
+                  value={sexFilter}
+                  onChange={(e) => setSexFilter(e.target.value)}
+                >
+                  <option value="">Todos os sexos</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -282,8 +368,8 @@ function PatientList() {
                       <th>Data de Nascimento</th>
                       <th>Telefone</th>
                       <th>Email</th>
-                      <th>Status</th>
-                      <th className="text-right">Ações</th>
+                      <th className="text-center">Sexo</th>
+                      <th className="text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -314,57 +400,36 @@ function PatientList() {
                           <td>{p.birth_date}</td>
                           <td>{p.phone_mobile}</td>
                           <td>{p.email}</td>
-                          <td>{p.sex}</td>
-                          <td className="text-right">
-                            <div className="dropdown dropdown-action" style={{ display: "inline-block" }}>
+                          <td className="text-center">{renderSexBadge(p.sex)}</td>
+                          <td className="text-center">
+                            <div className="action-buttons-container">
                               <button
                                 type="button"
-                                ref={(el) => (anchorRefs.current[p.id] = el)}
-                                className="action-icon"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenDropdown(openDropdown === p.id ? null : p.id);
-                                }}
+                                className="action-btn action-btn-view"
+                                onClick={() => handleViewDetails(p)}
+                                title="Ver detalhes do paciente"
 
                               >
-                                <i className="fa fa-ellipsis-v"></i>
+                                <span className="fa fa-eye"></span>
                               </button>
-
-                              <DropdownPortal
-                                anchorEl={anchorRefs.current[p.id]}
-                                isOpen={openDropdown === p.id}
-                                onClose={() => setOpenDropdown(null)}
-                                className="dropdown-menu dropdown-menu-right show"
+                              <button
+                                type="button"
+                                className="action-btn action-btn-edit"
+                                onClick={() => navigate(`/admin/editpatient/${p.id}`)}
+                                title="Ver detalhes do paciente"
                               >
-                                <Link
-                                  className="dropdown-item-custom"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                    handleViewDetails(p);
-                                  }}
-                                >
-                                  <i className="fa fa-eye m-r-5"></i> Ver Detalhes
-                                </Link>
-                                <Link
-                                  className="dropdown-item-custom"
-                                  to={`/admin/editpatient/${p.id}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                  }}
-                                >
-                                  <i className="fa fa-pencil m-r-5"></i> Editar
-                                </Link>
-
-                                <button
-                                  className="dropdown-item-custom dropdown-item-delete"
-                                  onClick={() => handleDelete(p.id)}
-                                >
-                                  <i className="fa fa-trash-o m-r-5"></i> Excluir
-                                </button>
-                              </DropdownPortal>
+                                <span className="fa fa-pencil m-r-5"></span>
+                              </button>
+                              <button 
+                                type="button"
+                                className="action-btn action-btn-delete"
+                                onClick={() => handleDelete(p.id)}
+                                title="Excluir paciente"
+                              >
+                                <span className="fa fa-trash-o"></span>
+                              </button>
                             </div>
+
                           </td>
                         </tr>
                       ))
