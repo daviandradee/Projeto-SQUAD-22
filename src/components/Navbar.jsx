@@ -84,7 +84,7 @@ function Navbar({ onMenuClick }) {
     }
   }, [location.pathname]);
   const userId = getUserId();
-  const ext = "png";
+  const extensions = ["png", "jpg", "jpeg", "gif"];
 
   useEffect(() => {
     const loadAvatar = async () => {
@@ -96,20 +96,26 @@ function Navbar({ onMenuClick }) {
         redirect: 'follow'
       };
 
-  
-        try {
-          const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.${ext}`, requestOptions);
-          
-          if (response.ok) {
-            const blob = await response.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            setPreviewUrl(imageUrl);
-            return; // Avatar encontrado, sai do loop
-          }
-        } catch (error) {
-          console.log(`Avatar não encontrado com extensão ${extension}`);
-        }
+      // Tenta carregar com diferentes nomes e extensões
+      const possibleNames = ['avatar', 'secretario', 'profile', 'user'];
       
+      for (const name of possibleNames) {
+        for (const ext of extensions) {
+          try {
+            const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/${name}.${ext}`, requestOptions);
+            
+            if (response.ok) {
+              const blob = await response.blob();
+              const imageUrl = URL.createObjectURL(blob);
+              setPreviewUrl(imageUrl);
+              console.log(`Avatar encontrado: ${name}.${ext}`);
+              return; // Avatar encontrado, sai do loop
+            }
+          } catch (error) {
+            console.log(`Avatar não encontrado: ${name}.${ext}`);
+          }
+        }
+      }
       
       // Se chegou até aqui, não encontrou avatar - mantém o padrão
       console.log('Nenhum avatar encontrado, usando imagem padrão');
@@ -165,22 +171,27 @@ function Navbar({ onMenuClick }) {
       redirect: 'follow'
     };
 
-    // Tenta carregar o avatar com diferentes extensões
-    for (const extension of ext) {
-      try {
-        const avatarUrl = `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.${extension}`;
-        const finalUrl = forceReload ? `${avatarUrl}?t=${Date.now()}` : avatarUrl;
-        
-        const response = await fetch(finalUrl, requestOptions);
-        
-        if (response.ok) {
-          const blob = await response.blob();
-          const imageUrl = URL.createObjectURL(blob);
-          setPreviewUrl(imageUrl);
-          return; // Avatar encontrado, sai do loop
+    // Tenta carregar com diferentes nomes e extensões
+    const possibleNames = ['avatar', 'secretario', 'profile', 'user'];
+    
+    for (const name of possibleNames) {
+      for (const extension of extensions) {
+        try {
+          const avatarUrl = `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/${name}.${extension}`;
+          const finalUrl = forceReload ? `${avatarUrl}?t=${Date.now()}` : avatarUrl;
+          
+          const response = await fetch(finalUrl, requestOptions);
+          
+          if (response.ok) {
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            setPreviewUrl(imageUrl);
+            console.log(`Avatar recarregado: ${name}.${extension}`);
+            return; // Avatar encontrado, sai do loop
+          }
+        } catch (error) {
+          console.log(`Avatar não encontrado: ${name}.${extension}`);
         }
-      } catch (error) {
-        console.log(`Avatar não encontrado com extensão ${extension}`);
       }
     }
     
@@ -332,7 +343,9 @@ function Navbar({ onMenuClick }) {
       console.log('📦 FormData criado:', formData);
       console.log('📦 Arquivo no FormData:', formData.get('file'));
 
-      const uploadUrl = `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/${file.name}`;
+      // Sempre salva como avatar.png independente do nome original
+      const fileExtension = file.type.split('/')[1] || 'png';
+      const uploadUrl = `https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.${fileExtension}`;
 
       const uploadOptions = {
         method: 'POST',

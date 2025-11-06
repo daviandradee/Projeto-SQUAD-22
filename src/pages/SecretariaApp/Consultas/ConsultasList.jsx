@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { getAccessToken } from "../../../utils/auth";
 import Swal from "sweetalert2";
 import { useResponsive } from '../../../utils/useResponsive';
+import { useNavigate } from "react-router-dom";
 
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
   const menuRef = useRef(null);
@@ -93,6 +94,7 @@ function SecretariaConsultaList() {
   const [period, setPeriod] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const navigate = useNavigate();
 
   const headers = {
     apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",

@@ -200,7 +200,7 @@ function Doctors() {
     const email = (doctor.email || "").toLowerCase();
     const cidade = (doctor.city || "").toLowerCase();
     const q = search.toLowerCase();
-    const matchesSearch = nome.includes(q) || especialidade.includes(q) || crm.includes(q) || email.includes(q) || cidade.includes(q);
+    const matchesSearch = nome.includes(q) || crm.includes(q) || email.includes(q) || cidade.includes(q);
     
     // Filtro por especialidade
     let matchesSpecialty = true;
