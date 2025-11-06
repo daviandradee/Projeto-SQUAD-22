@@ -5,10 +5,16 @@ export async function sendSMS(phoneNumber, message, patientId) {
 
   const headers = new Headers();
   headers.append("Authorization", `Bearer ${token}`);
+  headers.append("apikey", "SUA_ANON_KEY_REAL_DO_SUPABASE"); // substitua pela sua anon key real
   headers.append("Content-Type", "application/json");
 
+  // 🔹 garante formato internacional (+55)
+  const formattedNumber = phoneNumber.startsWith("+")
+    ? phoneNumber
+    : `+55${phoneNumber.replace(/\D/g, "")}`;
+
   const body = JSON.stringify({
-    phone_number: phoneNumber,
+    phone_number: formattedNumber,
     message,
     patient_id: patientId,
   });

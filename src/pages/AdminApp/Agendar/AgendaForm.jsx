@@ -5,7 +5,7 @@ import "../../../assets/css/index.css";
 import { getAccessToken } from "../../../utils/auth";
 import { getUserId } from "../../../utils/userInfo";
 import { useResponsive } from '../../../utils/useResponsive';
-import { sendSMS } from "../../../utils/sendSMS.js";
+import { sendSMS } from "../../../utils/Sendsms";
 
 function AgendaForm() {
   const [minDate, setMinDate] = useState("");
@@ -218,15 +218,25 @@ function AgendaForm() {
   
         // 🔹 Busca o telefone do paciente selecionado
         const pacienteSelecionado = pacientes.find(
-          (p) => p.id === formData.patient_id
+          (p) => String(p.id) === String(formData.patient_id)
         );
-        const telefone = pacienteSelecionado?.phone || pacienteSelecionado?.telefone;
-  
-        if (telefone) {
+        const telefone =
+          pacienteSelecionado?.phone_mobile ||
+          pacienteSelecionado?.phone_number ||
+          pacienteSelecionado?.phone ||
+          pacienteSelecionado?.telefone ||
+          null;
+
+        if (telefone && telefone.trim() !== "") {
+          const numeroFormatado = telefone.startsWith("+")
+            ? telefone
+            : `+55${telefone.replace(/\D/g, "")}`;
+
           const mensagem = `Lembrete: sua consulta é dia ${formData.scheduled_date} às ${formData.scheduled_time} na Clínica MediConnect.`;
+
           try {
-            await sendSMS(telefone, mensagem, formData.patient_id);
-            console.log("✅ SMS enviado com sucesso!");
+            await sendSMS(numeroFormatado, mensagem, formData.patient_id);
+            console.log("✅ SMS enviado com sucesso para", numeroFormatado);
           } catch (smsError) {
             console.error("❌ Erro ao enviar SMS:", smsError);
           }
