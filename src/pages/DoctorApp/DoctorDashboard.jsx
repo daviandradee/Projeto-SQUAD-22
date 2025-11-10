@@ -303,7 +303,7 @@ function DoctorDashboard() {
                 <div className="row align-items-center">
                   <div className="col-md-8">
                     <h2 className="mb-2">👨‍⚕️ Olá, Dr. {getFullName()}!</h2>
-                    <p className="mb-2">É ótimo tê-lo novamente no MediConnect. Acompanhe o desempenho da sua clínica, mantenha o controle de tudo em um só lugar e continue fazendo-a crescer todos os dias!</p>
+                    <p className="mb-2">Hoje é mais um dia para transformar vidas. Revise sua agenda, acompanhe seus pacientes e siga fazendo a diferença com o MediConnect. 💙!</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>

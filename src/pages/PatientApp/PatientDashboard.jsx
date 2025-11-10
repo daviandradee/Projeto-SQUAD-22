@@ -423,7 +423,8 @@ export default function PatientDashboard() {
                 <div className="row align-items-center">
                   <div className="col-md-8">
                     <h2 className="mb-2">👋 Olá, {patientName}!</h2>
-                    <p className="mb-2">Bem-vindo ao seu portal de saúde</p>
+                    <p className="mb-2">Acompanhe suas consultas, resultados e tudo o que precisa em um só lugar.
+Cuide-se, e deixe o resto com a gente 💙</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>
