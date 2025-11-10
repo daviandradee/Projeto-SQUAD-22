@@ -623,7 +623,7 @@ function SecretariaDashboard() {
                 <div className="row align-items-center">
                   <div className="col-md-8">
                     <h2 className="mb-2">📋 Olá, {getFullName()}!</h2>
-                    <p className="mb-2">Central de organização - Mantenha tudo funcionando perfeitamente</p>
+                    <p className="mb-2">O MediConnect está pronto para mais um dia de organização e cuidado. Continue ajudando nossa clínica a funcionar de forma leve, eficiente e acolhedora!</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>
