@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
-import "../../../assets/css/index.css";
+import "../../assets/css/index.css";
 
 function Calendar1() {
   const [events, setEvents] = useState([]);

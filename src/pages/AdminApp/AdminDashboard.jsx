@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth.js";
-import "../../assets/css/index.css";
-import { getFullName, getUserId } from "../../utils/userInfo";
+import "../../assets/css/index.css"; 
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import { getFullName, getUserId } from "../../utils/userInfo.js";
+// Usando URLs das imagens no public
 const AvatarForm = "/img/AvatarForm.jpg";
 const banner = "/img/banner.png";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
+import { 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
 } from 'recharts';
 import {
   Chart as ChartJS,
@@ -46,9 +51,9 @@ const ConsultasMensaisChart = ({ data }) => (
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="mes" fontSize={12} />
       <YAxis fontSize={12} />
-      <Tooltip
-        contentStyle={{
-          backgroundColor: '#f8f9fa',
+      <Tooltip 
+        contentStyle={{ 
+          backgroundColor: '#f8f9fa', 
           border: '1px solid #dee2e6',
           borderRadius: '4px'
         }}
@@ -78,9 +83,9 @@ const AtivosInativosChart = ({ data }) => (
           <Cell key={`cell-${index}`} fill={entry.color} />
         ))}
       </Pie>
-      <Tooltip
-        contentStyle={{
-          backgroundColor: '#f8f9fa',
+      <Tooltip 
+        contentStyle={{ 
+          backgroundColor: '#f8f9fa', 
           border: '1px solid #dee2e6',
           borderRadius: '4px'
         }}
@@ -91,110 +96,9 @@ const AtivosInativosChart = ({ data }) => (
   </ResponsiveContainer>
 );
 
-// Componente do gráfico de consultas por médico com Chart.js (horizontal)
-const ConsultasPorMedicoChart = ({ data }) => {
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div>
-          <i className="fa fa-chart-bar fa-2x mb-2"></i>
-          <p>Nenhum dado de médicos encontrado</p>
-        </div>
-      </div>
-    );
-  }
-
-  const chartData = {
-    labels: data.map(item => item.medico),
-    datasets: [
-      {
-        label: 'Consultas',
-        data: data.map(item => item.consultas),
-        backgroundColor: '#28a745',
-        borderColor: '#1e7e34',
-        borderWidth: 1,
-        borderRadius: 4,
-        borderSkipped: false,
-      }
-    ]
-  };
-
-  const options = {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        backgroundColor: '#f8f9fa',
-        titleColor: '#343a40',
-        bodyColor: '#343a40',
-        borderColor: '#dee2e6',
-        borderWidth: 1,
-        callbacks: {
-          label: function (context) {
-            return `${context.parsed.x} consultas`;
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: {
-          color: '#e9ecef',
-          drawBorder: false,
-        },
-        ticks: {
-          color: '#6c757d',
-          font: {
-            size: 12
-          }
-        }
-      },
-      y: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#6c757d',
-          font: {
-            size: 11
-          },
-          maxRotation: 0,
-        }
-      }
-    },
-    animation: {
-      duration: 1000,
-      easing: 'easeInOutQuart'
-    },
-    layout: {
-      padding: {
-        left: 20,
-        right: 30,
-        top: 10,
-        bottom: 10
-      }
-    },
-    elements: {
-      bar: {
-        borderRadius: 4,
-      }
-    }
-  };
-
-  return (
-    <div style={{ width: '100%', height: '350px', backgroundColor: '#ffffff' }}>
-      <ChartJSBar data={chartData} options={options} />
-    </div>
-  );
-};
-
 // Componente do gráfico de taxa de cancelamentos
 const TaxaCancelamentosChart = ({ data }) => {
+
   
   if (!data || data.length === 0) {
     return (
@@ -261,7 +165,7 @@ const TaxaCancelamentosChart = ({ data }) => {
           font: {
             size: 12
           },
-          callback: function (value) {
+          callback: function(value) {
             return value + '%';
           }
         }
@@ -287,12 +191,12 @@ const TaxaCancelamentosChart = ({ data }) => {
         borderColor: '#dee2e6',
         borderWidth: 1,
         callbacks: {
-          label: function (context) {
+          label: function(context) {
             const datasetLabel = context.dataset.label;
             const value = context.parsed.y;
             const dataIndex = context.dataIndex;
             const monthData = data[dataIndex];
-
+            
             if (datasetLabel === 'Canceladas') {
               const numConsultas = Math.round(monthData.total * value / 100);
               return `${datasetLabel}: ${value}% (${numConsultas} de ${monthData.total} consultas)`;
@@ -301,11 +205,11 @@ const TaxaCancelamentosChart = ({ data }) => {
               return `${datasetLabel}: ${value}% (${numConsultas} consultas)`;
             }
           },
-          title: function (context) {
+          title: function(context) {
             const monthData = data[context[0].dataIndex];
             return `${context[0].label} ${new Date().getFullYear()} - Total: ${monthData.total} consultas`;
           },
-          afterBody: function (context) {
+          afterBody: function(context) {
             const monthData = data[context[0].dataIndex];
             if (monthData.total === 0) {
               return ['Nenhuma consulta registrada neste mês'];
@@ -328,7 +232,7 @@ const TaxaCancelamentosChart = ({ data }) => {
       }
     }
   };
-
+  
   return (
     <div style={{ width: '100%', height: '350px', backgroundColor: '#ffffff' }}>
       <ChartJSBar data={chartData} options={options} />
@@ -336,7 +240,113 @@ const TaxaCancelamentosChart = ({ data }) => {
   );
 };
 
-function SecretariaDashboard() {
+// Componente do gráfico de consultas por médico com Chart.js (horizontal)
+const ConsultasPorMedicoChart = ({ data }) => {
+ 
+  
+  if (!data || data.length === 0) {
+    return (
+      <div className="text-center text-muted" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div>
+          <i className="fa fa-chart-bar fa-2x mb-2"></i>
+          <p>Nenhum dado de médicos encontrado</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Preparar dados para Chart.js
+  const chartData = {
+    labels: data.map(item => item.medico),
+    datasets: [
+      {
+        label: 'Consultas',
+        data: data.map(item => item.consultas),
+        backgroundColor: '#28a745',
+        borderColor: '#1e7e34',
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  };
+
+  const options = {
+    indexAxis: 'y', // Torna o gráfico horizontal
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false, // Ocultar legenda pois é óbvio
+      },
+      tooltip: {
+        backgroundColor: '#f8f9fa',
+        titleColor: '#343a40',
+        bodyColor: '#343a40',
+        borderColor: '#dee2e6',
+        borderWidth: 1,
+        callbacks: {
+          label: function(context) {
+            return `${context.parsed.x} consultas`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        grid: {
+          color: '#e9ecef',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#6c757d',
+          font: {
+            size: 12
+          }
+        }
+      },
+      y: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: '#6c757d',
+          font: {
+            size: 11
+          },
+          maxRotation: 0,
+          // Remover callback que truncava os nomes - mostrar nomes completos
+        }
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeInOutQuart'
+    },
+    layout: {
+      padding: {
+        left: 20,
+        right: 30,
+        top: 10,
+        bottom: 10
+      }
+    },
+    elements: {
+      bar: {
+        borderRadius: 4,
+      }
+    }
+  };
+  
+  return (
+    <div style={{ width: '100%', height: '350px', backgroundColor: '#ffffff' }}>
+      <ChartJSBar data={chartData} options={options} />
+    </div>
+  );
+};
+
+function AdminDashboard() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [consulta, setConsulta] = useState([]);
@@ -355,8 +365,6 @@ function SecretariaDashboard() {
   const tokenUsuario = getAccessToken();
   const userId = getUserId();
 
-
-
   const requestOptions = {
     method: "GET",
     headers: {
@@ -371,7 +379,7 @@ function SecretariaDashboard() {
     const loadData = async () => {
       try {
         setLoading(true);
-
+        
         // Buscar pacientes
         const patientsResponse = await fetch(
           "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
@@ -382,17 +390,17 @@ function SecretariaDashboard() {
         setPatients(patientsArr);
         setConsulta(patientsArr);
         setCountPaciente(patientsArr.length);
-
+        
         // Processar status dos pacientes
         if (patientsArr.length > 0) {
           const ativos = patientsArr.filter(p => p.active !== false).length;
           const inativos = patientsArr.length - ativos;
-
+          
           const statusData = [
             { name: 'Ativos', value: ativos, color: '#007bff' },
             { name: 'Inativos', value: inativos, color: '#ffa500' }
           ];
-
+          
           setPacientesStatusDataReal(statusData);
         }
 
@@ -414,15 +422,15 @@ function SecretariaDashboard() {
         const appointmentsData = await appointmentsResponse.json();
         const appointmentsArr = Array.isArray(appointmentsData) ? appointmentsData : [];
         setAppointments(appointmentsArr);
-
+        
         // Processar dados dos gráficos
         processConsultasMensais(appointmentsArr);
         await processConsultasPorMedico(appointmentsArr, doctorsArr);
         processTaxaCancelamentos(appointmentsArr);
-
-
+     
+        
       } catch (error) {
-
+    
       } finally {
         setLoading(false);
       }
@@ -435,9 +443,9 @@ function SecretariaDashboard() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 1000); // Atualiza a cada segundo
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); // Limpa o timer quando o componente é desmontado
   }, []);
 
   // useEffect para carregar avatar do usuário (mesma lógica da navbar)
@@ -457,17 +465,19 @@ function SecretariaDashboard() {
 
       try {
         const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.png`, requestOptions);
-
+        
         if (response.ok) {
           const blob = await response.blob();
           const imageUrl = URL.createObjectURL(blob);
           setPreviewUrl(imageUrl);
-          return;
+          return; // Avatar encontrado
         }
       } catch (error) {
-
+       
       }
-
+      
+      // Se chegou até aqui, não encontrou avatar - mantém o padrão
+    
     };
 
     loadAvatar();
@@ -479,9 +489,9 @@ function SecretariaDashboard() {
       'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
       'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
     ];
-
+    
     const consultasPorMes = meses.map(mes => ({ mes, consultas: 0 }));
-
+    
     if (appointmentsData && appointmentsData.length > 0) {
       appointmentsData.forEach(appointment => {
         if (appointment.scheduled_at) {
@@ -493,40 +503,9 @@ function SecretariaDashboard() {
         }
       });
     }
+    
 
     setConsultasMensaisDataReal(consultasPorMes);
-  };
-
-  // Processar dados das consultas por médico
-  const processConsultasPorMedico = async (appointmentsData, doctorsData) => {
-    try {
-      // Criar mapa de médicos
-      const doctorsMap = {};
-      doctorsData.forEach(doctor => {
-        let doctorName = doctor.full_name || doctor.name || `Médico ${doctor.id}`;
-        doctorName = doctorName.trim();
-        doctorsMap[doctor.id] = doctorName;
-      });
-
-      // Contar consultas por médico
-      const consultasPorMedico = {};
-      appointmentsData.forEach(appointment => {
-        if (appointment.doctor_id) {
-          const doctorName = doctorsMap[appointment.doctor_id] || `Médico ${appointment.doctor_id}`;
-          consultasPorMedico[doctorName] = (consultasPorMedico[doctorName] || 0) + 1;
-        }
-      });
-
-      // Converter para array e ordenar por número de consultas (maior para menor)
-      const chartData = Object.entries(consultasPorMedico)
-        .map(([medico, consultas]) => ({ medico, consultas }))
-        .sort((a, b) => b.consultas - a.consultas)
-        .slice(0, 10); // Mostrar apenas os top 10 médicos
-
-      setConsultasPorMedicoData(chartData);
-    } catch (error) {
-      setConsultasPorMedicoData([]);
-    }
   };
 
   // Processar dados da taxa de cancelamentos
@@ -535,36 +514,37 @@ function SecretariaDashboard() {
       'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
       'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
     ];
-
-    const cancelamentosPorMes = meses.map(mes => ({
-      mes,
-      realizadas: 0,
-      canceladas: 0,
-      total: 0
+    
+    const cancelamentosPorMes = meses.map(mes => ({ 
+      mes, 
+      realizadas: 0, 
+      canceladas: 0, 
+      total: 0 
     }));
-
+    
     if (appointmentsData && appointmentsData.length > 0) {
-
+     
+      
       appointmentsData.forEach(appointment => {
         if (appointment.scheduled_at) {
           const data = new Date(appointment.scheduled_at);
           const mesIndex = data.getMonth();
           const anoAtual = new Date().getFullYear();
           const anoConsulta = data.getFullYear();
-
+          
           // Processar apenas consultas do ano atual
           if (mesIndex >= 0 && mesIndex < 12 && anoConsulta === anoAtual) {
             cancelamentosPorMes[mesIndex].total++;
-
+            
             // Verificar diferentes possíveis campos de status de cancelamento
-            const isCancelled =
-              appointment.status === 'cancelled' ||
+            const isCancelled = 
+              appointment.status === 'cancelled' || 
               appointment.status === 'canceled' ||
               appointment.cancelled === true ||
               appointment.is_cancelled === true ||
               appointment.appointment_status === 'cancelled' ||
               appointment.appointment_status === 'canceled';
-
+            
             if (isCancelled) {
               cancelamentosPorMes[mesIndex].canceladas++;
             } else {
@@ -573,16 +553,16 @@ function SecretariaDashboard() {
           }
         }
       });
-
+      
       // Calcular porcentagens e manter valores absolutos para tooltip
       cancelamentosPorMes.forEach(mes => {
         if (mes.total > 0) {
           const realizadasCount = mes.realizadas;
           const canceladasCount = mes.canceladas;
-
+          
           mes.realizadas = Math.round((realizadasCount / mes.total) * 100);
           mes.canceladas = Math.round((canceladasCount / mes.total) * 100);
-
+          
           // Garantir que soma seja 100%
           if (mes.realizadas + mes.canceladas !== 100 && mes.total > 0) {
             mes.realizadas = 100 - mes.canceladas;
@@ -593,22 +573,66 @@ function SecretariaDashboard() {
           mes.canceladas = 0;
         }
       });
-
-    
+      
+      
       setTaxaCancelamentosData(cancelamentosPorMes);
     } else {
-      // Se não há dados da API, deixar vazio
 
       setTaxaCancelamentosData([]);
     }
   };
 
+  // Processar dados das consultas por médico
+  const processConsultasPorMedico = async (appointmentsData, doctorsData) => {
+    try {
 
+      
+      // Criar mapa de médicos
+      const doctorsMap = {};
+      doctorsData.forEach(doctor => {
+        let doctorName = doctor.full_name || doctor.name || `Médico ${doctor.id}`;
+        
+        // Apenas limpar espaços em branco, manter nome completo
+        doctorName = doctorName.trim();
+        
+        doctorsMap[doctor.id] = doctorName;
+      });
+
+
+
+      // Contar consultas por médico
+      const consultasPorMedico = {};
+      appointmentsData.forEach(appointment => {
+  
+        if (appointment.doctor_id) {
+          const doctorName = doctorsMap[appointment.doctor_id] || `Médico ${appointment.doctor_id}`;
+          consultasPorMedico[doctorName] = (consultasPorMedico[doctorName] || 0) + 1;
+        }
+      });
+
+
+      // Converter para array e ordenar por número de consultas (maior para menor)
+      const chartData = Object.entries(consultasPorMedico)
+        .map(([medico, consultas]) => ({ medico, consultas }))
+        .sort((a, b) => b.consultas - a.consultas)
+        .slice(0, 10); // Mostrar apenas os top 10 médicos
+
+  
+      setConsultasPorMedicoData(chartData);
+    } catch (error) {
+      setConsultasPorMedicoData([]);
+    }
+  };
+
+ 
+ 
+
+  
 
   return (
     <div className="page-wrapper">
       <div className="content">
-        {/* Header com informações da secretária */}
+        {/* Header com informações do admin */}
         <div className="page-header">
           <div className="row">
             <div className="col-sm-12">
@@ -622,8 +646,10 @@ function SecretariaDashboard() {
               }}>
                 <div className="row align-items-center">
                   <div className="col-md-8">
-                    <h2 className="mb-2">📋 Olá, {getFullName()}!</h2>
-                    <p className="mb-2">Central de organização - Mantenha tudo funcionando perfeitamente</p>
+                    <h2 className="mb-2">👨‍💼 Olá, {getFullName()}!</h2>
+                    <p className="mb-2">É ótimo tê-lo novamente no MediConnect. Acompanhe o desempenho da sua clínica, mantenha o controle de tudo em um só lugar e continue fazendo-a crescer todos os dias!
+                            </p>
+                            <small className="text-muted"></small>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>
@@ -692,6 +718,7 @@ function SecretariaDashboard() {
             </div>
           </div>
         </div>
+
         {/* Seção dos Gráficos */}
         <div className="row">
           {/* Consultas por Mês */}
@@ -701,15 +728,15 @@ function SecretariaDashboard() {
                 <h4 className="card-title">📊 Consultas por Mês ({new Date().getFullYear()})</h4>
               </div>
               <div className="card-body">
-                {loading ? (
-                  <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div>
-                      <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
-                      <p>Carregando dados...</p>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando dados...</p>
+                      </div>
                     </div>
-                  </div>
-                ) : consultasMensaisDataReal.length > 0 ? (
-                  <ConsultasMensaisChart data={consultasMensaisDataReal} />
+                  ) : consultasMensaisDataReal.length > 0 ? (
+                    <ConsultasMensaisChart data={consultasMensaisDataReal} />
                 ) : (
                   <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div>
@@ -729,13 +756,13 @@ function SecretariaDashboard() {
                 <h4 className="card-title">🏆 Top 10 Médicos (Consultas)</h4>
               </div>
               <div className="card-body">
-                {loading ? (
-                  <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div>
-                      <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
-                      <p>Carregando dados...</p>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando dados...</p>
+                      </div>
                     </div>
-                  </div>
                 ) : (
                   <ConsultasPorMedicoChart data={consultasPorMedicoData} />
                 )}
@@ -752,15 +779,15 @@ function SecretariaDashboard() {
                 <h4 className="card-title">👥 Pacientes Ativos x Inativos</h4>
               </div>
               <div className="card-body">
-                {loading ? (
-                  <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div>
-                      <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
-                      <p>Carregando dados...</p>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando dados...</p>
+                      </div>
                     </div>
-                  </div>
-                ) : pacientesStatusDataReal.length > 0 ? (
-                  <AtivosInativosChart data={pacientesStatusDataReal} />
+                  ) : pacientesStatusDataReal.length > 0 ? (
+                    <AtivosInativosChart data={pacientesStatusDataReal} />
                 ) : (
                   <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div>
@@ -780,13 +807,13 @@ function SecretariaDashboard() {
                 <h4 className="card-title">📉 Taxa de Cancelamentos</h4>
               </div>
               <div className="card-body">
-                {loading ? (
-                  <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div>
-                      <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
-                      <p>Carregando dados...</p>
+                  {loading ? (
+                    <div className="text-center text-muted" style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div>
+                        <i className="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Carregando dados...</p>
+                      </div>
                     </div>
-                  </div>
                 ) : (
                   <TaxaCancelamentosChart data={taxaCancelamentosData} />
                 )}
@@ -799,7 +826,7 @@ function SecretariaDashboard() {
   );
 }
 
-// CSS customizado para o SecretariaDashboard (mesmo estilo do AdminDashboard)
+// CSS customizado para o AdminDashboard (mesmo estilo do PatientDashboard)
 const style = document.createElement('style');
 style.textContent = `
   .user-info-banner {
@@ -836,9 +863,9 @@ style.textContent = `
   }
 `;
 
-if (!document.head.querySelector('[data-secretaria-dashboard-styles]')) {
-  style.setAttribute('data-secretaria-dashboard-styles', 'true');
+if (!document.head.querySelector('[data-admin-dashboard-styles]')) {
+  style.setAttribute('data-admin-dashboard-styles', 'true');
   document.head.appendChild(style);
 }
 
-export default SecretariaDashboard;
+export default AdminDashboard;

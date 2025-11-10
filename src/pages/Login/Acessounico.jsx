@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAccessToken } from "../../utils/auth";
+import { getAccessToken } from "../../utils/auth.js";
 import { useResponsive } from '../../utils/useResponsive';
 
 export default function MagicLink() {

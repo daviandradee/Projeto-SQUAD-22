@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAccessToken } from "../../utils/auth";
-import "../../../src/assets/css/index.css"; 
+import { getAccessToken } from "../../utils/auth.js";
+import "../../assets/css/index.css"; 
 import { getFullName, getUserId } from "../../utils/userInfo";
-import AvatarForm from "../../../public/img/AvatarForm.jpg";
-import banner from '../../../public/img/banner.png';
-import { 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+import { getUserRole } from "../../utils/userInfo";
+const AvatarForm = "/img/AvatarForm.jpg";
+const banner = "/img/banner.png";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,6 +34,7 @@ function DoctorDashboard() {
   const [recentConsults, setRecentConsults] = useState([]);
   const [followUpPatients, setFollowUpPatients] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [draftReports, setDraftReports] = useState([]);
   // Estados para os gráficos médicos
   
   const [loading, setLoading] = useState(true);
@@ -54,6 +43,7 @@ function DoctorDashboard() {
 
   const tokenUsuario = getAccessToken();
   const userId = getUserId();
+  const role = getUserRole();
 
   const requestOptions = {
     method: "GET",
@@ -87,6 +77,15 @@ function DoctorDashboard() {
         const appointmentsData = await appointmentsResponse.json();
         const appointmentsArr = Array.isArray(appointmentsData) ? appointmentsData : [];
         setAppointments(appointmentsArr);
+
+        // Buscar laudos em draft
+        const reportsResponse = await fetch(
+          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?status=eq.draft",
+          requestOptions
+        );
+        const reportsData = await reportsResponse.json();
+        const reportsArr = Array.isArray(reportsData) ? reportsData : [];
+        setDraftReports(reportsArr);
         
         // Processar dados específicos do médico
         processTodayAppointments(appointmentsArr, patientsArr);
@@ -94,19 +93,46 @@ function DoctorDashboard() {
         processFollowUpPatients(appointmentsArr, patientsArr);
         processConsultasMensais(appointmentsArr);
         processComparecimentoData(appointmentsArr);
-        processAlerts(appointmentsArr);
-        
-        console.log("Dados do médico carregados:", {
-          patients: patientsArr.length,
-          appointments: appointmentsArr.length
-        });
+        processAlerts(appointmentsArr, reportsArr);
         
       } catch (error) {
-        console.error("Erro ao carregar dados do médico:", error);
+        console.error('Erro ao carregar dados do médico:', error);
       } finally {
         setLoading(false);
       }
     };
+
+    // Inject custom CSS for DoctorDashboard
+    const styleId = 'doctor-dashboard-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        [data-dashboard="doctor"] .custom-badge {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+        [data-dashboard="doctor"] .status-green {
+          background-color: #e8f5e8;
+          color: #2e7d32;
+          border: 1px solid #c8e6c9;
+        }
+        [data-dashboard="doctor"] .status-yellow {
+          background-color: #fff8e1;
+          color: #f57f17;
+          border: 1px solid #ffecb3;
+        }
+        [data-dashboard="doctor"] .status-red {
+          background-color: #ffebee;
+          color: #c62828;
+          border: 1px solid #ffcdd2;
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     loadDoctorData();
   }, []);
@@ -145,11 +171,11 @@ function DoctorDashboard() {
           return; // Avatar encontrado
         }
       } catch (error) {
-        console.log('Avatar não encontrado com extensão png');
+      
       }
       
       // Se chegou até aqui, não encontrou avatar - mantém o padrão
-      console.log('Nenhum avatar encontrado, usando imagem padrão');
+     
     };
 
     loadAvatar();
@@ -193,121 +219,223 @@ function DoctorDashboard() {
 
     setRecentConsults(recent);
   };
+
+  // Processar pacientes em acompanhamento
+  const processFollowUpPatients = (appointmentsData, patientsData) => {
+    // Selecionar pacientes com consultas recorrentes ou em tratamento
+    const followUp = patientsData.slice(0, 10);
+    setFollowUpPatients(followUp);
+  };
+
+  // Processar dados de consultas mensais
+  const processConsultasMensais = (appointmentsData) => {
+    // Lógica para processar consultas mensais para gráficos
+    // Implementar conforme necessário
+  };
+
+  // Processar dados de comparecimento
+  const processComparecimentoData = (appointmentsData) => {
+    // Lógica para processar dados de comparecimento
+    // Implementar conforme necessário
+  };
+
+  // Processar alertas
+  const processAlerts = (appointmentsData, reportsData = []) => {
+    const alertsArray = [];
+    
+    // Verificar laudos em draft
+    if (reportsData.length > 0) {
+      alertsArray.push({
+        message: `${reportsData.length} laudo${reportsData.length > 1 ? 's' : ''} pendente${reportsData.length > 1 ? 's' : ''} de confirmação`,
+        type: 'warning',
+        icon: 'fa-file-text-o',
+        action: 'Confirmar',
+        link: '/doctor/reports'
+      });
+    }
+    
+    // Verificar consultas próximas (próximas 2 horas)
+    const now = new Date();
+    const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    
+    appointmentsData.forEach(apt => {
+      if (apt.scheduled_at) {
+        const aptDate = new Date(apt.scheduled_at);
+        if (aptDate > now && aptDate <= twoHoursLater) {
+          alertsArray.push({
+            message: `Consulta em ${Math.round((aptDate - now) / (1000 * 60))} minutos`,
+            type: 'warning',
+            icon: 'fa-clock-o',
+            action: 'Ver',
+            link: '/doctor/appointments'
+          });
+        }
+      }
+    });
+
+    // Adicionar outros alertas conforme necessário
+    if (alertsArray.length === 0) {
+      alertsArray.push({
+        message: 'Nenhum alerta no momento',
+        type: 'info',
+        icon: 'fa-info-circle',
+        action: 'OK'
+      });
+    }
+    
+    setAlerts(alertsArray);
+  };
   return (
-        <div className="content">
-          <div className="sdc-content">
-            {/* Banner de Boas-vindas */}
-            <div className="row mb-4">
-              <div className="col-12">
-                <div className="card shadow-sm rounded">
-                  <div className="card-body p-4" style={{ backgroundColor: '#f8f9fa' }}>
-                    <div className="row align-items-center">
-                      <div className="col-md-8">
-                        <div className="d-flex align-items-center">
-                          <div style={{ marginRight: '20px' }}>
-                            
-                              <img alt="" src={previewUrl} style={{ marginTop: "5px", borderRadius: "50%", objectFit: "cover", width: "80px", height: "80px" }} />
-                          
-                          </div>
-                          <div>
-                            <h3 className="fw-semibold mb-1 text-dark">
-                              Bem-vindo de volta, Dr.{getFullName()}!
-                            </h3>
-                            <p className="text-muted mb-2">
-                             Hoje é mais um dia para transformar vidas. Revise sua agenda, acompanhe seus pacientes e siga fazendo a diferença com o MediConnect. 💙
-                            </p>
-                            <small className="text-muted">
-                              <i className="fa fa-calendar" style={{ marginRight: '5px' }}></i>
-                              {currentTime.toLocaleDateString('pt-BR')}
-                              <span style={{ marginLeft: '15px' }}>
-                                <i className="fa fa-clock-o" style={{ marginRight: '5px' }}></i>
-                                {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                              </span>
-                            </small>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-md-4 text-right">
-                        <div className="d-flex justify-content-end align-items-center">
-                         
-                      
-                            <img alt="" src={banner} style={{ marginTop: "5px", borderRadius: "8px", objectFit: "cover", width: "50%", height: "50%" }} />
-                          </div>
-                      
-                      </div>
-                    </div>
+    <div className="page-wrapper" data-dashboard="doctor">
+      <div className="content">
+        {/* Header com informações do médico */}
+        <div className="page-header">
+          <div className="row">
+            <div className="col-sm-12">
+              <div className="user-info-banner" style={{
+                background: `linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(80, 200, 120, 0.9)), url(${banner})`,
+                backgroundSize: 'cover',
+                borderRadius: '15px',
+                padding: '30px',
+                color: 'white',
+                marginBottom: '20px'
+              }}>
+                <div className="row align-items-center">
+                  <div className="col-md-8">
+                    <h2 className="mb-2">👨‍⚕️ Olá, Dr. {getFullName()}!</h2>
+                    <p className="mb-2">É ótimo tê-lo novamente no MediConnect. Acompanhe o desempenho da sua clínica, mantenha o controle de tudo em um só lugar e continue fazendo-a crescer todos os dias!</p>
+                    <small className="opacity-75">
+                      🕒 {currentTime.toLocaleString('pt-BR')}
+                    </small>
+                  </div>
+                  <div className="col-md-4 text-right">
+                    <img 
+                      src={previewUrl} 
+                      alt="Avatar" 
+                      className="rounded-circle"
+                      style={{ width: '80px', height: '80px', objectFit: 'cover', border: '3px solid white' }}
+                    />
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Widgets do Médico */}
-            <div className="row">
-              <div className="col-md-3">
-                <div className="sdc-dash-widget">
-                  <span className="sdc-dash-widget-bg1">
-                    <i className="fa fa-calendar" />
-                  </span>
-                  <div className="sdc-dash-widget-info">
-                    <h3>{todayAppointments.length}</h3>
-                    <span>Hoje</span>
-                  </div>
-                </div>
+        {/* Cards de estatísticas */}
+        <div className="row">
+          <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+            <div className="dash-widget" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <span className="dash-widget-bg1">
+                <i className="fa fa-calendar-check-o" aria-hidden="true"></i>
+              </span>
+              <div className="dash-widget-info text-right">
+                <h3>{todayAppointments.length}</h3>
+                <span className="widget-title1">Consultas Hoje</span>
               </div>
-              <div className="col-md-3">
-                <div className="sdc-dash-widget">
-                  <span className="sdc-dash-widget-bg2">
-                    <i className="fa fa-users" />
-                  </span>
-                  <div className="sdc-dash-widget-info">
-                    <h3>{patients.length}</h3>
-                    <span>Acompanhamento</span>
-                  </div>
-                </div>
+            </div>
+          </div>
+
+          <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+            <div className="dash-widget" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <span className="dash-widget-bg2">
+                <i className="fa fa-users" aria-hidden="true"></i>
+              </span>
+              <div className="dash-widget-info text-right">
+                <h3>{patients.length}</h3>
+                <span className="widget-title2">Total Pacientes</span>
               </div>
-              <div className="col-md-3">
-                <div className="sdc-dash-widget">
-                  <span className="sdc-dash-widget-bg3">
-                    <i className="fa fa-file-text" />
-                  </span>
-                  <div className="sdc-dash-widget-info">
-                    <h3>3</h3>
-                    <span>Laudos</span>
-                  </div>
-                </div>
+            </div>
+          </div>
+
+          <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+            <div className="dash-widget" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <span className="dash-widget-bg3">
+                <i className="fa fa-file-text-o" aria-hidden="true"></i>
+              </span>
+              <div className="dash-widget-info text-right">
+                <h3>{draftReports.length}</h3>
+                <span className="widget-title3">Laudos Pendentes</span>
               </div>
-              <div className="col-md-3">
-                <div className="sdc-dash-widget">
-                  <span className="sdc-dash-widget-bg4">
-                    <i className="fa fa-bell" />
-                  </span>
-                  <div className="sdc-dash-widget-info">
-                    <h3>{alerts.length}</h3>
-                    <span>Alertas</span>
+            </div>
+          </div>
+
+          <div className="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+            <div className="dash-widget" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <span className="dash-widget-bg4">
+                <i className="fa fa-bell" aria-hidden="true"></i>
+              </span>
+              <div className="dash-widget-info text-right">
+                <h3>{alerts.length}</h3>
+                <span className="widget-title4">Notificações</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ações rápidas */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="card" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-3 col-sm-6 mb-3">
+                    <Link to={`/${role}/consultaform`} className="btn btn-outline-primary btn-lg w-100" style={{ borderRadius: '10px' }}>
+                      <i className="fa fa-calendar-plus-o mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                      Nova Consulta
+                    </Link>
+                  </div>
+                  <div className="col-md-3 col-sm-6 mb-3">
+                    <Link to={`/${role}/patientlist`} className="btn btn-outline-success btn-lg w-100" style={{ borderRadius: '10px' }}>
+                      <i className="fa fa-user mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                      Meus Pacientes
+                    </Link>
+                  </div>
+                  <div className="col-md-3 col-sm-6 mb-3">
+                    <Link to={`/${role}/laudolist`} className="btn btn-outline-info btn-lg w-100" style={{ borderRadius: '10px' }}>
+                      <i className="fa fa-stethoscope mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                      Laudos
+                    </Link>
+                  </div>
+                  <div className="col-md-3 col-sm-6 mb-3">
+                    <Link to={`/${role}/excecao`} className="btn btn-outline-warning btn-lg w-100" style={{ borderRadius: '10px' }}>
+                      <i className="fa fa-exclamation-triangle mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                      Exceções
+                    </Link>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Alertas 
-            {alerts.length > 0 && (
-              <div className="row mt-3">
-                <div className="col-12">
-                  <div className="card shadow-sm">
-                    <div className="card-body p-3">
-                      <h5 className="mb-3"><i className="fa fa-bell text-warning"></i> Alertas</h5>
-                      {alerts.map((alert, index) => (
-                        <div key={index} className={`alert alert-${alert.type === 'danger' ? 'danger' : alert.type === 'warning' ? 'warning' : 'info'} d-flex align-items-center mb-2`}>
-                          <i className={`fa ${alert.icon} me-2`}></i>
-                          <span className="flex-grow-1">{alert.message}</span>
-                          <button className="btn btn-sm btn-outline-secondary ms-2">{alert.action}</button>
-                        </div>
-                      ))}
+        {/* Alertas Médicos */}
+        {alerts.length > 0 && (
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="card" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+                <div className="card-header">
+                  <h4 className="card-title">🔔 Notificações Importantes</h4>
+                </div>
+                <div className="card-body">
+                  {alerts.map((alert, index) => (
+                    <div key={index} className={`alert alert-${alert.type === 'danger' ? 'danger' : alert.type === 'warning' ? 'warning' : 'info'} d-flex align-items-center mb-2`}>
+                      <i className={`fa ${alert.icon} me-2`}></i>
+                      <span className="flex-grow-1">{alert.message}</span>
+                      {alert.link ? (
+                        <Link to={alert.link} className="btn btn-sm btn-outline-secondary ms-2">
+                          {alert.action}
+                        </Link>
+                      ) : (
+                        <button className="btn btn-sm btn-outline-secondary ms-2">{alert.action}</button>
+                      )}
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-            )}
+            </div>
+          </div>
+        )}
 
             {/* Seções Específicas do Médico */}
             {/* Primeira linha - Agenda do Dia e Consultas Recentes */}
@@ -315,7 +443,7 @@ function DoctorDashboard() {
               <div className="col-md-6 mb-4">
                 <div className="card shadow-sm rounded p-3">
                   <h4 className="fw-semibold mb-3">
-                    <i className="fa fa-calendar text-primary"></i> Agenda de Hoje
+                    <i className="fa fa-calendar text-primary"></i> Consultas de Hoje
                   </h4>
                   {loading ? (
                     <div className="text-center text-muted" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -355,7 +483,7 @@ function DoctorDashboard() {
               <div className="col-md-6 mb-4">
                 <div className="card shadow-sm rounded p-3">
                   <h4 className="fw-semibold mb-3">
-                    <i className="fa fa-history text-info"></i> Consultas Recentes
+                    <i className="fa fa-history text-info"></i> Atendimentos Recentes
                   </h4>
                   {loading ? (
                     <div className="text-center text-muted" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -365,7 +493,7 @@ function DoctorDashboard() {
                       </div>
                     </div>
                   ) : recentConsults.length > 0 ? (
-                    <div className="recent-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <div className="recent-list" style={{ maxHeight: '300px', overflowY: 'auto'  }}>
                       {recentConsults.map((consult, index) => (
                         <div key={index} className="d-flex align-items-center p-3 border-bottom">
                           <div className="patient-avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }}>
@@ -389,10 +517,12 @@ function DoctorDashboard() {
               </div>
             </div>
 
-            {/* Segunda linha - Pacientes em Acompanhamento e Gráficos */}
-            
-        </div> 
+        {/* Charts Section */}
+        
+
+          
       </div>
+    </div>
   );
 }
 

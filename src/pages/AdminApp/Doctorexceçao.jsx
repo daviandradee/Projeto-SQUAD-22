@@ -220,7 +220,6 @@ export default function Doctorexceçao() {
 
   // ---------- UI ----------
   return (
-    <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
             <div className="row align-items-center">
@@ -335,7 +334,6 @@ export default function Doctorexceçao() {
             </div>
           </div>
         </div>
-      </div>
 
   );
 }

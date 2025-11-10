@@ -125,10 +125,10 @@ export default function Login() {
 
       const rolePriority = [
         { role: "admin", path: "/admin/dashboard" },
-        { role: "secretaria", path: "/secretaria/secretariadashboard" },
-        { role: "medico", path: "/doctor/dashboard" },
+        { role: "secretaria", path: "/secretaria/" },
+        { role: "medico", path: "/medico/dashboard" },
         { role: "user", path: "/patientapp" },
-        { role: "paciente", path: "/patientapp" },
+        { role: "paciente", path: "/paciente" },
       ];
 
       const matchedRole = rolePriority.find(r => roles.includes(r.role));
