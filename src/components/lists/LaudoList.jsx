@@ -389,7 +389,7 @@ function LaudoList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [laudos]);
     const permissoes = {
-  admin: ['editlaudo', 'deletarlaudo', 'viewlaudo', 'viewpatientlaudos', 'createlaudo'],
+  admin: ['editlaudo', 'deletarlaudo', 'viewlaudo', 'viewpatientlaudos', 'createlaudo', 'executantelaudo'],
   medico: ['editlaudo', 'deletarlaudo', 'viewlaudo', 'viewpatientlaudos', 'createlaudo'],
   paciente: ['viewlaudo']
 };
@@ -442,7 +442,7 @@ useEffect(() => {
         <div className="col-12">
        <div className="d-flex justify-content-between align-items-start mb-3">
           <h4 className="page-title mb-0">Laudos</h4>
-           {pode('create-laudo') && (
+           {pode('createlaudo') && (
             <Link
             to={`/${role}/laudoform`}
             onClick={(e) => {
@@ -543,14 +543,16 @@ useEffect(() => {
                 <thead>
                   <tr>
                     <th className="text-center">Pedido</th>
-                     {pode('viewpatientlaudo') && (
+                     {pode('viewpatientlaudos') && (
                       <th className="text-center">Paciente</th>
                     )}
                     <th className="text-center">Exame</th>
                     <th className="text-center">Diagnóstico</th>
                     <th className="text-center">Conclusão</th>
                     <th className="text-center">Status</th>
+                    {pode('executantelaudo') && (
                     <th className="text-center">Executante</th>
+                    )}
                     <th className="text-center">Criado em</th>
                     <th className="text-center">Ações</th>
                   </tr>
@@ -559,7 +561,7 @@ useEffect(() => {
                   {currentLaudos.length > 0 ? currentLaudos.map(l => (
                     <tr key={l.id}>
                       <td className="nowrap">{l.order_number}</td>
-                       {pode('viewpatientlaudo') && (
+                       {pode('viewpatientlaudos') && (
                         <td className="text-center">{pacientesMap[l.patient_id] || "Carregando..."}</td>
                       )}
                       <td className="text-center">{l.exam}</td>
@@ -589,9 +591,11 @@ useEffect(() => {
                           )}
                         </span>
                       </td>
-                      <td className="text-center"> {medicosMap[l.requested_by] || l.requested_by}</td>
+                      {pode('executantelaudo') && (
+                        <td className="text-center"> {medicosMap[l.requested_by] || l.requested_by}</td>
+                      )}
                       <td className="text-center">{formatDate(l.created_at)}</td>
-                      <td className="text-rigth">
+                      <td className="text-center">
                         <div className="action-buttons-container">
                            {pode('editlaudo') &&  (<button
                             type="button"
