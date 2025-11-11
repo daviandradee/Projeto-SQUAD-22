@@ -8,6 +8,18 @@ import "../../assets/css/index.css";
 import { getAccessToken } from '../../utils/auth';
 import { getDoctorId } from "../../utils/userInfo";
 
+// Função para formatar data/hora igual ao ConsultaList
+function formatDateTime(dateString) {
+  if (!dateString) return '';
+  try {
+    const [datePart, timePart] = dateString.split('T');
+    const [year, month, day] = datePart.split('-');
+    const [hour, minute] = timePart.split(':');
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  } catch {
+    return dateString;
+  }
+}
 
 export default function DoctorCalendar() {
   const [events, setEvents] = useState([]);
@@ -82,18 +94,18 @@ export default function DoctorCalendar() {
 
         // Converter consultas para eventos do calendário
         const calendarEvents = consultas.map((consulta) => {
-          const scheduledDate = new Date(consulta.scheduled_at);
-          const date = scheduledDate.toISOString().split("T")[0];
-          const time = scheduledDate.toTimeString().substring(0, 5);
-
+          // Extrai data e horário diretamente da string ISO, sem criar Date
+          const [date, timeFull] = consulta.scheduled_at.split('T');
+          const time = timeFull ? timeFull.substring(0, 5) : '';
           return {
             id: consulta.id,
             title: map[consulta.patient_id] || "Paciente",
             date: date,
             time: time,
+            start: `${date}T${time}:00`,
             type: consulta.appointment_type || "presencial",
             color: colorsByType[consulta.appointment_type] || "#4dabf7",
-            appointmentData: consulta, // Guardar dados completos da consulta
+            appointmentData: consulta,
           };
         });
 
@@ -226,6 +238,7 @@ export default function DoctorCalendar() {
   };
 
   return (
+    <div className="page-wrapper">
     <div
       className="calendar-container"
       style={{ padding: 20, display: "flex", justifyContent: "center" }}
@@ -411,7 +424,19 @@ export default function DoctorCalendar() {
                 <strong>Horário:</strong> {selectedEvent.extendedProps?.time || "Não informado"}
               </p>
               <p style={{ margin: "8px 0" }}>
-                <strong>Data:</strong> {new Date(selectedEvent.start).toLocaleDateString("pt-BR")}
+                <strong>Data:</strong> {
+                  selectedEvent.start
+                    ? (() => {
+                        let dateStr =
+                          typeof selectedEvent.start === "string"
+                            ? selectedEvent.start
+                            : selectedEvent.start instanceof Date
+                            ? selectedEvent.start.toISOString()
+                            : "";
+                        return formatDateTime(dateStr).split(" ")[0];
+                      })()
+                    : "Não informado"
+                }
               </p>
               {selectedEvent.extendedProps?.appointmentData?.chief_complaint && (
                 <p style={{ margin: "8px 0" }}>
@@ -443,6 +468,7 @@ export default function DoctorCalendar() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

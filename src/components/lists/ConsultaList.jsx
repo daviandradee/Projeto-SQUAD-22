@@ -219,6 +219,19 @@ function ConsultaList() {
     }
 
     return matchesText && matchesStatus && matchesType && dateMatch;
+  }).sort((a, b) => {
+    // Priorizar consultas "requested" (solicitadas) primeiro
+    if (a.status === 'requested' && b.status !== 'requested') {
+      return -1; // 'a' vem antes de 'b'
+    }
+    if (b.status === 'requested' && a.status !== 'requested') {
+      return 1; // 'b' vem antes de 'a'
+    }
+    
+    // Se ambos têm o mesmo status de prioridade, ordena por data (mais recente primeiro)
+    const dateA = new Date(a.scheduled_at || 0);
+    const dateB = new Date(b.scheduled_at || 0);
+    return dateB - dateA;
   });
   const [itemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
@@ -337,6 +350,93 @@ useEffect(() => {
       return dateString;
     }
   };
+  const handleConfirm = async (id) => {
+  try {
+    const response = await fetch(
+      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          ...headers,
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({ status: "confirmed" })
+      }
+    );
+
+    if (response.ok) {
+      // Atualiza o estado local
+      setConsultas((prev) => 
+        prev.map((c) => 
+          c.id === id ? { ...c, status: "confirmed" } : c
+        )
+      );
+      
+      Swal.fire({
+        title: "Confirmado!",
+        text: "Consulta confirmada com sucesso.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      throw new Error('Falha na confirmação');
+    }
+  } catch (error) {
+    console.error("Erro ao confirmar:", error);
+    Swal.fire("Erro", "Não foi possível confirmar a consulta.", "error");
+  }
+};
+
+const handleCancel = async (id) => {
+  const confirm = await Swal.fire({
+    title: "Cancelar consulta?",
+    text: "Esta ação irá cancelar a consulta.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e63946",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Cancelar consulta",
+    cancelButtonText: "Voltar",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const response = await fetch(
+      `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          ...headers,
+        },
+        body: JSON.stringify({ status: "cancelled" })
+      }
+    );
+
+    if (response.ok) {
+      setConsultas((prev) => 
+        prev.map((c) => 
+          c.id === id ? { ...c, status: "cancelled" } : c
+        )
+      );
+      
+      Swal.fire({
+        title: "Cancelado!",
+        text: "Consulta cancelada com sucesso.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      throw new Error('Falha no cancelamento');
+    }
+  } catch (error) {
+    console.error("Erro ao cancelar:", error);
+    Swal.fire("Erro", "Não foi possível cancelar a consulta.", "error");
+  }
+};
+
   const navigate = useNavigate();
   const role = getUserRole();
   const permissoes = {
@@ -476,7 +576,7 @@ useEffect(() => {
                             c.appointment_type === 'telemedicina' ? 'status-blue' :
                             'status-gray'
                           }`}
-                          style={{ minWidth: '110px', display: 'inline-block', textAlign: 'center' }}
+                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         >
                           {c.appointment_type === 'presencial' ? (
                             <>
@@ -494,6 +594,7 @@ useEffect(() => {
                         </span>
                       </td>
                       <td className="text-center">
+                        
                         <span
                           className={`custom-badge ${
                             c.status === 'requested' ? 'status-orange' :
@@ -502,7 +603,7 @@ useEffect(() => {
                             c.status === 'cancelled' ? 'status-red' :
                             'status-gray'
                           }`}
-                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                          style={{ minWidth: '120px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         >
                           {c.status === 'requested' ? (
                             <>
@@ -535,16 +636,7 @@ useEffect(() => {
                        {pode('viewactionconsultas') &&  (
                         <td className="text-right">
                         <div className="action-buttons-container">
-                              {/*<button
-                                type="button"
-                                className="action-btn action-btn-view"
-                                onClick={() => handleViewDetails(p)}
-                                title="Ver detalhes do paciente"
-
-                              >
-                                <span className="fa fa-eye"></span>
-                              </button>}*/}
-                              {pode('editconsulta') &&  (
+                          {pode('editconsulta') &&  (
                               <button
                                 type="button"
                                 className="action-btn action-btn-edit"
@@ -554,18 +646,30 @@ useEffect(() => {
                                 <span className="fa fa-pencil m-r-5"></span>
                               </button>
                               )}
-                              {pode('deletarconsulta') &&  (
-                              <button
-                                type="button"
-                                className="action-btn action-btn-delete"
-                                onClick={() => handleDelete(c.id)}
-                                title="Excluir paciente"
-                              >
-                                <span className="fa fa-trash-o"></span>
-                              </button>
+                              {c.status === 'requested' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="action-btn action-btn-edit"
+                                    onClick={() => handleConfirm(c.id)}
+                                    title="Confirmar consulta"
+                                    
+                                  >
+                                    <span className="fa fa-check"></span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="action-btn action-btn-delete"
+                                    onClick={() => handleCancel(c.id)}
+                                    title="Cancelar consulta"
+                                    
+                                  >
+                                    <span className="fa fa-times"></span>
+                                  </button>
+                                </>
                               )}
+                              
                             </div>
-                          
                       </td>
                       )}
                     </tr>

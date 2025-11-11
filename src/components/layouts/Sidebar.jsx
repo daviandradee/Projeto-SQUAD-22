@@ -63,7 +63,7 @@ function Sidebar() {
     };
     const permissoes = {
         admin: ['dashboard', 'consultalist', 'laudolist', 'patientlist', 'doctorlist', 'agendadoctor', 'createuser', 'excecao'],
-        medico: ['consultalist', 'dashboard', 'patientlist', 'prontuariolist', 'laudolist', 'excecao', 'agendadoctor'],
+        medico: ['consultalist', 'dashboard', 'patientlist', 'prontuariolist', 'laudolist', 'excecao', 'agendadoctor', 'doctorcalendar'],
         secretaria: ['dashboard', 'agendadoctor', 'consultalist', 'patientlist', 'doctorlist',],
         paciente: ['dashboard', 'medicosdisponiveis', 'consultalist', 'laudolist', 'agendarconsulta'],
 
@@ -82,6 +82,7 @@ function Sidebar() {
         { key: 'createuser', label: 'Usuários', icon: 'fa-users', path: 'createuser' },
         { key: 'excecao', label: 'Exceções do Médico', icon: 'fa-calendar-times-o', path: 'excecao' },
         { key: 'medicosdisponiveis', label: 'Agendar Consultas', icon: 'fa fa-calendar-plus-o', path: 'medicosdisponiveis' },
+        { key: 'doctorcalendar', label: 'Calendário', icon: 'fa fa-calendar', path: 'doctorcalendar' },
     ];
     return (
         <div>
