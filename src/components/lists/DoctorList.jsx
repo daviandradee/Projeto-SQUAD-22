@@ -215,7 +215,12 @@ function DoctorList() {
     
     return matchesSearch && matchesSpecialty;
   });
-
+  const permissoes = {
+  admin: ['adddoctor'],
+  secretaria: [""],
+  paciente: ['']
+};
+  const pode = (acao) => permissoes[role]?.includes(acao);
   return (
     <div className="page-wrapper">
       <div className="content">
@@ -223,12 +228,13 @@ function DoctorList() {
           <div className="col-12">
             <div className="d-flex justify-content-between align-items-start mb-3">
               <h4 className="page-title mb-0">Lista de Médicos</h4>
-              <Link
+              {pode('adddoctor') &&  (<Link
                 to={`/${role}/doctorform`}
                 className="btn btn-primary btn-rounded"
               >
                 <i className="fa fa-plus"></i> Adicionar Médico
               </Link>
+              )}
             </div>
             
             {/* Filtros em uma única linha (mesmo padrão do PatientList) */}
