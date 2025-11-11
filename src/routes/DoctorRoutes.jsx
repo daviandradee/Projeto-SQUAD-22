@@ -2,7 +2,6 @@ import DoctorDashBoard from "../pages/DoctorApp/DoctorDashboard";
 import DoctorApp from "../pages/DoctorApp/DoctorApp";
 import DoctorProntuario from "../pages/DoctorApp/Prontuario/DoctorProntuario";
 import DoctorProntuarioList from "../pages/DoctorApp/Prontuario/DoctorProntuarioList"
-import DoctorCalendar from "../pages/DoctorApp/DoctorCalendar";
 import Doctorexeceçao from "../pages/DoctorApp/Doctorexceçao";
 
 import AgendaDoctor from "../components/lists/AgendaDoctor"
@@ -17,6 +16,7 @@ import LaudoForm from "../components/forms/LaudoForm";
 import ConsultaEdit from "../components/edits/ConsultaEdit";
 import LaudoEdit from "../components/edits/LaudoEdit";
 import VerLaudo from "../components/VerLaudo";
+import DoctorCalendar from "../pages/DoctorApp/DoctorCalendar";
 
 export const DoctorRoutes = 
     {path : "/medico",
@@ -41,6 +41,7 @@ export const DoctorRoutes =
         {path: "editconsulta/:id", element: <ConsultaEdit />},
         {path: "editlaudo/:id", element: <LaudoEdit />},
         {path: "verlaudo/:id", element: <VerLaudo />},
+        {path: "doctorcalendar", element: <DoctorCalendar />},
     
     ]
 };

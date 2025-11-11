@@ -422,13 +422,7 @@ function DoctorDashboard() {
                     <div key={index} className={`alert alert-${alert.type === 'danger' ? 'danger' : alert.type === 'warning' ? 'warning' : 'info'} d-flex align-items-center mb-2`}>
                       <i className={`fa ${alert.icon} me-2`}></i>
                       <span className="flex-grow-1">{alert.message}</span>
-                      {alert.link ? (
-                        <Link to={alert.link} className="btn btn-sm btn-outline-secondary ms-2">
-                          {alert.action}
-                        </Link>
-                      ) : (
-                        <button className="btn btn-sm btn-outline-secondary ms-2">{alert.action}</button>
-                      )}
+                      
                     </div>
                   ))}
                 </div>
