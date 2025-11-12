@@ -149,7 +149,7 @@ function Navbar({ onMenuClick }) {
             timer: 1800,
             showConfirmButton: false,
           });
-          navigate("/");
+          navigate("/login");
         } else {
           Swal.fire({
             title: "Erro!",

@@ -14,7 +14,7 @@ function AdminApp() {
     const user = getUserRole();
     // Verificação de autenticação
     if (!token) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/login" replace />;
     }
     
     // Verificação de role
