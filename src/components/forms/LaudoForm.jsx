@@ -129,11 +129,15 @@ function Bar({ comandos, handleSubmit, toggleRecording, isRecording }) {
 };
 
 function LaudoForm() {
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
     const navigate = useNavigate();
     const [paciente, setPaciente] = useState([]);
     const tokenUsuario = getAccessToken()
     var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+    myHeaders.append("apikey", supabaseAK);
     myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
     var requestOptions = {
         method: 'GET',
@@ -141,7 +145,7 @@ function LaudoForm() {
         redirect: 'follow'
     };
     useEffect(() => {
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+        fetch(`${supabaseUrl}/rest/v1/patients`, requestOptions)
             .then(response => response.json())
             .then(result => setPaciente(Array.isArray(result) ? result : []))
             .catch(error => console.log('error', error));
@@ -206,7 +210,7 @@ function LaudoForm() {
             return;
         }
         var myHeaders = new Headers();
-        myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+        myHeaders.append("apikey", supabaseAK);
         myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
         myHeaders.append("Content-Type", "application/json");
 
@@ -218,7 +222,7 @@ function LaudoForm() {
             body: raw,
             redirect: 'follow'
         };
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports`, requestOptions)
+        fetch(`${supabaseUrl}/rest/v1/reports`, requestOptions)
             .then(response => response.text())
             .then(result => {
                 console.log(result);

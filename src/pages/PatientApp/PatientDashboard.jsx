@@ -20,7 +20,10 @@ export default function PatientDashboard() {
   const userId = getUserId();
   const patientName = getFullName() || "Paciente";
 
-  const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+  const API_KEY = supabaseAK;
 
   const requestOptions = {
     method: "GET",
@@ -39,17 +42,17 @@ export default function PatientDashboard() {
         
         // Buscar todas as consultas primeiro (sem filtrar por patient_id se não existir na tabela)
         const appointmentsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+          `${supabaseUrl}/rest/v1/appointments`,
           requestOptions
         );
         
         const reportsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports",
+          `${supabaseUrl}/rest/v1/reports`,
           requestOptions
         );
         
         const doctorsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?select=id,full_name",
+          `${supabaseUrl}/rest/v1/doctors?select=id,full_name`,
           requestOptions
         );
 

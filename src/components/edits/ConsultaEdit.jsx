@@ -42,15 +42,18 @@ function ConsultaEdit() {
     setMinDate(today.toISOString().split("T")[0]);
   }, []);
 
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
   // Busca consulta existente
   useEffect(() => {
     const fetchConsulta = async () => {
       try {
         const res = await fetch(
-          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+          `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
           {
             headers: {
-              apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+              apikey: supabaseAK,
               Authorization: `Bearer ${tokenUsuario}`,
             },
           }
@@ -87,9 +90,9 @@ function ConsultaEdit() {
 
   // Busca pacientes
   useEffect(() => {
-    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
+    fetch(`${supabaseUrl}/rest/v1/patients`, {
       headers: {
-        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        apikey: supabaseAK,
         Authorization: `Bearer ${tokenUsuario}`,
       },
     })
@@ -100,9 +103,9 @@ function ConsultaEdit() {
 
   // Busca médicos
   useEffect(() => {
-    fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors", {
+    fetch(`${supabaseUrl}/rest/v1/doctors`, {
       headers: {
-        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+        apikey: supabaseAK,
         Authorization: `Bearer ${tokenUsuario}`,
       },
     })
@@ -135,13 +138,13 @@ function ConsultaEdit() {
 
     try {
       const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        `${supabaseUrl}/functions/v1/get-available-slots`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             apikey:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+              supabaseAK,
             Authorization: `Bearer ${tokenUsuario}`,
           },
           body: JSON.stringify(payload),
@@ -222,12 +225,12 @@ function ConsultaEdit() {
 
     try {
       const res = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?id=eq.${id}`,
+        `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            apikey: supabaseAK,
             Authorization: `Bearer ${tokenUsuario}`,
             Prefer: "return=representation",
           },

@@ -9,6 +9,10 @@ const role = getUserRole();
 
 
 function DoctorForm() {
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
   const role = getUserRole();
   const [doctorData, setDoctorData] = useState({
     full_name: "",
@@ -95,7 +99,7 @@ function DoctorForm() {
     try {
       // === 2️⃣ ETAPA 1: CRIAR O USUÁRIO NO AUTH (CHAMANDO A FUNCTION) ===
       const authHeaders = new Headers();
-      authHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      authHeaders.append("apikey", supabaseAK);
       authHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       authHeaders.append("Content-Type", "application/json");
       const authRaw = JSON.stringify({
@@ -105,10 +109,10 @@ function DoctorForm() {
       });
 
       console.log("📤 Body enviado para Auth:", authRaw);
-      console.log("🌐 Endpoint:", 'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password');
+      console.log("🌐 Endpoint:", `${supabaseUrl}/functions/v1/create-user-with-password`);
 
       const authResponse = await fetch(
-        'https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password',
+        `${supabaseUrl}/functions/v1/create-user-with-password`,
         {
           method: 'POST',
           headers: authHeaders,

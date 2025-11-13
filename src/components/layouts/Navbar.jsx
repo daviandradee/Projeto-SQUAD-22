@@ -8,14 +8,15 @@ import { getAccessToken } from "../../utils/auth";
 
 const AvatarForm = "/img/AvatarForm.jpg";
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
 var myHeaders = new Headers();
 const tokenUsuario = getAccessToken();
 
 const LS_KEY = "pref_dark_mode";
 
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
-
-myHeaders.append("apikey", SUPABASE_ANON_KEY);
+myHeaders.append("apikey", supabaseAK);
 myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
 function Navbar({ onMenuClick }) {
@@ -105,8 +106,7 @@ function Navbar({ onMenuClick }) {
       for (const name of possibleNames) {
         for (const ext of extensions) {
           try {
-            const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-            const response = await fetch(`${SUPABASE_URL}/storage/v1/object/avatars/${userId}/${name}.${ext}`, requestOptions);
+            const response = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${userId}/${name}.${ext}`, requestOptions);
             
             if (response.ok) {
               const blob = await response.blob();
@@ -181,8 +181,7 @@ function Navbar({ onMenuClick }) {
     for (const name of possibleNames) {
       for (const extension of extensions) {
         try {
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-          const avatarUrl = `${SUPABASE_URL}/storage/v1/object/avatars/${userId}/${name}.${extension}`;
+          const avatarUrl = `${supabaseUrl}/storage/v1/object/avatars/${userId}/${name}.${extension}`;
           const finalUrl = forceReload ? `${avatarUrl}?t=${Date.now()}` : avatarUrl;
           
           const response = await fetch(finalUrl, requestOptions);
@@ -350,14 +349,13 @@ function Navbar({ onMenuClick }) {
 
       // Sempre salva como avatar.png independente do nome original
       const fileExtension = file.type.split('/')[1] || 'png';
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/avatars/${userId}/avatar.${fileExtension}`;
+      const uploadUrl = `${supabaseUrl}/storage/v1/object/avatars/${userId}/avatar.${fileExtension}`;
 
       const uploadOptions = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${tokenUsuario}`,
-          'apikey': SUPABASE_ANON_KEY,
+          'apikey': supabaseAK,
           'x-upsert': 'true'
         },
         body: formData

@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import { getUserRole } from "../../utils/userInfo.js";
 
-
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
 // Componente para o dropdown portal
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -111,7 +112,7 @@ function AgendaDoctor() {
       method: "GET",
       headers: {
         apikey:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+          supabaseAK,
         Authorization: `Bearer ${tokenUsuario}`,
       },
       redirect: "follow",
@@ -154,7 +155,7 @@ function AgendaDoctor() {
           method: "DELETE",
           headers: {
             apikey:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+              supabaseAK,
             Authorization: `Bearer ${tokenUsuario}`,
           },
         }
@@ -211,7 +212,7 @@ function AgendaDoctor() {
           method: "PATCH",
           headers: {
             apikey:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+              supabaseAK,
             Authorization: `Bearer ${tokenUsuario}`,
             "Content-Type": "application/json",
             "Prefer": "return=representation", // ESSENCIAL

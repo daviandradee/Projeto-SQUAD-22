@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { setUserId, setUserEmail, setUserRole, setDoctorId, setPatientId, setFullName } from "../../utils/userInfo";
 
 export default function Login() {
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+
   const navigate = useNavigate();
   const [conta, setConta] = useState({
     email: "",
@@ -20,15 +25,13 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
-
     try {
       const loginResp = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/token?grant_type=password",
+        `${supabaseUrl}/auth/v1/token?grant_type=password`,
         {
           method: "POST",
           headers: {
-            "apikey": ANON_KEY,
+            "apikey": supabaseAK,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
@@ -52,12 +55,12 @@ export default function Login() {
       localStorage.setItem("refresh_token", loginResult.refresh_token);
 
       const userInfoRes = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/user-info",
+        `${supabaseUrl}/functions/v1/user-info`,
         {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${loginResult.access_token}`,
-            "apikey": ANON_KEY,
+            "apikey": supabaseAK,
             "Content-Type": "application/json"
           },
           redirect: "follow"
