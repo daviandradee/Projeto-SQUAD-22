@@ -1,24 +1,41 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setUserId, setUserEmail, setUserRole, setDoctorId, setPatientId, setFullName } from "../../utils/userInfo";
+import "../../assets/css/login.css"
 
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isTouched, setIsTouched] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
   const [conta, setConta] = useState({
     email: "",
     password: ""
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setConta((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+};
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setServerError('');
+    setEmailError('');
+    setPasswordError('');
+
+    const emailValidation = validateEmail(conta.email);
+    const passwordValidation = validatePassword(conta.password);
+
+    if (emailValidation || passwordValidation) {
+        // Se houver erros locais, para a execução antes do fetch
+        return;
+    }
 
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
 
@@ -39,14 +56,17 @@ export default function Login() {
           redirect: "follow"
         }
       );
-
       const loginResult = await loginResp.json();
+
       console.log(" Retorno /auth token:", loginResult);
 
       if (!loginResult.access_token) {
-        alert(loginResult.error_description || loginResult.msg || "Erro ao fazer login");
+        const errorMsg = loginResult.error_description || loginResult.msg || "Credenciais inválidas. Verifique seu e-mail e senha.";
+        setServerError(errorMsg);
         return;
       }
+
+      setServerError('');
 
       localStorage.setItem("access_token", loginResult.access_token);
       localStorage.setItem("refresh_token", loginResult.refresh_token);
@@ -138,108 +158,146 @@ export default function Login() {
         console.log("Role detectada:", matchedRole.role);
         navigate(matchedRole.path);
       } else {
-        alert("Usuário sem função atribuída. Contate o administrador.");
+        setServerError("Usuário sem função atribuída. Contate o administrador.");
         console.warn("⚠️ Role não reconhecido:", userInfo);
       }
 
     } catch (error) {
       console.error("❌ Erro no processo de login/user-info:", error);
-      alert("Erro ao conectar ao servidor. Veja console para mais detalhes.");
+      setServerError("Erro ao conectar ao servidor. Tente novamente.");
     }
   };
 
+  const validateEmail = (emailValue) => {
+    let error = '';
+
+    if (emailValue.trim() === '') {
+        error = 'O e-mail não pode ficar vazio.';
+    } else if (!emailValue.includes('@') || !emailValue.includes('.')) {
+        error = 'O e-mail deve conter o símbolo "@" e um ponto (".") seguido por uma extensão.';
+    }
+    
+    // Atualiza o estado de erro específico para o email
+    setEmailError(error); 
+    return error;
+};
+
+const validatePassword = (passwordValue) => {
+    let error = '';
+    const MIN_LENGTH = 3;
+    
+    if (passwordValue.trim() === '') {
+        error = 'A senha não pode ficar vazia.';
+    } else if (passwordValue.length < MIN_LENGTH) {
+        // Regra de validação de formato para a senha
+        error = `A senha deve ter pelo menos ${MIN_LENGTH} caracteres.`;
+    }
+    
+    // Atualiza o estado de erro específico para a senha
+    setPasswordError(error); 
+    return error;
+};
+
+const handleEmailChange = (e) => {
+    const newValue = e.target.value;
+    setEmail(newValue);
+    if (isTouched) {
+        validateEmail(newValue); // Valida em tempo real
+    }
+
+    const { name, value } = e.target;
+    setConta((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+};
+
+const handleEmailBlur = (e) => {
+    setIsTouched(true);
+    validateEmail(e.target.value); // Valida ao perder o foco
+};
+
+const handlePasswordChange = (e) => {
+    const newValue = e.target.value;
+    setPassword(newValue);
+    if (isTouched) {
+        validatePassword(newValue); // Valida em tempo real
+    }
+
+    const { name, value } = e.target;
+    setConta((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+};
+
+const handlePasswordBlur = (e) => {
+    setIsTouched(true);
+    validatePassword(e.target.value); // Valida ao perder o foco
+};
+
+  const isInvalid = isTouched && errorMessage;
+
+    
+
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Login</h2>
-        <form onSubmit={handleLogin} style={styles.form}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={conta.email}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            name="password"
-            value={conta.password}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+    <div class="container">
+        <div class="image-section">
+            <div class="content-section doctor-info">
+            <div class="image-box doctor-box">
+                <div class="doctor-image"></div>
+            </div>
+            <div class="text-box doctor-text">
+            <h3>Você mais próximo de seu médico</h3>
+            <p>Consultas online e acompanhamento em tempo real.</p>
+        </div>
+        </div>
+        <div class="content-section patient-info">
+            <div class="image-box patient-box">
+                <div class="patient-image"></div>
+            </div>
+            <div class="text-box patient-text">
+            <h3>Agende sem sair de casa</h3>
+            <p>O seu atendimento, na medida da sua agenda.</p>
+        </div>
+        </div>
+        </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/AcessoUnico")}
-            style={styles.magicButton}
-          >
-            Entrar com acesso único
-          </button>
+        <div class="login-section">
+            <header class="app-header">
+                <span class="app-name">MediConnect</span>
+            </header>
 
-          <button type="submit" style={styles.button}>
-            Entrar
-          </button>
-        </form>
-      </div>
+            <div class="login-form-container">
+                <h1 class="login-title">Entre para iniciar a sessão.</h1>
+                <p class="login-subtitle"></p>
+
+                <form onSubmit={handleLogin} noValidate>
+                    <label for="email" class="input-label">E-mail</label>
+                    <div class="input-group phone-input">
+                        <input type="email" id="email" name="email" value={conta.email} onChange={handleEmailChange} onBlur={handleEmailBlur} placeholder="seuemail@dominio.com" required></input>
+                    </div>
+                    {emailError && <p style={{ color: 'red' }}>{emailError}</p>}
+
+                    <label for="password" class="input-label">Senha</label>
+                    <div class="input-group password-input">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type={showPassword ? "text" : "password"} id="password" name="password" value={conta.password} onChange={handlePasswordChange} onBlur={handlePasswordBlur} required></input>
+                        <i onClick={togglePasswordVisibility}
+        className={`toggle-password fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}
+        style={{ cursor: 'pointer' }}></i>
+                    </div>
+                    {passwordError && <p style={{ color: 'red', margin: '5px 0'}}>{passwordError}</p>}
+                    {serverError && <p style={{ color: 'red', margin: '5px 0' }}>{serverError}</p>}
+
+                    <a href="#" class="reset-password">Esqueceu a senha?</a>
+
+                    <button id="button" type="submit" class="login-button">Entrar</button>
+                    
+                    <a href="#" class="login-with-code" onClick={() => navigate("/AcessoUnico")}>Entrar com Link de Acessso Único</a>
+                </form>
+            </div>
+        </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    backgroundColor: "#f0f2f5",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: "40px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-    width: "100%",
-    maxWidth: "400px",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "30px",
-    color: "#333",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-    alignItems: "center",
-  },
-  input: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    fontSize: "16px",
-    width: "100%",
-  },
-  button: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "none",
-    backgroundColor: "#1976d2",
-    color: "#fff",
-    fontSize: "16px",
-    cursor: "pointer",
-    width: "100%",
-  },
-  magicButton: {
-    background: "none",
-    border: "none",
-    color: "#1976d2",
-    fontSize: "14px",
-    cursor: "pointer",
-    textDecoration: "underline",
-    marginBottom: "5px",
-  },
-};

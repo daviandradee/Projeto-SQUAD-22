@@ -1,0 +1,382 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Variáveis de Cores */
+:root {
+    --primary-blue: #007bff; /* Azul principal do botão */
+    --light-blue: #e9f5ff; /* Fundo azul claro para a seção de imagens */
+    --dark-green: #38b000; /* Verde escuro para a imagem da paciente */
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #ddd;
+    --background-grey: #f8f9fa; /* Cinza suave para o fundo */
+}
+
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    width: 100% !important;
+    max-width: 1200px; /* Largura máxima para a composição */
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    padding-left: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ------------------- Seção de Imagens (Lado Esquerdo) ------------------- */
+.image-section {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(#eff3ff, #dde1ea)
+}
+
+.image-box {
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+}
+
+.content-section {
+    display: flex; /* Habilita o Flexbox para alinhar imagem e texto lado a lado */
+    align-items: center; /* Alinha verticalmente os itens no centro */
+    gap: 20px;
+}
+
+.patient-info {
+    flex-direction: row-reverse;
+}
+
+/* Cores de Fundo (Simulando a imagem) */
+.doctor-box {
+    margin-right: 40%;
+    background: transparent; /* Gradiente azul para o médico */
+}
+
+.patient-box {
+    margin-left: 40%;
+    background-color: transparent; /* Verde sólido para a paciente */
+}
+
+/* Para simular as imagens (substitua por tags <img> reais se tiver os arquivos) */
+.doctor-image, .patient-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.image-box,
+.text-box {
+    align-self: stretch !important;
+    flex-grow: 1 ;
+    display: flex ;
+    flex-direction: column ;
+    justify-content: center;
+    margin-left: 0 ;
+    margin-right: 0 ;
+}
+
+.text-box h3{
+    font-size: 24px !important;
+}
+
+.doctor-image {
+    /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
+    background-image: url('public/img/login/medico_container.png'); 
+}
+
+.patient-image {
+    /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
+    background-image: url('public/img/login/paciente_container.png');
+}
+
+/* ------------------- Seção de Login (Lado Direito) ------------------- */
+.login-section {
+    width: 450px; /* Largura fixa para a seção de login */
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.app-icon {
+    color: var(--primary-blue);
+    font-size: 24px;
+    margin-right: 8px;
+}
+
+.app-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Tabs */
+.tab-container {
+    display: flex;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    background-color: #fff;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.tab-button:first-child {
+    border-right: 1px solid var(--border-color);
+}
+
+.tab-button.active {
+    background-color: var(--primary-blue);
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Formulário */
+.login-form-container {
+    width: 100%;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.input-group input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background-color: transparent;
+    color: var(--text-dark);
+    padding: 0;
+}
+
+.input-group .input-icon, .toggle-password {
+    color: var(--text-light);
+    margin-right: 10px;
+}
+
+.password-input .input-icon {
+    margin-right: 15px;
+}
+
+.password-input .toggle-password {
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 0;
+}
+
+/* Input de Telefone */
+.phone-input {
+    padding-left: 0;
+}
+
+.phone-code {
+    background-color: #eee;
+    padding: 0 15px;
+    margin-right: 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: var(--text-dark);
+    border-right: 1px solid var(--border-color);
+    /* Ajuste para alinhar com a altura do input */
+    line-height: 1.5; 
+}
+
+.phone-input input {
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+    margin-left: 5px;
+}
+
+/* Link de Senha */
+.reset-password {
+    display: block;
+    text-align: right;
+    font-size: 14px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+/* Botão Principal de Login */
+.login-button {
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 20px;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+/* Link Login com Código */
+.login-with-code {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Responsividade Básica */
+@media (max-width: 992px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .image-section {
+        display: none; /* Oculta a seção de imagens em telas menores */
+    }
+
+    .login-section {
+        width: 100%;
+        max-width: 450px;
+        padding: 40px 20px;
+    }
+}
+
+/* Estilo para a borda do campo de erro */
+.input-error {
+    border: 2px solid #e74c3c !important; /* Vermelho forte */
+    background-color: #fcebeb; /* Fundo levemente rosado */
+    outline: none;
+}
+
+/* Estilo para a mensagem de erro (oculta por padrão) */
+.error-message {
+    color: #e74c3c; /* Cor do texto de erro */
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: none; /* Inicia oculta */
+}
+
+/* Mostra a mensagem de erro quando necessário */
+.error-visible {
+    display: block;
+}
+
+/* ======================================= */
+/* 📱 RESPONSIVIDADE MOBILE               */
+/* ======================================= */
+
+/* Aplica regras quando a tela for menor que 768px (tablets e celulares) */
+@media (max-width: 768px) {
+    
+    .container {
+        padding: 10px;
+    }
+
+    /* 1. Empilha a Imagem e o Texto verticalmente */
+    .content-section {
+        flex-direction: column;
+        gap: 15px; /* Reduz o espaço entre a imagem e o texto no mobile */
+        text-align: center; /* Centraliza o texto */
+    }
+    
+    /* 2. Remove a inversão da ordem na seção do paciente */
+    .patient-info {
+        flex-direction: column; /* Sobrescreve row-reverse */
+    }
+
+    /* 3. Ajusta o tamanho da Imagem para Mobile (menor) */
+    .image-box {
+        width: 280px; /* Reduz o tamanho da imagem para caber melhor na tela */
+        height: 280px;
+    }
+    
+    /* 4. Ajusta os tamanhos de fonte no Mobile */
+    .text-box h3 {
+        font-size: 1.5em; /* Título menor */
+    }
+
+    .text-box p {
+        font-size: 1em; /* Parágrafo menor */
+    }
+
+    /* Garante que o texto não tenha largura máxima que o force a centralizar mal */
+    .text-box {
+        max-width: 90%; /* Limita a largura do texto em 90% da tela */
+    }
+}
