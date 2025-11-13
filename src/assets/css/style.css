@@ -173,6 +173,13 @@ textarea.form-control {
 	2. Table
 -----------------------*/
 
+.table.custom-table > tbody > tr > td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+}
+
 .table {
 	color: #000;
 	border: 1px solid #f0f0f0;
