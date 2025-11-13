@@ -58,16 +58,21 @@ Version      : 1.0
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 html {
-	height: 100%;
+  height: auto;
+  min-height: 100%;
 }
+
 body {
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-	font-size: 0.875rem;
-	color: #666;
-	background-color: #fafafa;
-	overflow-x: hidden;
-	height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  color: #666;
+  background-color: #fafafa;
+  overflow-x: hidden;
+  overflow-y: auto; /* permite rolar */
+  min-height: 100vh; /* ocupa toda a tela e cresce conforme o conteúdo */
+  height: auto;
 }
+
 h1,
 h2,
 h3,
@@ -172,6 +177,13 @@ textarea.form-control {
 /*-----------------
 	2. Table
 -----------------------*/
+
+.table.custom-table > tbody > tr > td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+}
 
 .table {
 	color: #000;
@@ -921,11 +933,12 @@ textarea.form-control {
 	line-height: 40px;
 }
 .sidebar-menu li.menu-title a {
-	color: #009efb;
-	display: inline-block;
-	float: right;
-	padding: 0;
+  color: #009efb;
+  float: right;
+  padding: 0;
+  text-decoration: none; /* opcional */
 }
+
 .sidebar-menu li.menu-title a.btn {
 	color: #fff;
 	display: block;
@@ -1346,11 +1359,11 @@ ul.chat-user-total li i.old-users {
 	border-top: 1px solid #000;
 }
 .bar-chart > .legend > .item {
-	position: relative;
-	display: inline-block;
-	float: left;
-	width: 25%;
+  position: relative;
+  float: left;
+  width: 25%;
 }
+
 .bar-chart > .legend > .item:before {
 	display: block;
 	position: absolute;
@@ -2297,12 +2310,12 @@ ul.chat-user-total li i.old-users {
 	margin-right: 12px;
 }
 .chat-avatar-sm {
-	width: 24px;
-	margin-right: 10px;
-	display: inline-block;
-	position: relative;
-	float: left;
+  width: 24px;
+  margin-right: 10px;
+  position: relative;
+  float: left;
 }
+
 .chat-avatar-sm img {
 	width: 24px;
 }
@@ -3986,11 +3999,11 @@ blockquote p {
 	padding: 0;
 }
 .social-share > li {
-	display: inline-block;
-	float: left;
-	margin-left: 10px;
-	text-align: center;
+  float: left;
+  margin-left: 10px;
+  text-align: center;
 }
+
 .social-share > li:first-child {
 	margin-left: 0;
 }
