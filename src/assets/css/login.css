@@ -378,3 +378,18 @@
         max-width: 90%; /* Limita a largura do texto em 90% da tela */
     }
 }
+
+
+.recaptcha-wrapper {
+    margin: 20px 0;        
+    display: flex;           
+    justify-content: center; 
+    width: 100%;             
+}
+
+
+@media (max-width: 768px) {
+    .recaptcha-wrapper {
+        margin: 15px 0;      
+    }
+}
