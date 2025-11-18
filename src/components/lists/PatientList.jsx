@@ -96,6 +96,9 @@ function PatientList() {
   const [showModal, setShowModal] = useState(false);
   const role = getUserRole();
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
   const handleViewDetails = (patient) => {
     const mascararCPF = (cpf = "") => {
       if (cpf.length < 5) return cpf;
@@ -162,7 +165,7 @@ function PatientList() {
 
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("apikey", supabaseAK);
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
     method: 'GET',
@@ -170,7 +173,7 @@ function PatientList() {
     redirect: 'follow'
   };
   useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+    fetch(`${supabaseUrl}/rest/v1/patients`, requestOptions)
       .then(response => response.json())
       .then(result => {
         setPatients(Array.isArray(result) ? result : [])
@@ -193,7 +196,7 @@ function PatientList() {
       if (result.isConfirmed) {
         try {
           var myHeaders = new Headers();
-          myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+          myHeaders.append("apikey", supabaseAK);
           myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
           var requestOptions = {
@@ -202,7 +205,7 @@ function PatientList() {
             redirect: 'follow'
           };
 
-          const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`, requestOptions)
+          const response = await fetch(`${supabaseUrl}/rest/v1/patients?id=eq.${id}`, requestOptions)
 
           if (response.ok) {
             setPatients(prev => prev.filter(l => l.id !== id));

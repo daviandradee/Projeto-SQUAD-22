@@ -137,6 +137,9 @@ function Chatbox() {
     // --- EFEITOS PARA BUSCAR DADOS (CACHE) ---
 
     // 1) Buscar doctor_availability (BLOCO DE DIAS) UMA ÚNICA VEZ
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
     useEffect(() => {
         if (!token) return;
         const buscarDisponibilidade = async () => {
@@ -144,9 +147,9 @@ function Chatbox() {
                 const headers = {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
-                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                    apikey: supabaseAK,
                 };
-                const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability`, { method: "GET", headers });
+                const res = await fetch(`${supabaseUrl}/rest/v1/doctor_availability`, { method: "GET", headers });
                 if (!res.ok) throw new Error("Erro ao buscar disponibilidade");
                 const result = await res.json();
                 setDisponibilidadeMedicos(Array.isArray(result) ? result : []);
@@ -165,9 +168,9 @@ function Chatbox() {
                 const headers = {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
-                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                    apikey: supabaseAK,
                 };
-                const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors`, { method: "GET", headers });
+                const res = await fetch(`${supabaseUrl}/rest/v1/doctors`, { method: "GET", headers });
                 if (!res.ok) throw new Error("Erro ao buscar médicos");
                 const data = await res.json();
                 setAllDoctors(Array.isArray(data) ? data : []);
@@ -188,11 +191,11 @@ function Chatbox() {
                 const headers = {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
-                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                    apikey: supabaseAK,
                 };
                 const promises = idsUnicos.map(async (id) => {
                     try {
-                        const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${id}`, { method: "GET", headers });
+                        const res = await fetch(`${supabaseUrl}/rest/v1/doctors?id=eq.${id}`, { method: "GET", headers });
                         if (!res.ok) return { id, full_name: "Nome não encontrado" };
                         const data = await res.json();
                         return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
@@ -227,13 +230,13 @@ function Chatbox() {
                 const headers = {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
-                    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"
+                    "apiKey": supabaseAK,
                 };
 
                 switch (matchedEntity.name) {
                     case "paciente":
                         try {
-                            const response = await fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", { method: "GET", headers });
+                            const response = await fetch(`${supabaseUrl}/rest/v1/patients`, { method: "GET", headers });
                             const data = await response.json();
                             if (!response.ok) throw new Error(data.error.message || "Erro ao buscar pacientes.");
                             if (data.length === 0) {
@@ -248,7 +251,7 @@ function Chatbox() {
                         break;
                     case "medico":
                         try {
-                            const response = await fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors", { method: "GET", headers });
+                            const response = await fetch(`${supabaseUrl}/rest/v1/doctors`, { method: "GET", headers });
                             const data = await response.json();
                             if (!response.ok) throw new Error(data.error.message || "Erro ao buscar medicos.");
                             if (data.length === 0) {
@@ -327,11 +330,11 @@ function Chatbox() {
                             birth_date_formatted = null;
                         }
                     }
-                    const response = await fetch("https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients", {
+                    const response = await fetch(`${supabaseUrl}/rest/v1/patients`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                            "apikey": supabaseAK,
                             "Authorization": `Bearer ${token}`,
                         },
                         body: JSON.stringify({
@@ -394,7 +397,7 @@ function Chatbox() {
         const headers = {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
-            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            "apikey": supabaseAK,
         };
 
         if (message.includes("cancelar")) {
@@ -518,7 +521,7 @@ function Chatbox() {
                 try {
                     // USA A MESMA EDGE FUNCTION que o AgendaForm para garantir consistência
                     const response = await fetch(
-                        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+                        `${supabaseUrl}/functions/v1/get-available-slots`,
                         {
                             method: "POST",
                             headers,
@@ -610,7 +613,7 @@ function Chatbox() {
                 };
 
                 try {
-                    const res = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments`, {
+                    const res = await fetch(`${supabaseUrl}/rest/v1/appointments`, {
                         method: 'POST',
                         headers: {
                             ...headers,

@@ -45,11 +45,13 @@ function DoctorDashboard() {
   const userId = getUserId();
   const role = getUserRole();
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const requestOptions = {
     method: "GET",
     headers: {
-      apikey:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+      apikey: supabaseAK,
       Authorization: `Bearer ${tokenUsuario}`,
     },
     redirect: "follow",
@@ -62,7 +64,7 @@ function DoctorDashboard() {
         
         // Buscar pacientes
         const patientsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients",
+          `${supabaseUrl}/rest/v1/patients`,
           requestOptions
         );
         const patientsData = await patientsResponse.json();
@@ -71,7 +73,7 @@ function DoctorDashboard() {
 
         // Buscar consultas do médico (filtrar pelo doctor_id se disponível)
         const appointmentsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+          `${supabaseUrl}/rest/v1/appointments`,
           requestOptions
         );
         const appointmentsData = await appointmentsResponse.json();
@@ -80,7 +82,7 @@ function DoctorDashboard() {
 
         // Buscar laudos em draft
         const reportsResponse = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?status=eq.draft",
+          `${supabaseUrl}/rest/v1/reports?status=eq.draft`,
           requestOptions
         );
         const reportsData = await reportsResponse.json();
@@ -152,7 +154,7 @@ function DoctorDashboard() {
       if (!userId) return;
 
       const myHeaders = new Headers();
-      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("apikey", supabaseAK);
       myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
 
       const requestOptions = {
@@ -162,7 +164,7 @@ function DoctorDashboard() {
       };
 
       try {
-        const response = await fetch(`https://yuanqfswhberkoevtmfr.supabase.co/storage/v1/object/avatars/${userId}/avatar.png`, requestOptions);
+        const response = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${userId}/avatar.png`, requestOptions);
         
         if (response.ok) {
           const blob = await response.blob();

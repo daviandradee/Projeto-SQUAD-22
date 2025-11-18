@@ -11,6 +11,11 @@ export default function Login() {
   const [isTouched, setIsTouched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [serverError, setServerError] = useState('');
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+
   const navigate = useNavigate();
   const [conta, setConta] = useState({
     email: "",
@@ -37,15 +42,13 @@ export default function Login() {
         return;
     }
 
-    const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
-
     try {
       const loginResp = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/token?grant_type=password",
+        `${supabaseUrl}/auth/v1/token?grant_type=password`,
         {
           method: "POST",
           headers: {
-            "apikey": ANON_KEY,
+            "apikey": supabaseAK,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
@@ -61,7 +64,7 @@ export default function Login() {
       console.log(" Retorno /auth token:", loginResult);
 
       if (!loginResult.access_token) {
-        const errorMsg = loginResult.error_description || loginResult.msg || "Credenciais inválidas. Verifique seu e-mail e senha.";
+        const errorMsg = "Credenciais inválidas. Verifique seu e-mail e senha.";
         setServerError(errorMsg);
         return;
       }
@@ -72,12 +75,12 @@ export default function Login() {
       localStorage.setItem("refresh_token", loginResult.refresh_token);
 
       const userInfoRes = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/user-info",
+        `${supabaseUrl}/functions/v1/user-info`,
         {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${loginResult.access_token}`,
-            "apikey": ANON_KEY,
+            "apikey": supabaseAK,
             "Content-Type": "application/json"
           },
           redirect: "follow"

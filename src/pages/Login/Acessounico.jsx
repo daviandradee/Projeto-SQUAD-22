@@ -4,6 +4,10 @@ import { getAccessToken } from "../../utils/auth.js";
 import { useResponsive } from '../../utils/useResponsive';
 
 export default function MagicLink() {
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState('');
@@ -24,7 +28,7 @@ export default function MagicLink() {
 
     try {
       const myHeaders = new Headers();
-      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("apikey", supabaseAK);
       myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       myHeaders.append("Content-Type", "application/json");
       var raw = JSON.stringify({
@@ -41,7 +45,7 @@ export default function MagicLink() {
         redirect: 'follow'
       };
       const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/auth/v1/otp", requestOptions
+        `${supabaseUrl}/auth/v1/otp`, requestOptions
       );
 
       const result = await response.json();

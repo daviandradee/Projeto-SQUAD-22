@@ -23,10 +23,13 @@ function CreateUser() {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const getHeaders = () => {
     const token = getAccessToken();
     return {
-      "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+      "apikey": supabaseAK,
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     };
@@ -50,7 +53,7 @@ function CreateUser() {
 
       // Buscar perfis
       const resProfiles = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/profiles",
+        `${supabaseUrl}/rest/v1/profiles`,
         { method: "GET", headers }
       );
       if (!resProfiles.ok) throw new Error("Erro ao buscar perfis");
@@ -58,7 +61,7 @@ function CreateUser() {
 
       // Buscar roles dos usuários
       const resRoles = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/user_roles",
+        `${supabaseUrl}/rest/v1/user_roles`,
         { method: "GET", headers }
       );
       if (!resRoles.ok) throw new Error("Erro ao buscar roles");
@@ -107,7 +110,7 @@ function CreateUser() {
     try {
       // headers
       const myHeaders = new Headers();
-      myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+      myHeaders.append("apikey", supabaseAK);
       myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
       myHeaders.append("Content-Type", "application/json");
 
@@ -147,7 +150,7 @@ function CreateUser() {
       console.log("Tentando criar usuário (payload1):", payload1);
 
       let response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password",
+        `${supabaseUrl}/functions/v1/create-user-with-password`,
         {
           method: "POST",
           headers: myHeaders,
@@ -207,7 +210,7 @@ function CreateUser() {
         console.log("Servidor rejeitou role. Tentando payload2 (roles array):", payload2);
 
         const response2 = await fetch(
-          "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/create-user-with-password",
+          `${supabaseUrl}/functions/v1/create-user-with-password`,
           {
             method: "POST",
             headers: myHeaders,

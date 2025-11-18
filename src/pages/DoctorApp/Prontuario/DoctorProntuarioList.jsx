@@ -76,13 +76,17 @@ function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
 }
 
 function DoctorPatientList() {
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const [search, setSearch] = useState("");
   const [patients, setPatients] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const anchorRefs = useRef({});
   const tokenUsuario = getAccessToken()
   var myHeaders = new Headers();
-  myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+  myHeaders.append("apikey", supabaseAK);
   myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
   var requestOptions = {
     method: 'GET',
@@ -90,7 +94,7 @@ function DoctorPatientList() {
     redirect: 'follow'
   };
   useEffect(() => {
-    fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients`, requestOptions)
+    fetch(`${supabaseUrl}/rest/v1/patients`, requestOptions)
       .then(response => response.json())
       .then(result => setPatients(Array.isArray(result) ? result : []))
       .catch(error => console.log('error', error));

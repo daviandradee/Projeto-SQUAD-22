@@ -32,6 +32,8 @@ export default function DoctorCalendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [pacientesMap, setPacientesMap] = useState({});
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const colorsByType = {
     presencial: "#4dabf7",
     online: "#f76c6c",
@@ -51,14 +53,14 @@ export default function DoctorCalendar() {
         const requestOptions = {
           method: "GET",
           headers: {
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+            apikey: supabaseAK,
             Authorization: `Bearer ${tokenUsuario}`,
           },
           redirect: "follow",
         };
 
         const response = await fetch(
-          `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments?doctor_id=eq.${doctor_id}`,
+          `${supabaseUrl}/rest/v1/appointments?doctor_id=eq.${doctor_id}`,
           requestOptions
         );
 
@@ -70,11 +72,11 @@ export default function DoctorCalendar() {
         const promises = idsUnicos.map(async (id) => {
           try {
             const res = await fetch(
-              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+              `${supabaseUrl}/rest/v1/patients?id=eq.${id}`,
               {
                 method: "GET",
                 headers: {
-                  apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                  apikey: supabaseAK,
                   Authorization: `Bearer ${tokenUsuario}`,
                 },
               }

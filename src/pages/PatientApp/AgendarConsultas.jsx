@@ -65,9 +65,12 @@ const AgendarConsulta = () => {
   const tokenUsuario = getAccessToken();
   const patientId = getPatientId();
 
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const headers = {
     "Content-Type": "application/json",
-    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+    apikey: supabaseAK,
     Authorization: `Bearer ${tokenUsuario}`,
   };
 
@@ -116,7 +119,7 @@ const AgendarConsulta = () => {
     try {
       // Buscar dados do médico
       const medicoResponse = await fetch(
-        `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctors?id=eq.${medicoId}`,
+        `${supabaseUrl}/rest/v1/doctors?id=eq.${medicoId}`,
         { headers }
       );
 
@@ -168,7 +171,7 @@ const AgendarConsulta = () => {
 
     try {
       const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/functions/v1/get-available-slots",
+        `${supabaseUrl}/functions/v1/get-available-slots`,
         {
           method: "POST",
           headers,
@@ -241,7 +244,7 @@ const AgendarConsulta = () => {
       };
 
       const response = await fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/appointments",
+        `${supabaseUrl}/rest/v1/appointments`,
         {
           method: "POST",
           headers: {

@@ -141,7 +141,11 @@ function VerLaudo() {
     const { id } = useParams()
     const role = getUserRole();
     var myHeaders = new Headers();
-    myHeaders.append("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ");
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+    myHeaders.append("apikey", supabaseAK);
     myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
     myHeaders.append("Content-Type", "application/json");
 
@@ -151,7 +155,7 @@ function VerLaudo() {
         redirect: 'follow'
     };
     useEffect(() => {
-        fetch(`https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/reports?id=eq.${id}`, requestOptions)
+        fetch(`${supabaseUrl}/rest/v1/reports?id=eq.${id}`, requestOptions)
             .then(response => response.json())
             .then(result => {
                 // result é um array, pegue o primeiro laudo
@@ -318,12 +322,12 @@ function VerLaudo() {
                 const promises = idsUnicos.map(async (id) => {
                     try {
                         const res = await fetch(
-                            `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
+                            `${supabaseUrl}/rest/v1/patients?id=eq.${id}`,
                             {
                                 method: "GET",
                                 headers: {
                                     apikey:
-                                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
+                                        supabaseAK,
                                     Authorization: `Bearer ${tokenUsuario}`,
                                 },
                             }
