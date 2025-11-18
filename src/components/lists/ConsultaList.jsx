@@ -636,10 +636,8 @@ const handleCancel = async (id) => {
                           )}
                         </span>
                       </td>
-                       {pode('viewactionconsultas') &&  (
                         <td className="text-right">
                         <div className="action-buttons-container">
-                          {pode('editconsulta') &&  (
                               <button
                                 type="button"
                                 className="action-btn action-btn-edit"
@@ -648,6 +646,15 @@ const handleCancel = async (id) => {
                               >
                                 <span className="fa fa-pencil m-r-5"></span>
                               </button>
+                              {c.appointment_type === 'telemedicina' && (
+                               <button
+                                 type="button"
+                                 className="action-btn action-btn-video"
+                                 onClick={() => navigate(`/call/${c.id}`)}
+                                 title="Entrar na sala de vídeo"
+                               >
+                                 <span className="fa fa-video-camera m-r-5"></span>
+                               </button>
                               )}
                               {c.status === 'requested' && (
                                 <>
@@ -674,7 +681,6 @@ const handleCancel = async (id) => {
                               
                             </div>
                       </td>
-                      )}
                     </tr>
                   ))
                 ) : (

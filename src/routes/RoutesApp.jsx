@@ -6,12 +6,8 @@ import { SecretariaRoutes } from "./SecretariaRoutes";
 import Login from "../pages/Login/Login.jsx";
 import MagicLink from "../pages/Login/Acessounico.jsx";
 import HospitalLanding from "../pages/LandingPage/HospitalLanding.jsx"
+import RoomPage from "../components/call/RoomPage.jsx";
 export const router = createBrowserRouter([
-   
-   
-   
-   
-   
      {
         path: "/",
         element: <HospitalLanding />
@@ -25,6 +21,11 @@ export const router = createBrowserRouter([
         path: "/AcessoUnico",
         element: <MagicLink />
     },
+    {
+        path: "/call/:roomId",
+        element: <RoomPage />
+    },
+    
     // ✅ Se AdminRoutes for função:
     AdminRoutes,
     DoctorRoutes,
