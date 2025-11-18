@@ -94,6 +94,7 @@ export default function MagicLink() {
 };
 
   return (
+    <div class="login-body">
     <div class="container">
         <div class="image-section">
             <div class="content-section doctor-info">
@@ -140,6 +141,7 @@ export default function MagicLink() {
                 </form>
             </div>
         </div>
+    </div>
     </div>
   );
 };
