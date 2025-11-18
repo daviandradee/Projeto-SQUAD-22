@@ -1,14 +1,14 @@
 /* ======== CONFIGURAÇÕES GERAIS ======== */
-body, html {
+body{
   margin: 0;
-  padding: 0;
+  padding: 0 !important;
   font-family: 'Poppins', sans-serif;
   scroll-behavior: smooth;
   background-color: #f9fbfc;
   color: #333;
 }
 
-.container {
+.hospital-container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
@@ -25,8 +25,7 @@ p {
 }
 
 /* ======== HEADER ======== */
-/* ======== HEADER AZUL PARA LOGO BRANCA ======== */
-.landing-header {
+.hospital-landing-header {
   position: fixed;
   top: 0;
   width: 100%;
@@ -36,40 +35,39 @@ p {
   transition: all 0.3s ease-in-out;
 }
 
-.header-content {
+.hospital-header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 0;
 }
 
-.logo-area {
+.hospital-logo-area {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-left: -200px; /* 🔹 move logo + nome um pouco pra esquerda */
+  margin-left: -200px;
 }
 
-
-.logo-area img {
+.hospital-logo-area img {
   width: 44px;
   height: 44px;
-  filter: brightness(0) invert(1); /* garante que a logo branca apareça nítida */
+  filter: brightness(0) invert(1);
 }
 
-.logo-area h1 {
+.hospital-logo-area h1 {
   font-size: 1.6rem;
   font-weight: 600;
   color: #ffffff;
 }
 
-.nav-links {
+.hospital-nav-links {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
 
-.nav-links a {
+.hospital-nav-links a {
   text-decoration: none;
   color: #ffffff;
   font-weight: 500;
@@ -77,7 +75,7 @@ p {
   transition: 0.3s ease;
 }
 
-.nav-links a::after {
+.hospital-nav-links a::after {
   content: "";
   position: absolute;
   bottom: -4px;
@@ -88,16 +86,15 @@ p {
   transition: width 0.3s ease;
 }
 
-.nav-links a:hover::after {
+.hospital-nav-links a:hover::after {
   width: 100%;
 }
 
-/* ======== BOTÃO DE LOGIN (forçado e visível sempre) ======== */
-.btn-login {
+.hospital-btn-login {
   display: inline-block;
   padding: 0.6rem 1.4rem;
-  background-color: #ffffff !important; /* 🔹 fundo branco fixo */
-  color: #0077cc !important; /* 🔹 texto azul visível */
+  background-color: #ffffff !important;
+  color: #0077cc !important;
   border-radius: 30px;
   font-weight: 600;
   text-decoration: none;
@@ -106,37 +103,34 @@ p {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.btn-login:hover {
+.hospital-btn-login:hover {
   transform: translateY(-2px);
 }
 
-
-
-/* Efeito ao rolar */
-.landing-header.scrolled {
+.hospital-landing-header.scrolled {
   background: linear-gradient(135deg, #003d80, #0065b3);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-
-
-
-/* ======== HERO NOVO (com fundo de médico) ======== */
-.hero-bg-section {
+/* ======== HERO ======== */
+.hospital-hero-bg-section {
   position: relative;
-  height: 75vh; /* 🔥 antes era 100vh — diminui a altura */
+  height: 75vh;
   background-image: url("/img/pexels-mart-production-7088498.jpg");
   background-repeat: no-repeat;
-  background-position: center top; /* mantém foco na parte superior */
+  background-position: center top;
   background-size: cover;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.hero-bg-content {
+.hospital-hero-bg-content {
   position: relative;
   text-align: center;
   color: white;
@@ -146,18 +140,18 @@ p {
   max-width: 700px;
 }
 
-.hero-bg-content h1 {
+.hospital-hero-bg-content h1 {
   font-size: 2.8rem;
   font-weight: 700;
   margin-bottom: 1rem;
 }
 
-.hero-bg-content p {
+.hospital-hero-bg-content p {
   font-size: 1.2rem;
   line-height: 1.6;
 }
 
-.hero-overlay {
+.hospital-hero-overlay {
   background: rgba(0, 0, 0, 0.55);
   position: absolute;
   inset: 0;
@@ -166,27 +160,27 @@ p {
   justify-content: center;
 }
 
-.hero-bg-text {
+.hospital-hero-bg-text {
   position: relative;
   z-index: 2;
   max-width: 700px;
   padding: 0 1rem;
 }
 
-.hero-bg-text h1 {
+.hospital-hero-bg-text h1 {
   font-size: 2.8rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: #fff;
 }
 
-.hero-bg-text p {
+.hospital-hero-bg-text p {
   font-size: 1.2rem;
   color: #e2e8f0;
   margin-bottom: 2rem;
 }
 
-.btn-primary {
+.hospital-btn-primary {
   display: inline-block;
   background: #0077cc;
   color: white;
@@ -197,46 +191,46 @@ p {
   font-weight: 500;
 }
 
-.btn-primary:hover {
+.hospital-btn-primary:hover {
   background: #005fa3;
 }
 
 /* ======== SOBRE ======== */
-.about-section {
+.hospital-about-section {
   padding: 5rem 0;
   background: #fff;
 }
 
-.about-content {
+.hospital-about-content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2rem;
 }
 
-.about-image {
+.hospital-about-image {
   flex: 1;
 }
 
-.about-image img {
+.hospital-about-image img {
   width: 100%;
   border-radius: 16px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-.about-text {
+.hospital-about-text {
   flex: 1;
   min-width: 300px;
 }
 
-.about-highlights {
+.hospital-about-highlights {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.about-highlights div {
+.hospital-about-highlights div {
   background: #e6f2ff;
   color: #005fa3;
   padding: 0.5rem 1rem;
@@ -245,17 +239,17 @@ p {
 }
 
 /* ======== ESPECIALIDADES ======== */
-.specialities-section {
+.hospital-specialities-section {
   background: #f5faff;
   padding: 5rem 0;
   text-align: center;
 }
 
-.section-header h3 {
+.hospital-section-header h3 {
   font-size: 2rem;
 }
 
-.specialities-grid {
+.hospital-specialities-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -263,7 +257,7 @@ p {
   margin-top: 3rem;
 }
 
-.speciality-card {
+.hospital-speciality-card {
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
@@ -273,19 +267,19 @@ p {
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
-.speciality-card img {
+.hospital-speciality-card img {
   width: 80px;
   height: 80px;
   margin-bottom: 1rem;
 }
 
-.speciality-card:hover {
+.hospital-speciality-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 /* ======== MÉDICO GIGANTE ======== */
-.doctor-highlight-section {
+.hospital-doctor-highlight-section {
   background: #fff;
   padding: 6rem 0 8rem;
   position: relative;
@@ -293,19 +287,19 @@ p {
   overflow: hidden;
 }
 
-.doctor-highlight-section::after {
+.hospital-doctor-highlight-section::after {
   content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
   width: 100%;
   height: 120px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f5faff' fill-opacity='1' d='M0,224L48,208C96,192,192,160,288,165.3C384,171,480,213,576,229.3C672,245,768,235,864,213.3C960,192,1056,160,1152,160C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background: url("data:image/svg+xml,%3Csvg...");
   background-size: cover;
   background-repeat: no-repeat;
 }
 
-.doctor-highlight {
+.hospital-doctor-highlight {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -313,7 +307,7 @@ p {
   gap: 4rem;
 }
 
-.doctor-image {
+.hospital-doctor-image {
   flex: 1;
   text-align: center;
   display: flex;
@@ -321,7 +315,7 @@ p {
   align-items: flex-end;
 }
 
-.doctor-image img {
+.hospital-doctor-image img {
   width: 100%;
   max-width: 520px;
   height: auto;
@@ -332,31 +326,31 @@ p {
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
 }
 
-.doctor-text {
+.hospital-doctor-text {
   flex: 1;
   min-width: 300px;
   align-self: flex-start;
 }
 
-.doctor-text h3 {
+.hospital-doctor-text h3 {
   font-size: 2rem;
   color: #003366;
   margin-bottom: 1rem;
 }
 
-.doctor-text p {
+.hospital-doctor-text p {
   color: #555;
   margin-bottom: 2rem;
   max-width: 500px;
 }
 
 /* ======== CONTATO ======== */
-.contact-section {
+.hospital-contact-section {
   background: linear-gradient(135deg, #e9f5ff, #f5faff);
   padding: 6rem 0;
 }
 
-.contact-wrapper {
+.hospital-contact-wrapper {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -364,30 +358,30 @@ p {
   gap: 3rem;
 }
 
-.contact-info {
+.hospital-contact-info {
   flex: 1;
   min-width: 300px;
 }
 
-.contact-info h3 {
+.hospital-contact-info h3 {
   font-size: 2rem;
   color: #003366;
   margin-bottom: 1rem;
 }
 
-.contact-info p {
+.hospital-contact-info p {
   color: #555;
   margin-bottom: 2rem;
   max-width: 500px;
 }
 
-.contact-cards {
+.hospital-contact-cards {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.contact-item {
+.hospital-contact-item {
   display: flex;
   align-items: center;
   background: white;
@@ -398,22 +392,22 @@ p {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.contact-item:hover {
+.hospital-contact-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-.contact-item i {
+.hospital-contact-item i {
   font-size: 1.6rem;
   color: #0077cc;
 }
 
-.contact-item h4 {
+.hospital-contact-item h4 {
   color: #003366;
   margin: 0;
 }
 
-.contact-form {
+.hospital-contact-form {
   flex: 1;
   min-width: 300px;
   background: white;
@@ -422,13 +416,13 @@ p {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
-.contact-form h4 {
+.hospital-contact-form h4 {
   color: #003366;
   margin-bottom: 1.5rem;
 }
 
-.contact-form input,
-.contact-form textarea {
+.hospital-contact-form input,
+.hospital-contact-form textarea {
   width: 100%;
   padding: 0.8rem;
   margin-bottom: 1rem;
@@ -440,21 +434,19 @@ p {
   transition: border 0.3s ease;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
+.hospital-contact-form input:focus,
+.hospital-contact-form textarea:focus {
   border-color: #0077cc;
 }
 
-.contact-form button {
+.hospital-contact-form button {
   width: 100%;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-
 /* ======== FOOTER ======== */
-/* ======== FOOTER ======== */
-.landing-footer {
+.hospital-landing-footer {
   background: linear-gradient(135deg, #002b5c, #004c99);
   color: white;
   text-align: center;
@@ -464,22 +456,18 @@ p {
   overflow: hidden;
 }
 
-.landing-footer::before {
+.hospital-landing-footer::before {
   content: "";
   position: absolute;
   top: 0;
   left: -50%;
   width: 200%;
   height: 100%;
-  background: radial-gradient(
-    circle at 50% 0%,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   z-index: 0;
 }
 
-.footer-content {
+.hospital-footer-content {
   position: relative;
   z-index: 2;
   display: flex;
@@ -488,24 +476,24 @@ p {
   gap: 1rem;
 }
 
-.footer-socials {
+.hospital-footer-socials {
   display: flex;
   gap: 1.2rem;
   margin-bottom: 1rem;
 }
 
-.footer-socials a {
+.hospital-footer-socials a {
   color: white;
   font-size: 1.4rem;
   transition: 0.3s;
 }
 
-.footer-socials a:hover {
+.hospital-footer-socials a:hover {
   color: #66ccff;
   transform: scale(1.1);
 }
 
-.footer-logo {
+.hospital-footer-logo {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -513,13 +501,13 @@ p {
   font-size: 1.1rem;
 }
 
-.footer-logo img {
+.hospital-footer-logo img {
   width: 36px;
   height: 36px;
   filter: brightness(0) invert(1);
 }
 
-.footer-bottom {
+.hospital-footer-bottom {
   margin-top: 1rem;
   font-size: 0.85rem;
   color: #cce6ff;

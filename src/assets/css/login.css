@@ -18,14 +18,13 @@
     box-sizing: border-box;
 }
 
-body {
+.login-body {
     font-family: 'Inter', sans-serif;
     background-color: var(--background-grey);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
 }
 
 .container {

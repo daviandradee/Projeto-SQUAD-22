@@ -241,6 +241,7 @@ const handlePasswordBlur = (e) => {
     
 
   return (
+    <div class="login-body">
     <div class="container">
         <div class="image-section">
             <div class="content-section doctor-info">
@@ -298,6 +299,7 @@ const handlePasswordBlur = (e) => {
                 </form>
             </div>
         </div>
+    </div>
     </div>
   );
 }
