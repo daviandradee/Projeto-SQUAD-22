@@ -16,6 +16,7 @@ import {
   Legend as ChartLegend,
 } from 'chart.js';
 import { Bar as ChartJSBar } from 'react-chartjs-2';
+import { withTheme } from "@emotion/react";
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -295,7 +296,7 @@ function DoctorDashboard() {
           <div className="row">
             <div className="col-sm-12">
               <div className="user-info-banner" style={{
-                background: `linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(80, 200, 120, 0.9)), url(${banner})`,
+                background: `linear-gradient(135deg, #004a99, #0077cc), url(${banner})`,
                 backgroundSize: 'cover',
                 borderRadius: '15px',
                 padding: '30px',
@@ -304,8 +305,8 @@ function DoctorDashboard() {
               }}>
                 <div className="row align-items-center">
                   <div className="col-md-8">
-                    <h2 className="mb-2">👨‍⚕️ Olá, Dr. {getFullName()}!</h2>
-                    <p className="mb-2">Hoje é mais um dia para transformar vidas. Revise sua agenda, acompanhe seus pacientes e siga fazendo a diferença com o MediConnect. 💙!</p>
+                    <h2 className="mb-2" style={{color: 'white'}}>👨‍⚕️ Olá, Dr. {getFullName()}!</h2>
+                    <p className="mb-2" style={{ color: 'white' }}>Hoje é mais um dia para transformar vidas. Revise sua agenda, acompanhe seus pacientes e siga fazendo a diferença com o MediConnect. 💙!</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>

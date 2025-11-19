@@ -714,7 +714,7 @@ textarea.form-control {
 -----------------------*/
 
 .header {
-	background-color: #009efb;
+	background: linear-gradient(135deg, #004a99, #0077cc);	
 	left: 0;
 	position: fixed;
 	right: 0;

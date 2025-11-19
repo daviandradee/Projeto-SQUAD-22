@@ -640,7 +640,7 @@ function AdminDashboard() {
           <div className="row">
             <div className="col-sm-12">
               <div className="user-info-banner" style={{
-                background: `linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(80, 200, 120, 0.9)), url(${banner})`,
+                background: `linear-gradient(135deg, #004a99, #0077cc), url(${banner})`,
                 backgroundSize: 'cover',
                 borderRadius: '15px',
                 padding: '30px',
@@ -649,8 +649,8 @@ function AdminDashboard() {
               }}>
                 <div className="row align-items-center">
                   <div className="col-md-8">
-                    <h2 className="mb-2">👨‍💼 Olá, {getFullName()}!</h2>
-                    <p className="mb-2">É ótimo tê-lo novamente no MediConnect. Acompanhe o desempenho da sua clínica, mantenha o controle de tudo em um só lugar e continue fazendo-a crescer todos os dias!
+                    <h2 className="mb-2" style={{color: 'white'}}>👨‍💼 Olá, {getFullName()}!</h2>
+                    <p className="mb-2" style={{ color: 'white' }}>É ótimo tê-lo novamente no MediConnect. Acompanhe o desempenho da sua clínica, mantenha o controle de tudo em um só lugar e continue fazendo-a crescer todos os dias!
                             </p>
                             <small className="text-muted"></small>
                     <small className="opacity-75">

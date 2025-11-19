@@ -614,7 +614,7 @@ function SecretariaDashboard() {
           <div className="row">
             <div className="col-sm-12">
               <div className="user-info-banner" style={{
-                background: `linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(80, 200, 120, 0.9)), url(${banner})`,
+                background: `linear-gradient(135deg, #004a99, #0077cc), url(${banner})`,
                 backgroundSize: 'cover',
                 borderRadius: '15px',
                 padding: '30px',
@@ -623,8 +623,8 @@ function SecretariaDashboard() {
               }}>
                 <div className="row align-items-center">
                   <div className="col-md-8">
-                    <h2 className="mb-2">📋 Olá, {getFullName()}!</h2>
-                    <p className="mb-2">O MediConnect está pronto para mais um dia de organização e cuidado. Continue ajudando nossa clínica a funcionar de forma leve, eficiente e acolhedora!</p>
+                    <h2 className="mb-2" style={{color:"white"}}>📋 Olá, {getFullName()}!</h2>
+                    <p className="mb-2" style={{ color: 'white' }}>O MediConnect está pronto para mais um dia de organização e cuidado. Continue ajudando nossa clínica a funcionar de forma leve, eficiente e acolhedora!</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>
