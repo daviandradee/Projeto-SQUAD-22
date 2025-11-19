@@ -558,9 +558,7 @@ const handleCancel = async (id) => {
                   <th className="text-center">Duração</th>
                   <th className="text-center">Modo</th>
                   <th className="text-center">Status</th>
-                  {pode('viewactionconsultas') &&  (
                     <th className="text-center">Ação</th>
-                  )}
                 </tr>
               </thead>
               <tbody>
@@ -638,14 +636,16 @@ const handleCancel = async (id) => {
                       </td>
                         <td className="text-right">
                         <div className="action-buttons-container">
+                          {pode('editconsulta') &&  (
                               <button
                                 type="button"
                                 className="action-btn action-btn-edit"
                                 onClick={() => navigate(`/${role}/editconsulta/${c.id}`)}
-                                title="Ver detalhes do paciente"
+                                title="Editar consulta"
                               >
                                 <span className="fa fa-pencil m-r-5"></span>
                               </button>
+                            )}
                               {c.appointment_type === 'telemedicina' && (
                                <button
                                  type="button"
@@ -656,7 +656,7 @@ const handleCancel = async (id) => {
                                  <span className="fa fa-video-camera m-r-5"></span>
                                </button>
                               )}
-                              {c.status === 'requested' && (
+                              {c.status === 'requested' && pode('viewactionconsultas') &&  (
                                 <>
                                   <button
                                     type="button"
@@ -677,7 +677,7 @@ const handleCancel = async (id) => {
                                     <span className="fa fa-times"></span>
                                   </button>
                                 </>
-                              )}
+                                )}
                               
                             </div>
                       </td>
@@ -686,7 +686,7 @@ const handleCancel = async (id) => {
                 ) : (
                   <tr>
                     <td colSpan="7" className="text-center text-muted">
-                      Nenhum paciente encontrado
+                      Nenhuma consulta encontrada.
                     </td>
                   </tr>
                 )}

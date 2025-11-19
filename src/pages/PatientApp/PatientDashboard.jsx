@@ -390,6 +390,41 @@ export default function PatientDashboard() {
     : 3;
   const proximasConsultas = nextConsultations.length;
   const examesRealizados = reports.length > 0 ? reports.length : 3;
+  const [previewUrl, setPreviewUrl] = useState(AvatarForm);
+  useEffect(() => {
+      const loadAvatar = async () => {
+        if (!userId) return;
+  
+        const myHeaders = new Headers();
+        myHeaders.append("apikey", supabaseAK);
+        myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+  
+        const requestOptions = {
+          headers: myHeaders,
+          method: 'GET',
+          redirect: 'follow'
+        };
+  
+        try {
+          const response = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${userId}/avatar.png`, requestOptions);
+          
+          if (response.ok) {
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            setPreviewUrl(imageUrl);
+            return; // Avatar encontrado
+          }
+        } catch (error) {
+        
+        }
+        
+        // Se chegou até aqui, não encontrou avatar - mantém o padrão
+       
+      };
+  
+      loadAvatar();
+    }, [userId]);
+
 
   if (loading) {
     return (
@@ -416,7 +451,7 @@ export default function PatientDashboard() {
           <div className="row">
             <div className="col-sm-12">
               <div className="user-info-banner" style={{
-                background: `linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(80, 200, 120, 0.9)), url(${banner})`,
+                background: `linear-gradient(135deg, #004a99, #0077cc), url(${banner})`,
                 backgroundSize: 'cover',
                 borderRadius: '15px',
                 padding: '30px',
@@ -425,17 +460,17 @@ export default function PatientDashboard() {
               }}>
                 <div className="row align-items-center">
                   <div className="col-md-8">
-                    <h2 className="mb-2">👋 Olá, {patientName}!</h2>
-                    <p className="mb-2">Acompanhe suas consultas, resultados e tudo o que precisa em um só lugar.
+                    <h2 className="mb-2" style={{color: 'white'}}>👋 Olá, {patientName}!</h2>
+                    <p className="mb-2" style={{ color: 'white' }}>Acompanhe suas consultas, resultados e tudo o que precisa em um só lugar.
 Cuide-se, e deixe o resto com a gente 💙</p>
                     <small className="opacity-75">
                       🕒 {currentTime.toLocaleString('pt-BR')}
                     </small>
                   </div>
                   <div className="col-md-4 text-right">
-                    <img 
-                      src={AvatarForm} 
-                      alt="Avatar" 
+                    <img
+                      src={previewUrl}
+                      alt="Avatar"
                       className="rounded-circle"
                       style={{ width: '80px', height: '80px', objectFit: 'cover', border: '3px solid white' }}
                     />
