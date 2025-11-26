@@ -4,9 +4,10 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import { getUserRole } from "../../utils/userInfo.js";
+import { getDoctorId } from "../../utils/userInfo.js";
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Componente para o dropdown portal
 function DropdownPortal({ anchorEl, isOpen, onClose, className, children }) {
@@ -120,13 +121,23 @@ function AgendaDoctor() {
   
     // Fetch agenda
     useEffect(() => {
-      fetch(
-        "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/doctor_availability",
-        requestOptions
-      )
+      if (getUserRole() === 'medico') {
+        fetch(
+          `${supabaseUrl}/rest/v1/doctor_availability?doctor_id=eq.${getDoctorId()}`,
+          requestOptions
+        )
         .then((res) => res.json())
         .then((result) => setAgenda(Array.isArray(result) ? result : []))
         .catch((err) => console.log(err));
+      } else {
+        fetch(
+          `${supabaseUrl}/rest/v1/doctor_availability`,
+          requestOptions
+        )
+        .then((res) => res.json())
+        .then((result) => setAgenda(Array.isArray(result) ? result : []))
+        .catch((err) => console.log(err));
+      }
     }, []);
   
     // Fetch médicos
@@ -268,7 +279,12 @@ function AgendaDoctor() {
     useEffect(() => {
       setCurrentPage1(1);
     }, [search, dayFilter, typeFilter]);
-  
+    const permissoes = {
+    admin: ['nome'],
+    secretaria: ['nome'],
+    medico: ['']
+  };
+  const pode = (acao) => permissoes[role]?.includes(acao);
     return (
       <div className="page-wrapper">
       <div className="content">
@@ -327,7 +343,7 @@ function AgendaDoctor() {
           <table className="table table-border table-striped custom-table datatable mb-0">
             <thead>
               <tr>
-                <th>Nome</th>
+                {pode('nome') && <th>Nome</th>}
                 <th>Dias disponíveis</th>
                 <th>Horário disponível</th>
                 <th>Duração (min)</th>
@@ -340,7 +356,7 @@ function AgendaDoctor() {
               {currentAgenda.length > 0 ? (
                 currentAgenda.map((a) => (
                   <tr key={a.id}>
-                    <td>{getDoctorName(a.doctor_id)}</td>
+                    {pode('nome') && <td>{getDoctorName(a.doctor_id)}</td>}
                     <td>
                       <span className="custom-badge status-blue" style={{ minWidth: '90px', display: 'inline-block', textAlign: 'center' }}>
                         <i className="fa fa-calendar" style={{ marginRight: '6px' }}></i>
@@ -365,7 +381,7 @@ function AgendaDoctor() {
                           a.appointment_type === 'telemedicina' ? 'status-blue' :
                           'status-gray'
                         }`}
-                        style={{ minWidth: '100px', display: 'inline-block', textAlign: 'center' }}
+                        style={{ width: '120px', minWidth: '120px', maxWidth: '120px', display: 'inline-block', textAlign: 'center' }}
                       >
                         {a.appointment_type === 'presencial' ? (
                           <>
