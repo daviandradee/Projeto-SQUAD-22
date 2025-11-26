@@ -96,8 +96,8 @@ function PatientList() {
   const [showModal, setShowModal] = useState(false);
   const role = getUserRole();
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   const handleViewDetails = (patient) => {
     const mascararCPF = (cpf = "") => {
@@ -183,6 +183,10 @@ function PatientList() {
   }, [])
 
   const handleDelete = async (id) => {
+    if (getUserRole() === 'paciente' || getUserRole() === 'medico') {
+      Swal.fire("Ação não permitida", "Pacientes e médicos não podem excluir pacientes. Por favor, entre em contato com a secretaria.", "warning");
+      return;
+    }
     Swal.fire({
       title: "Tem certeza?",
       text: "Tem certeza que deseja excluir este paciente?",
@@ -231,7 +235,7 @@ function PatientList() {
 
   const filteredPatients = patients.filter(p => {
     if (!p) return false;
-    
+
     // Filtro por texto (nome, cpf, email)
     const nome = (p.full_name || "").toLowerCase();
     const cpf = (p.cpf || "").toLowerCase();
@@ -239,12 +243,12 @@ function PatientList() {
     const data = (p.birth_date || "").toLowerCase();
     const q = search.toLowerCase();
     const matchesSearch = nome.includes(q) || cpf.includes(q) || email.includes(q) || data.includes(q);
-    
+
     // Filtro por sexo (flexível - aceita diferentes variações)
     let matchesSex = true;
     if (sexFilter) {
       const patientSex = (p.sex || "").toLowerCase().trim();
-      
+
       if (sexFilter === "masculino") {
         matchesSex = patientSex === "masculino" || patientSex === "m" || patientSex === "male";
       } else if (sexFilter === "feminino") {
@@ -253,7 +257,7 @@ function PatientList() {
         matchesSex = !["masculino", "m", "male", "feminino", "f", "female", ""].includes(patientSex);
       }
     }
-    
+
     return matchesSearch && matchesSex;
   });
   const [itemsPerPage1] = useState(15);
@@ -275,10 +279,10 @@ function PatientList() {
 
   const renderSexBadge = (sex) => {
     const sexo = (sex || "").toLowerCase().trim();
-    
+
     if (sexo === "masculino" || sexo === "m" || sexo === "male") {
       return (
-        <span 
+        <span
           className="custom-badge status-blue"
           style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
@@ -288,7 +292,7 @@ function PatientList() {
       );
     } else if (sexo === "feminino" || sexo === "f" || sexo === "female") {
       return (
-        <span 
+        <span
           className="custom-badge status-pink"
           style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
@@ -298,7 +302,7 @@ function PatientList() {
       );
     } else if (sexo === "") {
       return (
-        <span 
+        <span
           className="custom-badge status-red"
           style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
@@ -308,7 +312,7 @@ function PatientList() {
       );
     } else {
       return (
-        <span 
+        <span
           className="custom-badge status-purple"
           style={{ minWidth: '90px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
@@ -320,7 +324,12 @@ function PatientList() {
   };
 
   const navigate = useNavigate();
-  
+  const permissoes = {
+    admin: ['editpatient', 'deletepatient'],
+    medico: [''],
+    secretaria: ['editpatient', 'deletepatient'],
+  };
+  const pode = (acao) => permissoes[role]?.includes(acao);
   return (
     <div className="main-wrapper">
       <div className="page-wrapper">
@@ -333,7 +342,7 @@ function PatientList() {
                   <i className="fa fa-plus"></i> Adicionar Paciente
                 </Link>
               </div>
-              
+
               {/* Todos os filtros em uma única linha */}
               <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
                 {/* Campo de busca */}
@@ -345,7 +354,7 @@ function PatientList() {
                   onChange={(e) => setSearch(e.target.value)}
                   style={{ minWidth: "300px", maxWidth: "450px" }}
                 />
-                
+
                 {/* Filtro por sexo */}
                 <select
                   className="form-control form-control-sm"
@@ -417,22 +426,27 @@ function PatientList() {
                               >
                                 <span className="fa fa-eye"></span>
                               </button>
-                              <button
-                                type="button"
-                                className="action-btn action-btn-edit"
-                                onClick={() => navigate(`/${role}/editpatient/${p.id}`)}
-                                title="Ver detalhes do paciente"
-                              >
-                                <span className="fa fa-pencil m-r-5"></span>
-                              </button>
-                              <button 
-                                type="button"
-                                className="action-btn action-btn-delete"
-                                onClick={() => handleDelete(p.id)}
-                                title="Excluir paciente"
-                              >
-                                <span className="fa fa-trash-o"></span>
-                              </button>
+
+                              {pode('editpatient') && (
+                                <button
+                                  type="button"
+                                  className="action-btn action-btn-edit"
+                                  onClick={() => navigate(`/${role}/editpatient/${p.id}`)}
+                                  title="Ver detalhes do paciente"
+                                >
+                                  <span className="fa fa-pencil m-r-5"></span>
+                                </button>
+                              )}
+                              {pode('deletepatient') && (
+                                <button
+                                  type="button"
+                                  className="action-btn action-btn-delete"
+                                  onClick={() => handleDelete(p.id)}
+                                  title="Excluir paciente"
+                                >
+                                  <span className="fa fa-trash-o"></span>
+                                </button>
+                              )}
                             </div>
 
                           </td>
