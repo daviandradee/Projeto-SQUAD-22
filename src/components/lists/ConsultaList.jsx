@@ -97,8 +97,8 @@ function ConsultaList() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   const headers = {
     apikey: supabaseAK,
@@ -122,6 +122,10 @@ function ConsultaList() {
   }, [])
 
   const handleDelete = async (id) => {
+    if (getUserRole() === 'paciente') {
+      Swal.fire("Ação não permitida", "Pacientes não podem excluir consultas. Por favor, entre em contato com a secretaria.", "warning");
+      return;
+    }
     const confirm = await Swal.fire({
       title: "Tem certeza?",
       text: "Deseja realmente excluir esta consulta? Essa ação não poderá ser desfeita.",
@@ -354,6 +358,23 @@ useEffect(() => {
     }
   };
   const handleConfirm = async (id) => {
+  if (getUserRole() === 'paciente') {
+    Swal.fire("Ação não permitida", "Pacientes não podem confirmar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
+    return;
+  }
+  const confirm = await Swal.fire({
+    title: "Confirmar consulta?",
+    text: "Esta ação irá confirmar a consulta.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#4caf50",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Confirmar consulta",
+    cancelButtonText: "Voltar",
+  });
+
+  if (!confirm.isConfirmed) return;
+
   try {
     const response = await fetch(
       `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
@@ -392,6 +413,10 @@ useEffect(() => {
 };
 
 const handleCancel = async (id) => {
+  if (getUserRole() === 'paciente') {
+    Swal.fire("Ação não permitida", "Pacientes não podem cancelar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
+    return;
+  }
   const confirm = await Swal.fire({
     title: "Cancelar consulta?",
     text: "Esta ação irá cancelar a consulta.",
@@ -443,12 +468,21 @@ const handleCancel = async (id) => {
   const navigate = useNavigate();
   const role = getUserRole();
   const permissoes = {
-  admin: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas'],
-  medico: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas'],
-  secretaria: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas'],
+  admin: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas' , 'nomepaciente'],
+  medico: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
+  secretaria: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
   paciente: ['']
 };
   const pode = (acao) => permissoes[role]?.includes(acao);
+  function hasAnyAction(c) {
+  return (
+    pode('editconsulta') ||
+    pode('deletarconsulta') ||
+    (c.status === 'confirmed' && pode('viewactionconsultas')) ||
+    (c.appointment_type === 'telemedicina' && c.status === 'confirmed') ||
+    (c.status === 'requested' && pode('viewactionconsultas'))
+  );
+}
   return (
     <div className="main-wrapper">
     <div className="page-wrapper">
@@ -552,13 +586,13 @@ const handleCancel = async (id) => {
               <thead>
                 <tr>
                    <th className="text-center">Pedido</th>
-                  <th className="text-center">Nome do Paciente</th>
+                  {pode('nomepaciente') && <th className="text-center">Nome do Paciente</th>}
                   <th className="text-center">Nome do Médico</th>
                   <th className="text-center">Agendado</th>
                   <th className="text-center">Duração</th>
                   <th className="text-center">Modo</th>
                   <th className="text-center">Status</th>
-                    <th className="text-center">Ação</th>
+                  {currentConsultas.some(hasAnyAction) && <th className="text-center">Ação</th>}
                 </tr>
               </thead>
               <tbody>
@@ -566,7 +600,7 @@ const handleCancel = async (id) => {
                   currentConsultas.map((c) => (
                     <tr key={c.id}>
                       <td className="text-center">{c.order_number}</td>
-                      <td className="text-center">{pacientesMap[c.patient_id] || "Carregando..."}</td>
+                      {pode('nomepaciente') && <td className="text-center">{pacientesMap[c.patient_id] || "Carregando..."}</td>}
                       <td className="text-center">{medicosMap[c.doctor_id] || "Carregando..."}</td>
                       <td className="text-center">{formatDate(c.scheduled_at)}</td>
                       <td className="text-center">{c.duration_minutes} min</td>
@@ -634,6 +668,8 @@ const handleCancel = async (id) => {
                           )}
                         </span>
                       </td>
+                      {currentConsultas.some(hasAnyAction) && (
+                        hasAnyAction(c) ? (
                         <td className="text-right">
                         <div className="action-buttons-container">
                           {pode('editconsulta') &&  (
@@ -646,7 +682,7 @@ const handleCancel = async (id) => {
                                 <span className="fa fa-pencil m-r-5"></span>
                               </button>
                             )}
-                              {c.appointment_type === 'telemedicina' && (
+                              {c.appointment_type === 'telemedicina' && c.status === 'confirmed' && (
                                <button
                                  type="button"
                                  className="action-btn action-btn-video"
@@ -681,6 +717,10 @@ const handleCancel = async (id) => {
                               
                             </div>
                       </td>
+                      ) : (
+                        <td className="text-center">-</td>
+                      )
+                      )}
                     </tr>
                   ))
                 ) : (
