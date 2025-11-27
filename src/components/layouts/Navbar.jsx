@@ -9,7 +9,7 @@ import { getAccessToken } from "../../utils/auth";
 const AvatarForm = "/img/AvatarForm.jpg";
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnZVH4tVuQkqUH6Ia9CXQj4DztQ";
 
 var myHeaders = new Headers();
 const tokenUsuario = getAccessToken();
@@ -18,6 +18,7 @@ const LS_KEY = "pref_dark_mode";
 
 myHeaders.append("apikey", supabaseAK);
 myHeaders.append("Authorization", `Bearer ${tokenUsuario}`);
+
 
 function Navbar({ onMenuClick }) {
   const location = useLocation();
@@ -28,11 +29,107 @@ function Navbar({ onMenuClick }) {
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const [profileName, setProfileName] = useState("Admin");
+  const [userData, setUserData] = useState(null); 
 
   const [darkMode, setDarkMode] = useState(false);
 
   const isDoctor = location.pathname.startsWith("/doctor");
   const isPatient = location.pathname.startsWith("/patientapp");
+  
+  const userId = getUserId();
+  const extensions = ["png", "jpg", "jpeg", "gif"];
+
+  // --- Funções Auxiliares ---
+
+  const [previewUrl, setPreviewUrl] = useState(AvatarForm);
+  const fileRef = useRef(null);
+
+  // Função para carregar o avatar do usuário
+  const loadUserAvatar = async (forceReload = false) => {
+    if (!userId) {
+      setPreviewUrl(AvatarForm); // Volta para a imagem padrão se não houver ID
+      return;
+    }
+
+    var requestOptions = {
+      headers: myHeaders,
+      method: 'GET',
+      redirect: 'follow'
+    };
+
+    // Tenta carregar com diferentes nomes e extensões
+    const possibleNames = ['avatar', 'secretario', 'profile', 'user'];
+    
+    for (const name of possibleNames) {
+      for (const extension of extensions) {
+        try {
+          const avatarUrl = `${supabaseUrl}/storage/v1/object/avatars/${userId}/${name}.${extension}`;
+          const finalUrl = forceReload ? `${avatarUrl}?t=${Date.now()}` : avatarUrl;
+          
+          const response = await fetch(finalUrl, requestOptions);
+          
+          if (response.ok) {
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            setPreviewUrl(imageUrl);
+            console.log(`Avatar recarregado: ${name}.${extension}`);
+            return; 
+          }
+        } catch (error) {
+          console.log(`Avatar não encontrado: ${name}.${extension}`);
+        }
+      }
+    }
+    
+    // Se chegou até aqui, não encontrou avatar - mantém o padrão
+    console.log('Nenhum avatar encontrado, usando imagem padrão');
+    setPreviewUrl(AvatarForm);
+  };
+
+  // Função para buscar dados do usuário
+  const fetchUserData = async () => {
+    const endpoint = `${supabaseUrl}/auth/v1/user`;
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    try {
+      const response = await fetch(endpoint, requestOptions);
+      if (response.ok) {
+        const user = await response.json();
+        setUserData(user);
+        // Define o nome de exibição no dropdown
+        setProfileName(user.user_metadata?.full_name || user.email.split('@')[0] || "Usuário");
+      } else {
+        console.error('Falha ao buscar dados do usuário:', response.statusText);
+        setUserData(null);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+      setUserData(null);
+    }
+  };
+
+  // --- Efeitos de Componente ---
+
+  // Efeito principal: RECARREGA OS DADOS DO USUÁRIO E AVATAR A CADA NOVO LOGIN (NOVO userId)
+  useEffect(() => {
+    if (userId) { 
+      // 1. Busca os dados de perfil (nome, email, roles)
+      fetchUserData();
+      // 2. Carrega o avatar
+      loadUserAvatar();
+    } else {
+      // Limpa os dados em caso de logout
+      setUserData(null);
+      setProfileName("Visitante");
+      setPreviewUrl(AvatarForm);
+    }
+  }, [userId]); // Executa a cada mudança de userId (login ou logout)
+
+  // ... (Outros useEffects e Handlers existentes) ...
 
   useEffect(() => {
     const saved = localStorage.getItem(LS_KEY) === "true";
@@ -60,7 +157,7 @@ function Navbar({ onMenuClick }) {
   useEffect(() => {
     const role = getUserRole();
 
-    if (role) {
+    if (role && !userData) { // Garante que a lógica de rota só roda se o fetch ainda não carregou
       switch (role) {
         case "medico":
           setProfileName("Médico");
@@ -78,7 +175,7 @@ function Navbar({ onMenuClick }) {
           setProfileName("Admin");
           break;
       }
-    } else {
+    } else if (!userData) {
       // fallback baseado na rota, caso role não exista
       if (location.pathname.startsWith("/doctor")) setProfileName("Médico");
       else if (location.pathname.startsWith("/patientapp")) setProfileName("Paciente");
@@ -86,47 +183,9 @@ function Navbar({ onMenuClick }) {
       else if (location.pathname.startsWith("/secretaria")) setProfileName("Secretária");
       else setProfileName("Admin");
     }
-  }, [location.pathname]);
-  const userId = getUserId();
-  const extensions = ["png", "jpg", "jpeg", "gif"];
+  }, [location.pathname, userData]);
 
-  useEffect(() => {
-    const loadAvatar = async () => {
-      if (!userId) return;
 
-      var requestOptions = {
-        headers: myHeaders,
-        method: 'GET',
-        redirect: 'follow'
-      };
-
-      // Tenta carregar com diferentes nomes e extensões
-      const possibleNames = ['avatar', 'secretario', 'profile', 'user'];
-      
-      for (const name of possibleNames) {
-        for (const ext of extensions) {
-          try {
-            const response = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${userId}/${name}.${ext}`, requestOptions);
-            
-            if (response.ok) {
-              const blob = await response.blob();
-              const imageUrl = URL.createObjectURL(blob);
-              setPreviewUrl(imageUrl);
-              console.log(`Avatar encontrado: ${name}.${ext}`);
-              return; // Avatar encontrado, sai do loop
-            }
-          } catch (error) {
-            console.log(`Avatar não encontrado: ${name}.${ext}`);
-          }
-        }
-      }
-      
-      // Se chegou até aqui, não encontrou avatar - mantém o padrão
-      console.log('Nenhum avatar encontrado, usando imagem padrão');
-    };
-
-    loadAvatar();
-  }, [userId]);
   const handleLogout = async () => {
     Swal.fire({
       title: "Tem certeza que deseja sair?",
@@ -142,6 +201,7 @@ function Navbar({ onMenuClick }) {
         const success = await logoutUser();
         if (success) {
           clearUserInfo(); // ✅ limpa dados do usuário
+          // Importante: clearUserInfo deve garantir que o userId fique null ou undefined
           Swal.fire({
             title: "Logout realizado!",
             text: "Você foi desconectado com sucesso.",
@@ -162,48 +222,7 @@ function Navbar({ onMenuClick }) {
     });
   };
 
-  const [previewUrl, setPreviewUrl] = useState(AvatarForm);
-  const fileRef = useRef(null);
-
-  // Função para carregar o avatar do usuário
-  const loadUserAvatar = async (forceReload = false) => {
-    if (!userId) return;
-
-    var requestOptions = {
-      headers: myHeaders,
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    // Tenta carregar com diferentes nomes e extensões
-    const possibleNames = ['avatar', 'secretario', 'profile', 'user'];
-    
-    for (const name of possibleNames) {
-      for (const extension of extensions) {
-        try {
-          const avatarUrl = `${supabaseUrl}/storage/v1/object/avatars/${userId}/${name}.${extension}`;
-          const finalUrl = forceReload ? `${avatarUrl}?t=${Date.now()}` : avatarUrl;
-          
-          const response = await fetch(finalUrl, requestOptions);
-          
-          if (response.ok) {
-            const blob = await response.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            setPreviewUrl(imageUrl);
-            console.log(`Avatar recarregado: ${name}.${extension}`);
-            return; // Avatar encontrado, sai do loop
-          }
-        } catch (error) {
-          console.log(`Avatar não encontrado: ${name}.${extension}`);
-        }
-      }
-    }
-    
-    // Se chegou até aqui, não encontrou avatar - mantém o padrão
-    console.log('Nenhum avatar encontrado, usando imagem padrão');
-  };
-
-  // Função para abrir o modal de upload de avatar
+  // Função para abrir o modal de upload de avatar (mantida)
   const handleAvatarUpload = () => {
     setOpenProfile(false); // Fecha o dropdown
 
@@ -378,6 +397,33 @@ function Navbar({ onMenuClick }) {
     }
   };
 
+  // Função para renderizar as roles
+  const renderUserRoles = () => {
+    if (!userData || !userData.role) return null;
+
+    // Obtém a lista de roles (removendo "anon" e garantindo que é um array)
+
+    return (
+      <div className="dropdown-roles">
+        {rolesArray.length > 0 ? (
+          rolesArray.map(role => {
+            const roleInfo = roleMap[role] || roleMap['user']; // Fallback para 'user'
+            return (
+              <span key={role} className={`role-badge ${roleInfo.color}`}>
+                <i className={roleInfo.icon}></i> {roleInfo.label}
+              </span>
+            );
+          })
+        ) : (
+          <span className="role-badge status-pink">
+            <i className={roleMap['user'].icon}></i> {roleMap['user'].label}
+          </span>
+        )}
+      </div>
+    );
+  };
+  
+
   return (
     <div className="header">
       <div className="header-left">
@@ -432,11 +478,35 @@ function Navbar({ onMenuClick }) {
             <img alt="" src={previewUrl} style={{ marginTop: "5px", borderRadius: "50%", objectFit: "cover", width: "40px", height: "40px" }} />
           </div>
 
-          {/* 🔒 Dropdown com upload de avatar e sair */}
+          {/* 🔒 Dropdown com perfil, upload de avatar e sair */}
           <div className={`dropdown-menu${openProfile ? " show" : ""}`}>
-            <div className="dropdown-header">
-              <span>{profileName}</span>
-            </div>
+            {/* Perfil do Usuário */}
+            {userData && (
+              <>
+                <div className="dropdown-profile text-center" style={{ padding: '10px 15px' }}>
+                  <img 
+                    alt="" 
+                    src={previewUrl} 
+                    style={{ 
+                      width: '50px', 
+                      height: '50px', 
+                      borderRadius: '50%', 
+                      objectFit: 'cover',
+                      marginBottom: '5px'
+                    }} 
+                  />
+                  <h5 style={{ margin: '0 0 5px 0', fontSize: '15px', fontWeight: '600' }}>
+                    {userData.user_metadata?.full_name || profileName}
+                  </h5>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>
+                    {userData.email}
+                  </p>
+                  {renderUserRoles()}
+                </div>
+                <div className="dropdown-divider"></div>
+              </>
+            )}
+            
             <button className="dropdown-item" onClick={handleAvatarUpload}>
               <i className="fa fa-camera"></i> Alterar Foto
             </button>
