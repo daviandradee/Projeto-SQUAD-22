@@ -411,8 +411,8 @@ const AgendarConsulta = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Button
         startIcon={<ArrowBack />}
-        onClick={() => navigate('/patientapp/medicosdisponiveis')}
-        sx={{ mb: 3 }}
+        onClick={() => navigate("/paciente/medicosdisponiveis")}
+        className='btn btn-secondary'
       >
         Voltar para Médicos
       </Button>
