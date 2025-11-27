@@ -440,6 +440,9 @@ function Navbar({ onMenuClick }) {
             <button className="dropdown-item" onClick={handleAvatarUpload}>
               <i className="fa fa-camera"></i> Alterar Foto
             </button>
+            <button className="dropdown-item">
+              <i className="fa fa-cog"></i> Configurações
+            </button>
             <div className="dropdown-divider"></div>
             <button className="dropdown-item logout-btn" onClick={handleLogout}>
               <i className="fa fa-sign-out"></i> Sair
