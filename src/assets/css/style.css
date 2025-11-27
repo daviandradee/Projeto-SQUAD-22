@@ -598,12 +598,11 @@ table.table td h2 span {
 }
 .pagination > li > a,
 .pagination > li > span {
-	color: #009efb;
+	background: linear-gradient(135deg, #004a99, #0077cc);	
 	padding: .5rem .75rem !important;
 }
 .page-item.active .page-link {
-	background-color: #009efb;
-	border-color: #009efb;
+	background: linear-gradient(135deg, #004a99, #0077cc);	
 }
 .dropdown-menu {
 	border: 1px solid rgba(0, 0, 0, 0.1);

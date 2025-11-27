@@ -335,7 +335,7 @@ function CreateUser() {
    return matchesText && matchesRole && dateMatch;
  });
 
-  const [itemsPerPage1] = useState(15);
+  const [itemsPerPage1, setItemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
@@ -525,25 +525,62 @@ function CreateUser() {
                 </tbody>
               </table>
             </div>
-            <nav className="mt-3">
-              <ul className="pagination justify-content-center">
-                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setCurrentPage1(1)}>{"<<"}</button>
-                </li>
-                <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>&lt;</button>
-                </li>
-                <li className="page-item active">
-                  <span className="page-link">{currentPage1}</span>
-                </li>
-                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>&gt;</button>
-                </li>
-                <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>{">>"}</button>
-                </li>
-              </ul>
-            </nav>
+                                              <div className="d-flex flex-wrap align-items-center mt-3">
+                <div className="me-3 text-muted" style={{ minWidth: '140px', fontSize: '0.98em', paddingRight: '3%' }}>
+                  Total encontrados: <b>{filteredUsers.length}</b>
+                </div>
+                <div style={{ minWidth: '140px' }}>
+                  <select
+                    className="form-control form-control-sm"
+                    style={{ minWidth: "110px", maxWidth: "140px", display: 'inline-block' }}
+                    value={itemsPerPage1}
+                    onChange={e => {
+                      setItemsPerPage1(Number(e.target.value));
+                      setCurrentPage1(1);
+                    }}
+                    title="Itens por página"
+                  >
+                    <option value={10}>10 por página</option>
+                    <option value={15}>15 por página</option>
+                    <option value={20}>20 por página</option>
+                    <option value={30}>30 por página</option>
+                  </select>
+                </div>
+              </div>
+              <div className="w-100 d-flex justify-content-center mt-2">
+                <nav>
+                  <ul className="pagination mb-0 justify-content-center">
+                    {/* Primeira página */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(1)}>
+                        {"<<"}
+                      </button>
+                    </li>
+                    {/* Página anterior */}
+                    <li className={`page-item ${currentPage1 === 1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.max(prev - 1, 1))}>
+                        &lt;
+                      </button>
+                    </li>
+                    {/* Número da página atual */}
+                    <li className="page-item active">
+                      <span className="page-link">{currentPage1}</span>
+                    </li>
+                    {/* Próxima página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(prev => Math.min(prev + 1, totalPages1))}>
+                        &gt;
+                      </button>
+                    </li>
+                    {/* Última página */}
+                    <li className={`page-item ${currentPage1 === totalPages1 ? "disabled" : ""}`}>
+                      <button className="page-link" onClick={() => setCurrentPage1(totalPages1)}>
+                        {">>"}
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
           </div>
         </div>
       </div>
