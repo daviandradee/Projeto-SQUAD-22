@@ -200,7 +200,7 @@ table {
 	border-color: #0077cc;
 }
 .table>thead>tr {
-background-color:  #0077cc;
+	background: linear-gradient(135deg, #004a99, #0077cc);	
 }
 .table>thead>tr>th{
 color: white;
@@ -459,7 +459,8 @@ table.table td h2 span {
 }
 .btn-primary {
 	border-color: transparent;
-	background-color: #009efb;
+	background: linear-gradient(135deg, #004a99, #0077cc);
+	
 }
 .btn-primary:hover,
 .btn-primary:focus,

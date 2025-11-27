@@ -14,8 +14,8 @@ function EditDoctor() {
   const navigate = useNavigate();
   const role = getUserRole();
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
-    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   // Buscar médico pelo ID
   useEffect(() => {
