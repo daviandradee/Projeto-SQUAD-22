@@ -789,7 +789,7 @@ Cuide-se, e deixe o resto com a gente 💙</p>
                   </div>
                   <div className="col-md-4 text-center mb-3">
                     <div className="health-tip p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
-                      <i className="fa fa-apple text-success fa-2x mb-2"></i>
+                      <i className="fa fa-coffee text-success fa-2x mb-2"></i>
                       <h6>Alimentação Saudável</h6>
                       <p className="text-muted small">Consuma frutas e vegetais todos os dias</p>
                     </div>

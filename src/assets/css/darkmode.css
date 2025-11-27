@@ -28,6 +28,8 @@ body {
 body.dark-mode {
   background: #0f172a !important;
   color: #e2e8f0 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Containers principais */
@@ -948,22 +950,21 @@ body.dark-mode .sidebar-menu .menu-title {
     /* azul-claro sutil */
     font-weight: 600 !important;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(96, 165, 250, 0.3);
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+    padding: 16px 16px 8px 16px;
 }
 
 /* Corrige ícones e textos dentro do menu */
 body.dark-mode .sidebar-menu a,
 body.dark-mode .sidebar-menu i {
     color: #e2e8f0 !important;
-    transition: color 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 
 body.dark-mode .sidebar-menu a:hover,
 body.dark-mode .sidebar-menu a:focus,
 body.dark-mode .sidebar-menu .active>a {
-    color: #60a5fa !important;
+    color: #e2e8f0 !important;
+    background-color: #0f172a !important;
 }
 
 /* ============
@@ -1053,21 +1054,26 @@ body.dark-mode .card-header,
 body.dark-mode .profile-header,
 body.dark-mode .sdc-card-header {
     background-color: #162033 !important;
+    border-radius: .5rem !important;
     /* azul escuro uniforme */
     color: #f1f5f9 !important;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Títulos dentro de qualquer header ou card */
+body.dark-mode h1,
+body.dark-mode h2,
 body.dark-mode h3,
 body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
 body.dark-mode .card-title,
 body.dark-mode .doc-card-header h3,
 body.dark-mode .doc-card-header h4,
 body.dark-mode .doc-card-header span,
 body.dark-mode .sdc-card-header h3,
 body.dark-mode .sdc-card-header span {
-    color: #e8eefc !important;
+    color: #e8eefc;
     /* branco azulado suave */
     font-weight: 600;
 }
@@ -1120,8 +1126,7 @@ body.dark-mode .doc-btn.doc-btn-primary:active {
 body.dark-mode canvas,
 body.dark-mode .chart,
 body.dark-mode .doc-pie-chart-wrapper canvas {
-    background-color: transparent !important;
-    filter: brightness(0.9) contrast(1.1);
+    background-color: #1e293b !important;
 }
 
 body.dark-mode .chartjs-render-monitor {
@@ -1182,7 +1187,7 @@ body.dark-mode .widget-title2 {
     color: #ffffff !important;
     /* branco puro */
     font-weight: 700;
-    font-size: 16px;
+    font-size: 13px;
     letter-spacing: 0.2px;
 }
 
@@ -1190,8 +1195,7 @@ body.dark-mode .widget-title2 {
 body.dark-mode .dash-widget-info.text-right,
 body.dark-mode .dash-widget-info.text-right h3,
 body.dark-mode .dash-widget-info.text-right span {
-    color: #60a5fa !important;
-    /* azul vivo */
+    color: #ffffff !important;
     font-weight: 700;
 }
 
@@ -1199,8 +1203,7 @@ body.dark-mode .dash-widget-info.text-right span {
 body.dark-mode .dash-widget i,
 body.dark-mode .dash-widget small,
 body.dark-mode .dash-widget .subtext {
-    color: #cbd5e1 !important;
-    /* cinza claro visível */
+    color: #ffffff !important;
 }
 
 /* Hover leve — realce sutil */
@@ -1256,8 +1259,7 @@ body.dark-mode .dash-widget small {
 body.dark-mode .dash-widget-info.text-right,
 body.dark-mode .dash-widget-info.text-right h3,
 body.dark-mode .dash-widget-info.text-right span {
-    color: #60a5fa !important;
-    /* azul vibrante */
+    color: #ffffff !important;
     font-weight: 700 !important;
 }
 
@@ -1827,5 +1829,13 @@ body.dark-mode .swal2-title {
 }
 body.dark-mode .swal2-html-container {
   color: #e2e8f0 !important;
+}
+
+.dark-mode .health-tip{
+    background-color: #0f172a !important;
+}
+
+.dark-mode .d-flex{
+    background-color: #0f172a !important;
 }
 

@@ -100,16 +100,17 @@
 
 .text-box h3{
     font-size: 24px !important;
+    color: #003366 !important;
 }
 
 .doctor-image {
     /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
-    background-image: url('public/img/login/medico_container.png'); 
+    background-image: url('public/img/login/medico_container.png') !important; 
 }
 
 .patient-image {
     /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
-    background-image: url('public/img/login/paciente_container.png');
+    background-image: url('public/img/login/paciente_container.png') !important;
 }
 
 /* ------------------- Seção de Login (Lado Direito) ------------------- */
@@ -181,6 +182,7 @@
     font-weight: 700;
     color: var(--text-dark);
     margin-bottom: 8px;
+    color: #003366 !important;
 }
 
 .login-subtitle {
@@ -367,6 +369,7 @@
     /* 4. Ajusta os tamanhos de fonte no Mobile */
     .text-box h3 {
         font-size: 1.5em; /* Título menor */
+        color: #003366 !important;
     }
 
     .text-box p {
