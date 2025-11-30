@@ -391,53 +391,50 @@ function LaudoList() {
     buscarMedicos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [laudos]);
-    const permissoes = {
+  const permissoes = {
   admin: ['editlaudo', 'deletarlaudo', 'viewlaudo', 'viewpatientlaudos', 'createlaudo', 'executantelaudo'],
   medico: ['editlaudo', 'deletarlaudo', 'viewlaudo', 'viewpatientlaudos', 'createlaudo'],
   paciente: ['viewlaudo']
 };
-useEffect(() => {
-    if (!laudos || laudos.length === 0) return;
-
-    const buscarPacientes = async () => {
-      try {
-        // Pega IDs únicos de pacientes
-        const idsUnicos = [...new Set(laudos.map((c) => c.patient_id))];
-
-        // Faz apenas 1 fetch por paciente
-        const promises = idsUnicos.map(async (id) => {
-          try {
-            const res = await fetch(
-              `https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/patients?id=eq.${id}`,
-              {
-                method: "GET",
-                headers: {
-                  apikey:
-                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ",
-                  Authorization: `Bearer ${tokenUsuario}`,
-                },
-              }
-            );
-            const data = await res.json();
-            return { id, full_name: data[0]?.full_name || "Nome não encontrado" };
-          } catch (err) {
-            return { id, full_name: "Nome não encontrado" };
-          }
-        });
-
-        const results = await Promise.all(promises);
-
-        const map = {};
-        results.forEach((r) => (map[r.id] = r.full_name));
-        setPacientesMap(map);
-      } catch (err) {
-        console.error("Erro ao buscar pacientes:", err);
-      }
-    };
-
-    buscarPacientes();
-  }, [laudos]);
   const pode = (acao) => permissoes[role]?.includes(acao);
+  // Função para imprimir o laudo (content_html)
+  const handlePrint = async (laudoId) => {
+    try {
+      const res = await fetch(`${supabaseUrl}/rest/v1/reports?id=eq.${laudoId}`, {
+        method: 'GET',
+        headers: myHeaders,
+      });
+      if (!res.ok) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro de autenticação',
+          text: 'Não foi possível acessar o laudo. Faça login novamente.'
+        });
+        return;
+      }
+      const data = await res.json();
+      const contentHtml = data[0]?.content_html;
+      if (!contentHtml) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sem conteúdo',
+          text: 'Este laudo não possui conteúdo para impressão.'
+        });
+        return;
+      }
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      printWindow.document.write(`<!DOCTYPE html><html><head><title>Laudo de ${pacientesMap[data[0]?.patient_id]}</title></head><body>${contentHtml}</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao imprimir',
+        text: 'Não foi possível imprimir o laudo.'
+      });
+    }
+  };
   return (
     <div className="page-wrapper">
       <div className="content">
@@ -616,6 +613,15 @@ useEffect(() => {
                             title="Ver detalhes do paciente"
                           >
                             <span className="fa fa-eye"></span>
+                          </button>
+                          {/* Botão de imprimir */}
+                          <button
+                            type="button"
+                            className="action-btn action-btn-print"
+                            onClick={() => handlePrint(l.id)}
+                            title="Imprimir laudo"
+                          >
+                            <span className="fa fa-print"></span>
                           </button>
                           {pode('deletarlaudo') && (
                           <button
