@@ -632,7 +632,7 @@ const handleCancel = async (id) => {
                         
                         <span
                           className={`custom-badge ${
-                            c.status === 'requested' ? 'status-orange' :
+                            c.status === 'requested' ? 'status-purple' :
                             c.status === 'confirmed' ? 'status-blue' :
                             c.status === 'completed' ? 'status-green' :
                             c.status === 'cancelled' ? 'status-red' :

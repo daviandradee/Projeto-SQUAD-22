@@ -15,7 +15,7 @@ import { useRef } from 'react';
 import { InterimMark } from '../utils/InterimMark';
 import { FaMicrophone } from "react-icons/fa";
 import { getUserRole } from '../utils/userInfo';
-function Bar({ comandos,  toggleRecording, isRecording }) {
+function Bar({ comandos, toggleRecording, isRecording, editor, pacientesMap, Laudos }) {
     const inputRef = useRef(null);
 
     const handleAbrirExplorador = () => {
@@ -34,9 +34,7 @@ function Bar({ comandos,  toggleRecording, isRecording }) {
     const role = getUserRole();
     return (
         <>
-
             <div className="toolbar">
-
                 <div className="left">
                     <button onClick={comandos.toggleBold} >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -83,7 +81,7 @@ function Bar({ comandos,  toggleRecording, isRecording }) {
                             <path d="M8 4H21V6H8V4ZM5 3V6H6V7H3V6H4V4H3V3H5ZM3 14V11.5H5V11H3V10H6V12.5H4V13H6V14H3ZM5 19.5H3V18.5H5V18H3V17H6V21H3V20H5V19.5ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z"></path>
                         </svg>
                     </button>
-                    <button onClick={comandos.toggleListaPuntos} >
+                    <button onClick={comandos.toggleListaPontos} >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M8 4H21V6H8V4ZM4.5 6.5C3.67157 6.5 3 5.82843 3 5C3 4.17157 3.67157 3.5 4.5 3.5C5.32843 3.5 6 4.17157 6 5C6 5.82843 5.32843 6.5 4.5 6.5ZM4.5 13.5C3.67157 13.5 3 12.8284 3 12C3 11.1716 3.67157 10.5 4.5 10.5C5.32843 10.5 6 11.1716 6 12C6 12.8284 5.32843 13.5 4.5 13.5ZM4.5 20.4C3.67157 20.4 3 19.7284 3 18.9C3 18.0716 3.67157 17.4 4.5 17.4C5.32843 17.4 6 18.0716 6 18.9C6 19.7284 5.32843 20.4 4.5 20.4ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z"></path>
                         </svg>
@@ -115,6 +113,23 @@ function Bar({ comandos,  toggleRecording, isRecording }) {
                         title={isRecording ? "Parar ditado" : "Iniciar ditado por voz"}
                     >
                         <FaMicrophone size={18} />
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (!editor) return;
+                            const html = editor.getHTML();
+                            const printWindow = window.open('', '_blank', 'width=900,height=700');
+                            printWindow.document.write(`<!DOCTYPE html><html><head><title>Laudo de ${pacientesMap[Laudos.patient_id]}</title></head><body>${html}</body></html>`);
+                            printWindow.document.close();
+                            printWindow.focus();
+                            printWindow.print();
+                        }}
+                        title="Imprimir laudo"
+                        className="toolbar-button"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                            <path d="M6 19v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2h2a1 1 0 0 0 1-1v-7a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v7a1 1 0 0 0 1 1h2zm2 2v-4h8v4H8zm10-2v-2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2H4v-7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v7h-2zM6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h-2V6H8v2H6z"/>
+                        </svg>
                     </button>
 
                     {/*<button onClick={comandos.agregarLink} >
@@ -290,7 +305,7 @@ function VerLaudo() {
         toggleH3: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
         toggleParrafo: () => editor.chain().focus().setParagraph().run(),
         toggleListaOrdenada: () => editor.chain().focus().toggleOrderedList().run(),
-        toggleListaPuntos: () => editor.chain().focus().toggleBulletList().run(),
+        toggleListaPontos: () => editor.chain().focus().toggleBulletList().run(),
         agregarImagen: (url) => {
             if (!url) return;
             editor.chain().focus().setImage({ src: url }).run();
@@ -422,7 +437,7 @@ function VerLaudo() {
                         </Collapse>
                     </Card>
                 </div>
-                <Bar comandos={comandos}  toggleRecording={toggleRecording} isRecording={isRecording} />
+                <Bar comandos={comandos} toggleRecording={toggleRecording} isRecording={isRecording} editor={editor} pacientesMap={pacientesMap} Laudos={Laudos} />
                 <EditorContent editor={editor} />
             </div>
         </div>

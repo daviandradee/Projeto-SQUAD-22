@@ -105,12 +105,12 @@
 
 .doctor-image {
     /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
-    background-image: url('public/img/login/medico_container.png') !important; 
+    background-image: url('/img/login/medico_container.png') !important; 
 }
 
 .patient-image {
     /* Esta URL é uma placeholder. Substitua pela URL da sua imagem. */
-    background-image: url('public/img/login/paciente_container.png') !important;
+    background-image: url('/img/login/paciente_container.png') !important;
 }
 
 /* ------------------- Seção de Login (Lado Direito) ------------------- */
