@@ -546,7 +546,7 @@ function LaudoList() {
                      {pode('viewpatientlaudos') && (
                       <th className="text-center">Paciente</th>
                     )}
-                    <th className="text-center">Exame</th>
+                    <th className="text-center">Procedimento</th>
                     <th className="text-center">Diagnóstico</th>
                     <th className="text-center">Conclusão</th>
                     <th className="text-center">Status</th>

@@ -672,6 +672,28 @@ const handleCancel = async (id) => {
                         hasAnyAction(c) ? (
                         <td className="text-right">
                         <div className="action-buttons-container">
+                          {c.appointment_type !== 'telemedicina' && c.status === 'confirmed' && (
+                            <button
+                                 type="button"
+                                 className="btn btn-success btn-sm"
+                                 onClick={() => navigate(`/${role}/laudoconsulta`, {state: { consultaId: c.id, pacienteId: c.patient_id}})}
+                                 title="Atender consulta"
+                                 style={{ minWidth: 120, fontWeight: 600 }}
+                               >
+                                 Atender
+                               </button>
+                          )}
+                          {c.appointment_type === 'telemedicina' && c.status === 'confirmed' && (
+                               <button
+                                 type="button"
+                                 className="btn btn-success btn-sm"
+                                 onClick={() => navigate(`/call/${c.id}`)}
+                                 title="Atender consulta"
+                                 style={{ minWidth: 120, fontWeight: 600 }}
+                               >
+                                 Atender
+                               </button>
+                              )}
                           {pode('editconsulta') &&  (
                               <button
                                 type="button"
@@ -682,16 +704,7 @@ const handleCancel = async (id) => {
                                 <span className="fa fa-pencil m-r-5"></span>
                               </button>
                             )}
-                              {c.appointment_type === 'telemedicina' && c.status === 'confirmed' && (
-                               <button
-                                 type="button"
-                                 className="action-btn action-btn-video"
-                                 onClick={() => navigate(`/call/${c.id}`)}
-                                 title="Entrar na sala de vídeo"
-                               >
-                                 <span className="fa fa-video-camera m-r-5"></span>
-                               </button>
-                              )}
+                              
                               {c.status === 'requested' && pode('viewactionconsultas') &&  (
                                 <>
                                   <button

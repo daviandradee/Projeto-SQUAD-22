@@ -17,6 +17,7 @@ import ConsultaEdit from "../components/edits/ConsultaEdit";
 import LaudoEdit from "../components/edits/LaudoEdit";
 import VerLaudo from "../components/VerLaudo";
 import DoctorCalendar from "../pages/DoctorApp/DoctorCalendar";
+import LaudoConsulta from "../components/LaudoConsulta";
 
 export const DoctorRoutes = 
     {path : "/medico",
@@ -37,6 +38,8 @@ export const DoctorRoutes =
         {path: "agendaform", element: <AgendaForm />},
         {path: "consultaform", element: <ConsultaForm />},
         {path: "laudoform", element: <LaudoForm />},
+        {path: "laudoconsulta", element: <LaudoConsulta />},
+
         //edits
         {path: "editconsulta/:id", element: <ConsultaEdit />},
         {path: "editlaudo/:id", element: <LaudoEdit />},
