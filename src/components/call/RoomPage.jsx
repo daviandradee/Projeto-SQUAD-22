@@ -5,6 +5,7 @@ import { getFullName } from "../../utils/userInfo";
 import { getPatientId } from "../../utils/userInfo";
 import { getAccessToken } from "../../utils/auth";
 import { getDoctorId } from "../../utils/userInfo";
+import TranscriptBlock from "./TranscriptBlock";
 
 
 const RoomPage = () => {
@@ -13,6 +14,7 @@ const RoomPage = () => {
  const [userInfo, setUserInfo] = useState(null);
  const [kitToken, setKitToken] = useState(null);
  const [canJoin, setCanJoin] = useState(false);
+ const [consulta, setConsulta] = useState(null);
  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
  const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
  const tokenUsuario = getAccessToken();
@@ -29,16 +31,17 @@ const RoomPage = () => {
      // Busca a consulta específica pelo roomId
      const response = await fetch(`${supabaseUrl}/rest/v1/appointments?id=eq.${roomId}`, requestOptions);
      const result = await response.json();
-     const consulta = Array.isArray(result) ? result[0] : null;
+     const consultaData = Array.isArray(result) ? result[0] : null;
+     setConsulta(consultaData);
      const userPatient = { id: getPatientId(), name: getFullName() };
      const userDoctor = { id: getDoctorId(), name: getFullName() };
-     const user = consulta?.patient_id === userPatient.id ? userPatient : userDoctor;
+     const user = consultaData?.patient_id === userPatient.id ? userPatient : userDoctor;
      // Define se o usuário é médico
-     const isMedico = user.id === consulta?.doctor_id;
+     const isMedico = user.id === consultaData?.doctor_id;
      // Gere um ID único para cada aba/janela
      const uniqueId = (user.id || "") + '-' + Date.now();
      // Verifica se o usuário é responsável pela consulta
-     const isResponsavel = user.id === consulta?.doctor_id || user.id === consulta?.patient_id;
+     const isResponsavel = user.id === consultaData?.doctor_id || user.id === consultaData?.patient_id;
      if (isResponsavel) {
        setUserInfo({ name: user.name, id: uniqueId, isMedico });
      } else {
@@ -103,7 +106,19 @@ const RoomPage = () => {
            </button>
          </div>
        ) : (
-         <div ref={meetingRef} style={{ width: "100%", height: "100%" }} />
+         <div style={{ display: "flex", height: "100%", width: "100%" }}>
+           <div ref={meetingRef} style={{ flex: 2, height: "100%" }} />
+           <div style={{ flex: 1, minWidth: 350, maxWidth: 500, background: "#fafbfc",  height: "100%", overflowY: "auto" }}>
+             {consulta && (
+               <TranscriptBlock 
+                 appointmentId={roomId}
+                 doctor_id={consulta.doctor_id}
+                 patient_id={consulta.patient_id}
+                 exam={consulta.chief_complaint}
+               />
+             )}
+           </div>
+         </div>
        )}
      </div>
    </div>
