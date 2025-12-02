@@ -5,6 +5,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import Swal from "sweetalert2";
 import { getAccessToken } from "../../utils/auth.js";
+// Adicione uma função para pegar o papel do usuário
+import { getUserRole } from '../../utils/userInfo.js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -17,6 +19,8 @@ const API_KEY = supabaseAK;
 
 export default function Doctorexceçao() {
   const token = getAccessToken();
+  // Verifica o papel do usuário (admin ou médico)
+  const userRole = getUserRole();
 
   const [exceptions, setExceptions] = useState([]);
   const [currentDoctor, setCurrentDoctor] = useState(null); // Estado para o médico logado
@@ -33,6 +37,12 @@ export default function Doctorexceçao() {
   const loadCurrentUser = async () => {
     try {
       setLoading(true);
+      if (userRole === 'admin') {
+        // Se for admin, carrega todas as exceções e define um médico padrão
+        await loadExceptions();
+        setCurrentDoctor({ full_name: 'Administrador' });
+        return;
+      }
 
       // 1. Pega os dados da autenticação (Auth User)
       const resAuth = await fetch(AUTH_URL, { headers: commonHeaders });
@@ -65,16 +75,18 @@ export default function Doctorexceçao() {
   // Agora recebe o doctorId como argumento para filtrar na API
   const loadExceptions = async (doctorId) => {
     try {
-      // Filtra onde doctor_id é igual ao ID do médico logado
-      const url = `${API_URL}?select=*&doctor_id=eq.${doctorId}`;
-
+      let url;
+      if (userRole === 'admin') {
+        url = `${API_URL}?select=*,doctor:doctor_id(id,full_name)`; // join para trazer nome do médico
+      } else {
+        url = `${API_URL}?select=*&doctor_id=eq.${doctorId}`;
+      }
       const res = await fetch(url, { headers: commonHeaders });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setExceptions(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
-      // Não sobrescreve o erro principal se for apenas refresh
     }
   };
 
@@ -303,6 +315,7 @@ export default function Doctorexceçao() {
                           <th>Data</th>
                           <th>Tipo</th>
                           <th>Motivo</th>
+                          {userRole === 'admin' && <th>Médico</th>}
                           <th>Ações</th>
                         </tr>
                       </thead>
@@ -318,6 +331,7 @@ export default function Doctorexceçao() {
                               )}
                             </td>
                             <td>{ex.reason || "-"}</td>
+                            {userRole === 'admin' && <td>{ex.doctor?.full_name || '-'}</td>}
                             <td>
                               <button
                                 className="btn btn-sm btn-danger"
