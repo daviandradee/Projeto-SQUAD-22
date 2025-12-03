@@ -2,7 +2,7 @@ import "../../assets/css/index.css"
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import { getAccessToken} from "../../utils/auth.js";
+import { getAccessToken } from "../../utils/auth.js";
 import Swal from "sweetalert2";
 import { useResponsive } from '../../utils/useResponsive.js';
 import { useNavigate } from "react-router-dom";
@@ -175,23 +175,23 @@ function ConsultaList() {
     const cpf = (p.cpf || "").toLowerCase();
     const email = (p.email || "").toLowerCase();
     const q = search.toLowerCase();
-    
-    
+
+
     // Filtro por texto (nome, cpf, email)
     const matchesText = nome.includes(q) || cpf.includes(q) || email.includes(q) || médicoNome.includes(q);
-    
+
     // Filtro por status
     const matchesStatus = !statusFilter || p.status === statusFilter;
-    
+
     // Filtro por tipo de consulta
     const matchesType = !typeFilter || p.appointment_type === typeFilter;
-    
-    
+
+
     let dateMatch = true;
     if (p.scheduled_at) {
       const consultaDate = new Date(p.scheduled_at);
       const today = new Date();
-      
+
       // Filtros por período rápido
       if (period === "today") {
         const todayStr = today.toDateString();
@@ -205,8 +205,8 @@ function ConsultaList() {
         endOfWeek.setHours(23, 59, 59, 999);
         dateMatch = consultaDate >= startOfWeek && consultaDate <= endOfWeek;
       } else if (period === "month") {
-        dateMatch = consultaDate.getMonth() === today.getMonth() && 
-                   consultaDate.getFullYear() === today.getFullYear();
+        dateMatch = consultaDate.getMonth() === today.getMonth() &&
+          consultaDate.getFullYear() === today.getFullYear();
       }
 
       // Filtros por data específica
@@ -227,18 +227,18 @@ function ConsultaList() {
 
     return matchesText && matchesStatus && matchesType && dateMatch;
   }).sort((a, b) => {
-    // Priorizar consultas "requested" (solicitadas) primeiro
-    if (a.status === 'requested' && b.status !== 'requested') {
-      return -1; // 'a' vem antes de 'b'
-    }
-    if (b.status === 'requested' && a.status !== 'requested') {
-      return 1; // 'b' vem antes de 'a'
-    }
-    
-    // Se ambos têm o mesmo status de prioridade, ordena por data (mais recente primeiro)
+    // Primeiro, prioriza status 'requested'
+    if (a.status === 'requested' && b.status !== 'requested') return -1;
+    if (b.status === 'requested' && a.status !== 'requested') return 1;
+    // Dentro de cada grupo, ordena pela proximidade da data/hora atual
+    const now = new Date();
     const dateA = new Date(a.scheduled_at || 0);
     const dateB = new Date(b.scheduled_at || 0);
-    return dateB - dateA;
+    const diffA = dateA - now;
+    const diffB = dateB - now;
+    if (diffA >= 0 && diffB >= 0) return diffA - diffB; // ambos futuros
+    if (diffA < 0 && diffB < 0) return diffB - diffA;   // ambos passados (mais recente passado primeiro)
+    return diffA >= 0 ? -1 : 1; // futuro antes de passado
   });
   const [itemsPerPage1, setItemsPerPage1] = useState(15);
   const [currentPage1, setCurrentPage1] = useState(1);
@@ -258,12 +258,12 @@ function ConsultaList() {
     } else {
       setPeriod(newPeriod);
     }
-    
+
     // Sempre limpa as datas específicas
     setStartDate("");
     setEndDate("");
   };
-useEffect(() => {
+  useEffect(() => {
     if (!consulta || consulta.length === 0) return;
 
     const buscarPacientes = async () => {
@@ -280,7 +280,7 @@ useEffect(() => {
                 method: "GET",
                 headers: {
                   apikey:
-                  supabaseAK,
+                    supabaseAK,
                   Authorization: `Bearer ${tokenUsuario}`,
                 },
               }
@@ -351,402 +351,399 @@ useEffect(() => {
       const [datePart, timePart] = dateString.split('T');
       const [year, month, day] = datePart.split('-');
       const [hour, minute] = timePart.split(':');
-      
+
       return `${day}/${month}/${year} ${hour}:${minute}`;
     } catch {
       return dateString;
     }
   };
   const handleConfirm = async (id) => {
-  if (getUserRole() === 'paciente') {
-    Swal.fire("Ação não permitida", "Pacientes não podem confirmar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
-    return;
-  }
-  const confirm = await Swal.fire({
-    title: "Confirmar consulta?",
-    text: "Esta ação irá confirmar a consulta.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#4caf50",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Confirmar consulta",
-    cancelButtonText: "Voltar",
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          ...headers,
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify({ status: "confirmed" })
-      }
-    );
-
-    if (response.ok) {
-      // Atualiza o estado local
-      setConsultas((prev) => 
-        prev.map((c) => 
-          c.id === id ? { ...c, status: "confirmed" } : c
-        )
-      );
-      
-      Swal.fire({
-        title: "Confirmado!",
-        text: "Consulta confirmada com sucesso.",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } else {
-      throw new Error('Falha na confirmação');
+    if (getUserRole() === 'paciente') {
+      Swal.fire("Ação não permitida", "Pacientes não podem confirmar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
+      return;
     }
-  } catch (error) {
-    console.error("Erro ao confirmar:", error);
-    Swal.fire("Erro", "Não foi possível confirmar a consulta.", "error");
-  }
-};
+    const confirm = await Swal.fire({
+      title: "Confirmar consulta?",
+      text: "Esta ação irá confirmar a consulta.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4caf50",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Confirmar consulta",
+      cancelButtonText: "Voltar",
+    });
 
-const handleCancel = async (id) => {
-  if (getUserRole() === 'paciente') {
-    Swal.fire("Ação não permitida", "Pacientes não podem cancelar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
-    return;
-  }
-  const confirm = await Swal.fire({
-    title: "Cancelar consulta?",
-    text: "Esta ação irá cancelar a consulta.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#e63946",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Cancelar consulta",
-    cancelButtonText: "Voltar",
-  });
+    if (!confirm.isConfirmed) return;
 
-  if (!confirm.isConfirmed) return;
-
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          ...headers,
-        },
-        body: JSON.stringify({ status: "cancelled" })
-      }
-    );
-
-    if (response.ok) {
-      setConsultas((prev) => 
-        prev.map((c) => 
-          c.id === id ? { ...c, status: "cancelled" } : c
-        )
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            ...headers,
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify({ status: "confirmed" })
+        }
       );
-      
-      Swal.fire({
-        title: "Cancelado!",
-        text: "Consulta cancelada com sucesso.",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } else {
-      throw new Error('Falha no cancelamento');
+
+      if (response.ok) {
+        // Atualiza o estado local
+        setConsultas((prev) =>
+          prev.map((c) =>
+            c.id === id ? { ...c, status: "confirmed" } : c
+          )
+        );
+
+        Swal.fire({
+          title: "Confirmado!",
+          text: "Consulta confirmada com sucesso.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        throw new Error('Falha na confirmação');
+      }
+    } catch (error) {
+      console.error("Erro ao confirmar:", error);
+      Swal.fire("Erro", "Não foi possível confirmar a consulta.", "error");
     }
-  } catch (error) {
-    console.error("Erro ao cancelar:", error);
-    Swal.fire("Erro", "Não foi possível cancelar a consulta.", "error");
-  }
-};
+  };
+
+  const handleCancel = async (id) => {
+    if (getUserRole() === 'paciente') {
+      Swal.fire("Ação não permitida", "Pacientes não podem cancelar consultas diretamente. Por favor, entre em contato com a secretaria.", "warning");
+      return;
+    }
+    const confirm = await Swal.fire({
+      title: "Cancelar consulta?",
+      text: "Esta ação irá cancelar a consulta.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e63946",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Cancelar consulta",
+      cancelButtonText: "Voltar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/appointments?id=eq.${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            ...headers,
+          },
+          body: JSON.stringify({ status: "cancelled" })
+        }
+      );
+
+      if (response.ok) {
+        setConsultas((prev) =>
+          prev.map((c) =>
+            c.id === id ? { ...c, status: "cancelled" } : c
+          )
+        );
+
+        Swal.fire({
+          title: "Cancelado!",
+          text: "Consulta cancelada com sucesso.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        throw new Error('Falha no cancelamento');
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar:", error);
+      Swal.fire("Erro", "Não foi possível cancelar a consulta.", "error");
+    }
+  };
 
   const navigate = useNavigate();
   const role = getUserRole();
   const permissoes = {
-  admin: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas' , 'nomepaciente'],
-  medico: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
-  secretaria: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
-  paciente: ['']
-};
+    admin: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
+    medico: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
+    secretaria: ['editconsulta', 'deletarconsulta', 'consultaform', 'viewactionconsultas', 'nomepaciente'],
+    paciente: ['']
+  };
   const pode = (acao) => permissoes[role]?.includes(acao);
   function hasAnyAction(c) {
-  return (
-    pode('editconsulta') ||
-    pode('deletarconsulta') ||
-    (c.status === 'confirmed' && pode('viewactionconsultas')) ||
-    (c.appointment_type === 'telemedicina' && c.status === 'confirmed') ||
-    (c.status === 'requested' && pode('viewactionconsultas'))
-  );
-}
+    return (
+      pode('editconsulta') ||
+      pode('deletarconsulta') ||
+      (c.status === 'confirmed' && pode('viewactionconsultas')) ||
+      (c.appointment_type === 'telemedicina' && c.status === 'confirmed') ||
+      (c.status === 'requested' && pode('viewactionconsultas'))
+    );
+  }
   return (
     <div className="main-wrapper">
-    <div className="page-wrapper">
-    <div className="content">
-      <div className="row">
-        <div className="col-12">
-          {pode('consultaform') &&  (
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <h4 className="page-title mb-0">Lista de consultas</h4>
-            <Link to={`/${role}/consultaform`} className="btn btn-primary btn-rounded" >
-              <i className="fa fa-plus"></i> Adicionar consulta
-            </Link>
-          </div>
-          )}
-          
-          {/* Todos os filtros em uma única linha */}
-          <div className="d-flex align-items-center mb-3" style={{ gap: "0.30rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
-            {/* Campo de busca */}
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              placeholder="🔍  Buscar consulta"
-              style={{ minWidth: "300px", maxWidth: "450px", }}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            
-            {/* Filtro de status */}
-            <select
-              className="form-control form-control-sm"
-              style={{ minWidth: "80px", maxWidth: "125px", }}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">Status</option>
-              <option value="requested">Solicitado</option>
-              <option value="confirmed">Confirmado</option>
-              <option value="completed">Concluído</option>
-              <option value="cancelled">Cancelado</option>
-            </select>
+      <div className="page-wrapper">
+        <div className="content">
+          <div className="row">
+            <div className="col-12">
+              {pode('consultaform') && (
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <h4 className="page-title mb-0">Lista de consultas</h4>
+                  <Link to={`/${role}/consultaform`} className="btn btn-primary btn-rounded" >
+                    <i className="fa fa-plus"></i> Adicionar consulta
+                  </Link>
+                </div>
+              )}
 
-            {/* Filtro De */}
-            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
-              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
-              <input 
-                type="date" 
-                className="form-control form-control-sm"
-                style={{ minWidth: "130px", }}
-                value={startDate} 
-                onChange={e => {
-                  setStartDate(e.target.value);
-                  if (e.target.value) setPeriod("");
-                }} 
-              />
+              {/* Todos os filtros em uma única linha */}
+              <div className="d-flex align-items-center mb-3" style={{ gap: "0.30rem", flexWrap: "nowrap", overflowX: "auto", height: "40px" }}>
+                {/* Campo de busca */}
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="🔍  Buscar consulta"
+                  style={{ minWidth: "300px", maxWidth: "450px", }}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+
+                {/* Filtro de status */}
+                <select
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "80px", maxWidth: "125px", }}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">Status</option>
+                  <option value="requested">Solicitado</option>
+                  <option value="confirmed">Confirmado</option>
+                  <option value="completed">Concluído</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+
+                {/* Filtro De */}
+                <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+                  <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    style={{ minWidth: "130px", }}
+                    value={startDate}
+                    onChange={e => {
+                      setStartDate(e.target.value);
+                      if (e.target.value) setPeriod("");
+                    }}
+                  />
+                </div>
+
+                {/* Filtro Até */}
+                <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+                  <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm"
+                    style={{ minWidth: "130px", }}
+                    value={endDate}
+                    onChange={e => {
+                      setEndDate(e.target.value);
+                      if (e.target.value) setPeriod("");
+                    }}
+                  />
+                </div>
+
+                {/* Botões rápidos */}
+                <button
+                  className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`}
+                  style={{ minWidth: "60px", padding: "4px 8px", fontSize: "0.8rem" }}
+                  onClick={() => handlePeriodChange("today")}
+                >
+                  Hoje
+                </button>
+                <button
+                  className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`}
+                  style={{ minWidth: "70px", padding: "4px 8px", fontSize: "0.8rem" }}
+                  onClick={() => handlePeriodChange("week")}
+                >
+                  Semana
+                </button>
+                <button
+                  className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`}
+                  style={{ minWidth: "60px", padding: "4px 8px", fontSize: "0.8rem" }}
+                  onClick={() => handlePeriodChange("month")}
+                >
+                  Mês
+                </button>
+              </div>
             </div>
-            
-            {/* Filtro Até */}
-            <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
-              <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>Até:</label>
-              <input 
-                type="date" 
-                className="form-control form-control-sm"
-                style={{ minWidth: "130px", }}
-                value={endDate} 
-                onChange={e => {
-                  setEndDate(e.target.value);
-                  if (e.target.value) setPeriod("");
-                }} 
-              />
-            </div>
-
-            {/* Botões rápidos */}
-            <button 
-              className={`btn btn-sm ${period === "today" ? "btn-primary" : "btn-outline-primary"}`} 
-              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
-              onClick={() => handlePeriodChange("today")}
-            >
-              Hoje
-            </button>
-            <button 
-              className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} 
-              style={{ minWidth: "70px",  padding: "4px 8px", fontSize: "0.8rem" }}
-              onClick={() => handlePeriodChange("week")}
-            >
-              Semana
-            </button>
-            <button 
-              className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} 
-              style={{ minWidth: "60px",  padding: "4px 8px", fontSize: "0.8rem" }}
-              onClick={() => handlePeriodChange("month")}
-            >
-              Mês
-            </button>
           </div>
-        </div>
-      </div>
 
-      <div className="row">
-        <div className="col-md-12">
-          <div className="table-responsive">
-            <table className="table table-striped custom-table">
-              <thead>
-                <tr>
-                   <th className="text-center">Pedido</th>
-                  {pode('nomepaciente') && <th className="text-center">Nome do Paciente</th>}
-                  <th className="text-center">Nome do Médico</th>
-                  <th className="text-center">Agendado</th>
-                  <th className="text-center">Duração</th>
-                  <th className="text-center">Modo</th>
-                  <th className="text-center">Status</th>
-                  {currentConsultas.some(hasAnyAction) && <th className="text-center">Ação</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {currentConsultas.length > 0 ? (
-                  currentConsultas.map((c) => (
-                    <tr key={c.id}>
-                      <td className="text-center">{c.order_number}</td>
-                      {pode('nomepaciente') && <td className="text-center">{pacientesMap[c.patient_id] || "Carregando..."}</td>}
-                      <td className="text-center">{medicosMap[c.doctor_id] || "Carregando..."}</td>
-                      <td className="text-center">{formatDate(c.scheduled_at)}</td>
-                      <td className="text-center">{c.duration_minutes} min</td>
-                      <td className="text-center">
-                        <span 
-                          className={`custom-badge ${
-                            c.appointment_type === 'presencial' ? 'status-green' :
-                            c.appointment_type === 'telemedicina' ? 'status-blue' :
-                            'status-gray'
-                          }`}
-                          style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        >
-                          {c.appointment_type === 'presencial' ? (
-                            <>
-                              <i className="fa fa-hospital-o" style={{ marginRight: '6px' }}></i>
-                              Presencial
-                            </>
-                          ) : c.appointment_type === 'telemedicina' ? (
-                            <>
-                              <i className="fa fa-video-camera" style={{ marginRight: '6px' }}></i>
-                              Telemedicina
-                            </>
-                          ) : (
-                            c.appointment_type
-                          )}
-                        </span>
-                      </td>
-                      <td className="text-center">
-                        
-                        <span
-                          className={`custom-badge ${
-                            c.status === 'requested' ? 'status-purple' :
-                            c.status === 'confirmed' ? 'status-blue' :
-                            c.status === 'completed' ? 'status-green' :
-                            c.status === 'cancelled' ? 'status-red' :
-                            'status-gray'
-                          }`}
-                          style={{ minWidth: '120px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-                        >
-                          {c.status === 'requested' ? (
-                            <>
-                              <i className="fa fa-clock-o" style={{ marginRight: '6px' }}></i>
-                              Solicitado
-                            </>
-                          ) : c.status === 'confirmed' ? (
-                            <>
-                              <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
-                              Confirmado
-                            </>
-                          ) : c.status === 'completed' ? (
-                            <>
-                              <i className="fa fa-check" style={{ marginRight: '6px' }}></i>
-                              Concluído
-                            </>
-                          ) : c.status === 'cancelled' ? (
-                            <>
-                              <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
-                              Cancelado
-                            </>
-                          ) : (
-                            <>
-                              <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
-                              {c.status}
-                            </>
-                          )}
-                        </span>
-                      </td>
-                      {currentConsultas.some(hasAnyAction) && (
-                        hasAnyAction(c) ? (
-                        <td className="text-right">
-                        <div className="action-buttons-container">
-                          {c.appointment_type !== 'telemedicina' && c.status === 'confirmed' && (
-                            <button
-                                 type="button"
-                                 className="btn btn-success btn-sm"
-                                 onClick={() => navigate(`/${role}/laudoconsulta`, {state: { consultaId: c.id, pacienteId: c.patient_id}})}
-                                 title="Atender consulta"
-                                 style={{ minWidth: 120, fontWeight: 600 }}
-                               >
-                                 Atender
-                               </button>
-                          )}
-                          {c.appointment_type === 'telemedicina' && c.status === 'confirmed' && (
-                               <button
-                                 type="button"
-                                 className="btn btn-success btn-sm"
-                                 onClick={() => navigate(`/call/${c.id}`)}
-                                 title="Atender consulta"
-                                 style={{ minWidth: 120, fontWeight: 600 }}
-                               >
-                                 Atender
-                               </button>
-                              )}
-                          {pode('editconsulta') &&  (
-                              <button
-                                type="button"
-                                className="action-btn action-btn-edit"
-                                onClick={() => navigate(`/${role}/editconsulta/${c.id}`)}
-                                title="Editar consulta"
-                              >
-                                <span className="fa fa-pencil m-r-5"></span>
-                              </button>
-                            )}
-                              
-                              {c.status === 'requested' && pode('viewactionconsultas') &&  (
-                                <>
-                                  <button
-                                    type="button"
-                                    className="action-btn action-btn-edit"
-                                    onClick={() => handleConfirm(c.id)}
-                                    title="Confirmar consulta"
-                                    
-                                  >
-                                    <span className="fa fa-check"></span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="action-btn action-btn-delete"
-                                    onClick={() => handleCancel(c.id)}
-                                    title="Cancelar consulta"
-                                    
-                                  >
-                                    <span className="fa fa-times"></span>
-                                  </button>
-                                </>
-                                )}
-                              
-                            </div>
-                      </td>
-                      ) : (
-                        <td className="text-center">-</td>
-                      )
-                      )}
+          <div className="row">
+            <div className="col-md-12">
+              <div className="table-responsive">
+                <table className="table table-striped custom-table">
+                  <thead>
+                    <tr>
+                      <th className="text-center">Pedido</th>
+                      {pode('nomepaciente') && <th className="text-center">Nome do Paciente</th>}
+                      <th className="text-center">Nome do Médico</th>
+                      <th className="text-center">Agendado</th>
+                      <th className="text-center">Duração</th>
+                      <th className="text-center">Modo</th>
+                      <th className="text-center">Status</th>
+                      {currentConsultas.some(hasAnyAction) && <th className="text-center">Ação</th>}
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center text-muted">
-                      Nenhuma consulta encontrada.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-                        <div className="d-flex flex-wrap align-items-center mt-3">
+                  </thead>
+                  <tbody>
+                    {currentConsultas.length > 0 ? (
+                      currentConsultas.map((c) => (
+                        <tr key={c.id}>
+                          <td className="text-center">{c.order_number}</td>
+                          {pode('nomepaciente') && <td className="text-center">{pacientesMap[c.patient_id] || "Carregando..."}</td>}
+                          <td className="text-center">{medicosMap[c.doctor_id] || "Carregando..."}</td>
+                          <td className="text-center">{formatDate(c.scheduled_at)}</td>
+                          <td className="text-center">{c.duration_minutes} min</td>
+                          <td className="text-center">
+                            <span
+                              className={`custom-badge ${c.appointment_type === 'presencial' ? 'status-green' :
+                                  c.appointment_type === 'telemedicina' ? 'status-blue' :
+                                    'status-gray'
+                                }`}
+                              style={{ minWidth: '110px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              {c.appointment_type === 'presencial' ? (
+                                <>
+                                  <i className="fa fa-hospital-o" style={{ marginRight: '6px' }}></i>
+                                  Presencial
+                                </>
+                              ) : c.appointment_type === 'telemedicina' ? (
+                                <>
+                                  <i className="fa fa-video-camera" style={{ marginRight: '6px' }}></i>
+                                  Telemedicina
+                                </>
+                              ) : (
+                                c.appointment_type
+                              )}
+                            </span>
+                          </td>
+                          <td className="text-center">
+
+                            <span
+                              className={`custom-badge ${c.status === 'requested' ? 'status-purple' :
+                                  c.status === 'confirmed' ? 'status-blue' :
+                                    c.status === 'completed' ? 'status-green' :
+                                      c.status === 'cancelled' ? 'status-red' :
+                                        'status-gray'
+                                }`}
+                              style={{ minWidth: '120px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              {c.status === 'requested' ? (
+                                <>
+                                  <i className="fa fa-clock-o" style={{ marginRight: '6px' }}></i>
+                                  Solicitado
+                                </>
+                              ) : c.status === 'confirmed' ? (
+                                <>
+                                  <i className="fa fa-check-circle" style={{ marginRight: '6px' }}></i>
+                                  Confirmado
+                                </>
+                              ) : c.status === 'completed' ? (
+                                <>
+                                  <i className="fa fa-check" style={{ marginRight: '6px' }}></i>
+                                  Concluído
+                                </>
+                              ) : c.status === 'cancelled' ? (
+                                <>
+                                  <i className="fa fa-times-circle" style={{ marginRight: '6px' }}></i>
+                                  Cancelado
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fa fa-question-circle" style={{ marginRight: '6px' }}></i>
+                                  {c.status}
+                                </>
+                              )}
+                            </span>
+                          </td>
+                          {currentConsultas.some(hasAnyAction) && (
+                            hasAnyAction(c) ? (
+                              <td className="text-right">
+                                <div className="action-buttons-container">
+                                  {c.appointment_type !== 'telemedicina' && c.status === 'confirmed' && (
+                                    <button
+                                      type="button"
+                                      className="action-btn action-btn-edit"
+                                      onClick={() => navigate(`/${role}/laudoconsulta`, { state: { consultaId: c.id, pacienteId: c.patient_id } })}
+                                      title="Atender consulta"
+                                    >
+                                      <span className="fa fa-phone"></span>
+                                    </button>
+                                  )}
+                                  {c.appointment_type === 'telemedicina' && c.status === 'confirmed' && (
+                                    <button
+                                      type="button"
+                                      className="action-btn action-btn-edit"
+                                      title="Atender consulta"
+                                      onClick={() => navigate(`/call/${c.id}`)}
+                                    >
+                                      
+                                      <span className="fa fa-phone"></span>
+                                    </button>
+                                  )}
+                                  {pode('editconsulta') && (
+                                    <button
+                                      type="button"
+                                      className="action-btn action-btn-edit"
+                                      onClick={() => navigate(`/${role}/editconsulta/${c.id}`)}
+                                      title="Editar consulta"
+                                    >
+                                      <span className="fa fa-pencil m-r-5"></span>
+                                    </button>
+                                  )}
+
+                                  {c.status === 'requested' && pode('viewactionconsultas') && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        className="action-btn action-btn-edit"
+                                        onClick={() => handleConfirm(c.id)}
+                                        title="Confirmar consulta"
+
+                                      >
+                                        <span className="fa fa-check"></span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="action-btn action-btn-delete"
+                                        onClick={() => handleCancel(c.id)}
+                                        title="Cancelar consulta"
+
+                                      >
+                                        <span className="fa fa-times"></span>
+                                      </button>
+                                    </>
+                                  )}
+
+                                </div>
+                              </td>
+                            ) : (
+                              <td className="text-center">-</td>
+                            )
+                          )}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="text-center text-muted">
+                          Nenhuma consulta encontrada.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="d-flex flex-wrap align-items-center mt-3">
                 <div className="me-3 text-muted" style={{ minWidth: '140px', fontSize: '0.98em', paddingRight: '3%' }}>
                   Total encontrados: <b>{filteredConsultas.length}</b>
                 </div>
@@ -802,11 +799,11 @@ const handleCancel = async (id) => {
                   </ul>
                 </nav>
               </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div> 
-</div>
   );
 }
 
