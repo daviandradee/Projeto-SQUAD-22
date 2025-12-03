@@ -1,3 +1,5 @@
+// --- SEU JSX COMPLETO ---
+
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -46,28 +48,21 @@ export default function DoctorCalendar() {
   const doctor_id = getDoctorId();
   const tokenUsuario = getAccessToken();
 
-  // Buscar consultas do médico logado
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const requestOptions = {
           method: "GET",
-          headers: {
-            apikey: supabaseAK,
-            Authorization: `Bearer ${tokenUsuario}`,
-          },
-          redirect: "follow",
+          headers: { apikey: supabaseAK, Authorization: `Bearer ${tokenUsuario}` },
         };
 
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/appointments?doctor_id=eq.${doctor_id}`,
-          requestOptions
+          `${supabaseUrl}/rest/v1/appointments?doctor_id=eq.${doctor_id}`, requestOptions
         );
 
         const result = await response.json();
         const consultas = Array.isArray(result) ? result : [];
 
-        // Buscar nomes dos pacientes
         const idsUnicos = [...new Set(consultas.map((c) => c.patient_id))];
         const promises = idsUnicos.map(async (id) => {
           try {
@@ -75,13 +70,9 @@ export default function DoctorCalendar() {
               `${supabaseUrl}/rest/v1/patients?id=eq.${id}`,
               {
                 method: "GET",
-                headers: {
-                  apikey: supabaseAK,
-                  Authorization: `Bearer ${tokenUsuario}`,
-                },
+                headers: { apikey: supabaseAK, Authorization: `Bearer ${tokenUsuario}` },
               }
             );
-            if (!res.ok) return { id, full_name: "Paciente não encontrado" };
             const data = await res.json();
             return { id, full_name: data?.[0]?.full_name || "Nome não encontrado" };
           } catch {
@@ -94,9 +85,7 @@ export default function DoctorCalendar() {
         pacientes.forEach((p) => (map[p.id] = p.full_name));
         setPacientesMap(map);
 
-        // Converter consultas para eventos do calendário
         const calendarEvents = consultas.map((consulta) => {
-          // Extrai data e horário diretamente da string ISO, sem criar Date
           const [date, timeFull] = consulta.scheduled_at.split('T');
           const time = timeFull ? timeFull.substring(0, 5) : '';
           return {
@@ -117,12 +106,9 @@ export default function DoctorCalendar() {
       }
     };
 
-    if (doctor_id) {
-      fetchAppointments();
-    }
+    if (doctor_id) fetchAppointments();
   }, [doctor_id, tokenUsuario]);
 
-  // Clicar em um dia -> abrir popup 3 etapas
   const handleDateClick = (arg) => {
     setSelectedDate(arg.dateStr);
     setNewEvent({ title: "", time: "" });
@@ -131,20 +117,19 @@ export default function DoctorCalendar() {
     setShowPopup(true);
   };
 
-  // Adicionar nova consulta
   const handleAddEvent = () => {
     const eventToAdd = {
-      id: Date.now(), // number
+      id: Date.now(),
       title: newEvent.title,
       time: newEvent.time,
       date: selectedDate,
+      start: `${selectedDate}T${newEvent.time}:00`,
       color: colorsByType[newEvent.type] || "#4dabf7"
     };
     setEvents((prev) => [...prev, eventToAdd]);
     setShowPopup(false);
   };
 
-  // Editar consulta existente
   const handleEditEvent = () => {
     setEvents((prevEvents) =>
       prevEvents.map((ev) =>
@@ -153,6 +138,7 @@ export default function DoctorCalendar() {
               ...ev,
               title: newEvent.title,
               time: newEvent.time,
+              start: `${ev.date}T${newEvent.time}:00`,
               color: colorsByType[newEvent.type] || "#4dabf7"
             }
           : ev
@@ -163,49 +149,22 @@ export default function DoctorCalendar() {
     setShowActionModal(false);
   };
 
-  // Próxima etapa no popup
   const handleNextStep = () => {
     if (step < 2) setStep(step + 1);
     else editingEvent ? handleEditEvent() : handleAddEvent();
   };
 
-  // Clicar em uma consulta -> abre modal de ação (Editar/Apagar)
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setShowActionModal(true);
   };
 
-  // Apagar consulta
-  const handleDeleteEvent = () => {
-    if (!selectedEvent) return;
-    setEvents((prevEvents) =>
-      prevEvents.filter(
-        (ev) => ev.id.toString() !== selectedEvent.id.toString()
-      )
-    );
-    setShowActionModal(false);
-  };
-
-  // Começar a editar
-  const handleStartEdit = () => {
-    if (!selectedEvent) return;
-    setEditingEvent(selectedEvent);
-    setNewEvent({
-      title: selectedEvent.title,
-      time: selectedEvent.extendedProps.time
-    });
-    setStep(1);
-    setShowActionModal(false);
-    setShowPopup(true);
-  };
-
-  // Aparência da consulta dentro do calendário
   const renderEventContent = (eventInfo) => {
     const bg =
       eventInfo.event.backgroundColor ||
       eventInfo.event.extendedProps?.color ||
       "#4dabf7";
-    
+
     const appointmentType = eventInfo.event.extendedProps?.type || "presencial";
     const typeLabel = appointmentType === "presencial" ? "Presencial" : "Online";
 
@@ -222,13 +181,12 @@ export default function DoctorCalendar() {
           backgroundColor: bg,
           color: "#fff",
           cursor: "pointer",
-          // Mantém o retângulo pequeno e evita estourar a célula:
           maxWidth: "100%",
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "ellipsis"
         }}
-        title={`${eventInfo.event.title} • ${typeLabel} • ${eventInfo.event.extendedProps.time}`} // tooltip
+        title={`${eventInfo.event.title} • ${typeLabel} • ${eventInfo.event.extendedProps.time}`}
       >
         <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
           {eventInfo.event.title}
@@ -241,236 +199,58 @@ export default function DoctorCalendar() {
 
   return (
     <div className="page-wrapper">
-    <div
-      className="calendar-container"
-      style={{ padding: 20, display: "flex", justifyContent: "center" }}
-    >
-      <div style={{ width: "95%", maxWidth: "none" }}>
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: "prev,next",
-            center: "title",
-            right: "today,dayGridMonth,timeGridWeek,timeGridDay"
-          }}
-          buttonText={{
-            today: "Hoje",
-            month: "Mês",
-            week: "Semana",
-            day: "Dia"
-          }}
-          locale={ptBrLocale}
-          height="80vh"
-          dateClick={handleDateClick}
-          events={events.map((ev) => ({
-            id: ev.id,
-            title: ev.title,
-            date: ev.date,
-            color: ev.color, // para o FullCalendar
-            extendedProps: {
-              type: ev.type,
-              time: ev.time,
-              color: ev.color, // para o nosso renderEventContent
-              appointmentData: ev.appointmentData // dados completos da consulta
-            }
-          }))}
-          eventContent={renderEventContent}
-          eventClick={handleEventClick}
-          dayCellClassNames="calendar-day-cell"
-        />
+      <div className="calendar-container" style={{ padding: 20, display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "95%", maxWidth: "none" }}>
+          
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: "prev,next",
+              center: "title",
+              right: "today,dayGridMonth,timeGridWeek,timeGridDay"
+            }}
+            buttonText={{
+              today: "Hoje",
+              month: "Mês",
+              week: "Semana",
+              day: "Dia"
+            }}
+            locale={ptBrLocale}
+            height="80vh"
+            dateClick={handleDateClick}
+
+            /* intervalos de meia hora */
+            slotDuration="00:30:00"
+            slotLabelInterval="00:30"
+
+            /* ADICIONADO PARA DEIXAR A PARTE AZUL ESTILIZÁVEL */
+            slotLabelContent={(arg) => {
+              return {
+                html: `<span class="fc-timegrid-slot-label-cushion" data-time="${arg.text}">${arg.text}</span>`
+              };
+            }}
+
+            events={events.map((ev) => ({
+              id: ev.id,
+              title: ev.title,
+              start: `${ev.date}T${ev.time}:00`,
+              color: ev.color,
+              extendedProps: {
+                type: ev.type,
+                time: ev.time,
+                color: ev.color,
+                appointmentData: ev.appointmentData
+              }
+            }))}
+
+            eventContent={renderEventContent}
+            eventClick={handleEventClick}
+            dayCellClassNames="calendar-day-cell"
+          />
+
+        </div>
       </div>
-
-      {/* POPUP 3 etapas (Adicionar/Editar) */}
-      {showPopup && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 8,
-              width: 320
-            }}
-          >
-            {step === 1 && (
-              <>
-                <h3 style={{ marginBottom: 8 }}>Nome do paciente</h3>
-                <input
-                  type="text"
-                  value={newEvent.title}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, title: e.target.value })
-                  }
-                  placeholder="Digite o nome"
-                  style={{
-                    width: "100%",
-                    marginBottom: 12,
-                    padding: 8,
-                    borderRadius: 6,
-                    border: "1px solid #ddd"
-                  }}
-                />
-                <button
-                  onClick={handleNextStep}
-                  disabled={!newEvent.title}
-                  style={{
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 6,
-                    border: "none",
-                    background: newEvent.title ? "#4dabf7" : "#c7dbf8",
-                    color: "#fff",
-                    cursor: newEvent.title ? "pointer" : "not-allowed"
-                  }}
-                >
-                  Próximo
-                </button>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <h3 style={{ marginBottom: 8 }}>Horário</h3>
-                <input
-                  type="time"
-                  value={newEvent.time}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, time: e.target.value })
-                  }
-                  style={{
-                    width: "100%",
-                    marginBottom: 12,
-                    padding: 8,
-                    borderRadius: 6,
-                    border: "1px solid #ddd"
-                  }}
-                />
-                <button
-                  onClick={handleNextStep}
-                  disabled={!newEvent.time}
-                  style={{
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 6,
-                    border: "none",
-                    background: newEvent.time ? "#4dabf7" : "#c7dbf8",
-                    color: "#fff",
-                    cursor: newEvent.time ? "pointer" : "not-allowed"
-                  }}
-                >
-                  {editingEvent ? "Salvar Alterações" : "Adicionar"}
-                </button>
-              </>
-            )}
-
-            <button
-              onClick={() => setShowPopup(false)}
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                borderRadius: 6,
-                border: "none",
-                background: "#ccc",
-                color: "#222",
-                cursor: "pointer"
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL de ação ao clicar em consulta */}
-      {showActionModal && selectedEvent && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1100
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 8,
-              width: 360,
-              textAlign: "left"
-            }}
-          >
-            <h3 style={{ marginBottom: 12, textAlign: "center" }}>Detalhes da Consulta</h3>
-            <div style={{ marginBottom: 16, fontSize: "0.9rem" }}>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Paciente:</strong> {selectedEvent.title}
-              </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Tipo:</strong> {selectedEvent.extendedProps?.type === "presencial" ? "Presencial" : "Online"}
-              </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Horário:</strong> {selectedEvent.extendedProps?.time || "Não informado"}
-              </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Data:</strong> {
-                  selectedEvent.start
-                    ? (() => {
-                        let dateStr =
-                          typeof selectedEvent.start === "string"
-                            ? selectedEvent.start
-                            : selectedEvent.start instanceof Date
-                            ? selectedEvent.start.toISOString()
-                            : "";
-                        return formatDateTime(dateStr).split(" ")[0];
-                      })()
-                    : "Não informado"
-                }
-              </p>
-              {selectedEvent.extendedProps?.appointmentData?.chief_complaint && (
-                <p style={{ margin: "8px 0" }}>
-                  <strong>Queixa:</strong> {selectedEvent.extendedProps.appointmentData.chief_complaint}
-                </p>
-              )}
-              {selectedEvent.extendedProps?.appointmentData?.patient_notes && (
-                <p style={{ margin: "8px 0" }}>
-                  <strong>Observações:</strong> {selectedEvent.extendedProps.appointmentData.patient_notes}
-                </p>
-              )}
-            </div>
-
-            <button
-              onClick={() => setShowActionModal(false)}
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                borderRadius: 6,
-                border: "none",
-                background: "#4dabf7",
-                color: "#fff",
-                cursor: "pointer"
-              }}
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
     </div>
   );
 }
