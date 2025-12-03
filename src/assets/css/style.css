@@ -5020,3 +5020,112 @@ blockquote p {
 		margin-bottom: 10px;
 	}
 }
+
+/* ================================================= */
+/* ===== GERAL: Telas Médias (max-width: 991px) ===== */
+/* ================================================= */
+@media (max-width: 991px) {
+    .header .header-left {
+        width: 180px;
+        padding: 0 10px;
+    }
+
+    .logo span {
+        font-size: 16px;
+    }
+
+    .page-title-box h3 {
+        font-size: 16px;
+    }
+
+    .user-menu.nav > li > a {
+        padding: 0 10px;
+        font-size: 15px;
+    }
+}
+
+
+/* ========================================================= */
+/* ===== CORREÇÃO DEFINITIVA MOBILE (max-width: 768px) ==== */
+/* ========================================================= */
+
+@media (max-width: 768px) {
+    
+    /* Impede rolagem lateral */
+    html, body {
+        overflow-x: hidden;
+    }
+
+    /* 1. Header como Container Flex */
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        z-index: 1050; 
+        
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        padding: 0 10px;
+    }
+
+    /* 2. Botão da Sidebar (#mobile_btn) - Fica à esquerda */
+    #mobile_btn {
+        position: static; 
+        z-index: 1045; 
+        order: 1; 
+        margin-right: 10px;
+    }
+    
+    /* 3. Container da Logo (.header-left) - REMOVIDO NO MOBILE */
+    .header .header-left {
+        /* A logo será escondida */
+        display: none; 
+    }
+    
+    /* Ajuste para que o Menu e o Botão fiquem nas extremidades quando a Logo é removida */
+    .user-menu {
+        position: static;
+        width: auto;
+        order: 3; 
+        height: 50px;
+        display: flex;
+        align-items: center;
+        float: none; 
+        padding-right: 0; 
+        
+        /* Centraliza o Menu do Usuário corretamente à direita quando a logo desaparece */
+        margin-left: auto;
+    }
+
+    /* Esconde o título */
+    .page-title-box {
+        display: none; 
+    }
+
+    /* Ajustes finos de tamanho */
+    .user-menu.nav > li > a {
+        padding: 0 8px;
+        font-size: 14px;
+    }
+}
+
+
+/* ========================================================= */
+/* ===== GERAL: Telas Muito Pequenas (max-width: 480px) ===== */
+/* ========================================================= */
+@media (max-width: 480px) {
+    /* Não há necessidade de regras para .logo span ou .header-left aqui, 
+       pois o display: none já foi aplicado acima. */
+
+    .user-menu.nav > li > a {
+        padding: 0 6px;
+        font-size: 13px;
+    }
+
+    .header .user-img img {
+        width: 20px;
+    }
+}
