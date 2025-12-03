@@ -422,8 +422,53 @@ function LaudoList() {
         });
         return;
       }
-      const printWindow = window.open('', '_blank', 'width=900,height=700');
-      printWindow.document.write(`<!DOCTYPE html><html><head><title>Laudo de ${pacientesMap[data[0]?.patient_id]}</title></head><body>${contentHtml}</body></html>`);
+      // Caminho da logo (ajuste se necessário)
+      const logoUrl = '/public/img/logomedconnect.png';
+      const pacienteNome = pacientesMap[data[0]?.patient_id] || 'Paciente';
+      const pedido = data[0]?.order_number || 'N/A';
+      const exame = data[0]?.exam || 'N/A';
+      const dataCriacao = formatDate(data[0]?.created_at);
+      const medicoNome = medicosMap[data[0]?.requested_by] || data[0]?.requested_by || '';
+      const printWindow = window.open('', '', 'width=900,height=700');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Laudo Médico - ${pacienteNome}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              .header { display: flex; align-items: center; border-bottom: 2px solid #1976d2; padding-bottom: 16px; margin-bottom: 32px; }
+              .logo { height: 60px; margin-right: 24px; }
+              .clinic-info { font-size: 1.2em; color: #1976d2; }
+              .laudo-title { font-size: 2em; margin: 0; }
+              .patient-info { margin-bottom: 24px; }
+              .patient-info strong { color: #1976d2; }
+              .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 12px; color: #888; font-size: 0.95em; text-align: center; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <img src="${logoUrl}" class="logo" alt="Logo"/>
+              <div>
+                <div class="clinic-info"><strong>MedConnect</strong> - Sistema de Laudos</div>
+                <div>${new Date().toLocaleDateString('pt-BR')}</div>
+              </div>
+            </div>
+            <div class="patient-info">
+              <strong>Paciente:</strong> ${pacienteNome}<br/>
+              <strong>Pedido:</strong> ${pedido}<br/>
+              <strong>Exame:</strong> ${exame}<br/>
+              <strong>Médico:</strong> ${medicoNome}<br/>
+              <strong>Data:</strong> ${dataCriacao}
+            </div>
+            <h2 class="laudo-title" style="color: #1976d2;">Laudo Médico</h2>
+            <div>${contentHtml}</div>
+            <div class="footer">
+              Gerado por MedConnect &copy; ${new Date().getFullYear()}
+            </div>
+          </body>
+        </html>
+      `);
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
