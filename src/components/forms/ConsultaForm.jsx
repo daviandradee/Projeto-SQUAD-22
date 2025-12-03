@@ -6,6 +6,7 @@ import { getAccessToken } from "../../utils/auth";
 import { getUserId } from "../../utils/userInfo";
 import { sendSMS } from "../../utils/sendSMS";
 import { getUserRole } from "../../utils/userInfo";
+import emailjs from 'emailjs-com';
 
 function ConsultaForm() {
   const role = getUserRole();
@@ -19,6 +20,9 @@ function ConsultaForm() {
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://yuanqfswhberkoevtmfr.supabase.co";
   const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+  const servicekey = import.meta.env.VITE_SERVICE_KEY 
+  const templatekey = import.meta.env.VITE_TEMPLATE_KEY 
+  const publickey = import.meta.env.VITE_PUBLIC_KEY 
 
   const [formData, setFormData] = useState({
     appointment_type: "presencial",
@@ -224,30 +228,32 @@ function ConsultaForm() {
         const pacienteSelecionado = pacientes.find(
           (p) => String(p.id) === String(formData.patient_id)
         );
-        const telefone =
-          pacienteSelecionado?.phone_mobile ||
-          pacienteSelecionado?.phone_number ||
-          pacienteSelecionado?.phone ||
-          pacienteSelecionado?.telefone ||
+        const email =
+          pacienteSelecionado?.email ||
           null;
 
-        if (telefone && telefone.trim() !== "") {
-          const numeroFormatado = telefone.startsWith("+")
-            ? telefone
-            : `+55${telefone.replace(/\D/g, "")}`;
-
-          const mensagem = `Lembrete: sua consulta é dia ${formData.scheduled_date} às ${formData.scheduled_time} na Clínica MediConnect.`;
-
+        if (email){
           try {
-            await sendSMS(numeroFormatado, mensagem, formData.patient_id);
-            console.log("✅ SMS enviado com sucesso para", numeroFormatado);
-          } catch (smsError) {
-            console.error("❌ Erro ao enviar SMS:", smsError);
+            await emailjs.send(
+              `${servicekey}`,
+              `${templatekey}`, 
+              {
+                nome_do_paciente: pacienteSelecionado.name || pacienteSelecionado.full_name || `Paciente #${pacienteSelecionado.id}`,
+                date: formData.scheduled_date,
+                time: formData.scheduled_time,
+                doctor_name: medicos.find((m) => String(m.id) === String(formData.doctor_id))?.full_name ||
+             medicos.find((m) => String(m.id) === String(formData.doctor_id))?.full_name ||
+             medicos.find((m) => String(m.id) === String(formData.doctor_id))?.doctor_name ||
+             `Médico #${formData.doctor_id}`,
+                email: email,
+              },
+              `${publickey}`
+            );
+            console.log("Email de confirmação enviado com sucesso!");
+          } catch (error) {
+            console.error("Erro ao enviar email de confirmação:", error);
           }
-        } else {
-          console.warn("⚠️ Paciente sem telefone cadastrado — SMS não enviado.");
         }
-  
         Swal.fire({
           title: "Sucesso!",
           text: "Consulta criada com sucesso!",
