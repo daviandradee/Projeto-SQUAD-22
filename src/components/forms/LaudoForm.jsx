@@ -11,7 +11,8 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { FaMicrophone } from "react-icons/fa";
 import { InterimMark } from '../../utils/InterimMark'; // <-- Verifique se esse caminho está certo!
-import { getUserRole } from '../../utils/userInfo';
+import { getUserRole, getDoctorId } from '../../utils/userInfo';
+
 
 function Bar({ comandos, handleSubmit, toggleRecording, isRecording }) {
     const inputRef = useRef(null);
@@ -182,7 +183,7 @@ function LaudoForm() {
         cid_code: "",
         content_html: "",
         status: "draft",
-        requested_by: "Dr.Davi",
+        requested_by: getDoctorId(),
     });
     const handlePacienteChange = (selected) => {
         setLaudos(prev => ({

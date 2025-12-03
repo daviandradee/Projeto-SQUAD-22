@@ -3,6 +3,7 @@ import { getAccessToken } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { getDoctorId } from "../../utils/userInfo";
 import Swal from "sweetalert2";
+import { getUserRole } from "../../utils/userInfo";
 
 const TranscriptBlock = ({ appointmentId, doctor_id, patient_id, exam }) => {
     const [transcript, setTranscript] = useState("");
@@ -167,7 +168,7 @@ const TranscriptBlock = ({ appointmentId, doctor_id, patient_id, exam }) => {
                 showConfirmButton: false,
                 timer: 1800
             });
-            navigate("/"); // Altere para o caminho do seu menu/dash se necessário
+            navigate(`/${getUserRole()}/consultalist`); // Altere para o caminho do seu menu/dash se necessário
         } catch (err) {
             await Swal.fire({
                 icon: 'error',
