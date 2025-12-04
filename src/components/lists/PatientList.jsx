@@ -93,6 +93,13 @@ function PatientList() {
   // 🟢 ADICIONADO — controla o modal e o paciente selecionado
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  // Função para alternar ordenação alfabética
+  function handleSort() {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  }
+
   const role = getUserRole();
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -298,8 +305,18 @@ function PatientList() {
   const [currentPage1, setCurrentPage1] = useState(1);
   const indexOfLastPatient = currentPage1 * itemsPerPage1;
   const indexOfFirstPatient = indexOfLastPatient - itemsPerPage1;
-  const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient);
-  const totalPages1 = Math.ceil(filteredPatients.length / itemsPerPage1);
+  // Aplica ordenação alfabética após filtrar
+  let sortedPatients = [...filteredPatients];
+  sortedPatients.sort((a, b) => {
+    const nomeA = (a.full_name || "").toLowerCase();
+    const nomeB = (b.full_name || "").toLowerCase();
+    if (nomeA < nomeB) return sortOrder === "asc" ? -1 : 1;
+    if (nomeA > nomeB) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const currentPatients = sortedPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+  const totalPages1 = Math.ceil(sortedPatients.length / itemsPerPage1);
   useEffect(() => {
     setCurrentPage1(1);
   }, [search, sexFilter]);
@@ -388,19 +405,6 @@ function PatientList() {
                   onChange={(e) => setSearch(e.target.value)}
                   style={{ minWidth: "300px", maxWidth: "450px" }}
                 />
-
-                {/* Filtro por sexo */}
-                <select
-                  className="form-control form-control-sm"
-                  style={{ minWidth: "100px", maxWidth: "140px" }}
-                  value={sexFilter}
-                  onChange={(e) => setSexFilter(e.target.value)}
-                >
-                  <option value="">Todos os sexos</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="feminino">Feminino</option>
-                  <option value="outros">Outros</option>
-                </select>
                 {/* Filtro por data de nascimento (de) */}
                 <span style={{ fontSize: '0.95em', marginLeft: '8px', marginRight: '2px' }}>De:</span>
                 <input
@@ -423,6 +427,17 @@ function PatientList() {
                   placeholder="Nascimento até"
                   title="Nascimento até"
                 />
+                <select
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "100px", maxWidth: "140px" }}
+                  value={sexFilter}
+                  onChange={(e) => setSexFilter(e.target.value)}
+                >
+                  <option value="">Todos os sexos</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="outros">Outros</option>
+                </select>
                 {/* Filtro por faixa etária */}
                 <select
                   className="form-control form-control-sm"
@@ -463,7 +478,10 @@ function PatientList() {
                 <table className="table table-border table-striped custom-table datatable mb-0">
                   <thead>
                     <tr>
-                      <th>Nome</th>
+                    <th style={{ cursor: "pointer" }} onClick={handleSort}>
+                        Nome {sortOrder === "asc" ? "▲" : "▼"}
+                      </th>
+                      
                       <th>Cpf</th>
                       <th>Data de Nascimento</th>
                       <th>Telefone</th>

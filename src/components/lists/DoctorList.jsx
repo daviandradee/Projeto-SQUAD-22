@@ -15,6 +15,8 @@ function DoctorList() {
   const [specialtyFilter, setSpecialtyFilter] = useState(""); // Filtro por especialidade
   const [doctors, setDoctors] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [cityFilter, setCityFilter] = useState("");
+
   const tokenUsuario = getAccessToken()
   const role = getUserRole();
   var myHeaders = new Headers();
@@ -198,6 +200,9 @@ function DoctorList() {
     }
   };
 
+  // Extrai cidades únicas dos médicos
+  const cityOptions = Array.from(new Set(doctors.map(doc => doc.city).filter(Boolean))).sort();
+
   // Função de filtragem (mesmo padrão do PatientList)
   const filteredDoctors = doctors.filter(doctor => {
     if (!doctor) return false;
@@ -216,8 +221,14 @@ function DoctorList() {
       const doctorSpecialty = (doctor.specialty || "").toLowerCase().trim();
       matchesSpecialty = doctorSpecialty.includes(specialtyFilter.toLowerCase());
     }
+
+    // Filtro por cidade/região
+    let matchesCity = true;
+    if (cityFilter) {
+      matchesCity = (doctor.city || "").toLowerCase() === cityFilter.toLowerCase();
+    }
     
-    return matchesSearch && matchesSpecialty;
+    return matchesSearch && matchesSpecialty && matchesCity;
   });
   const permissoes = {
   admin: ['adddoctor'],
@@ -281,6 +292,19 @@ function DoctorList() {
                 <option value="medicina interna">Medicina Interna</option>
                 <option value="medicina de família">Medicina de Família</option>
                 <option value="radiologia">Radiologia</option>
+              </select>
+              
+              {/* Filtro por cidade/região */}
+              <select
+                className="form-control form-control-sm"
+                style={{ minWidth: "150px", maxWidth: "200px" }}
+                value={cityFilter}
+                onChange={e => setCityFilter(e.target.value)}
+              >
+                <option value="">Todas as cidades</option>
+                {cityOptions.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
               </select>
               
               {/* Contador de resultados */}
