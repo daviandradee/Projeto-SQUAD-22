@@ -383,9 +383,9 @@ function DoctorDashboard() {
               <div className="card-body">
                 <div className="row">
                   <div className="col-md-3 col-sm-6 mb-3">
-                    <Link to={`/${role}/consultaform`} className="btn btn-outline-primary btn-lg w-100" style={{ borderRadius: '10px' }}>
-                      <i className="fa fa-calendar-plus-o mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
-                      Nova Consulta
+                    <Link to={`/${role}/consultalist`} className="btn btn-outline-primary btn-lg w-100" style={{ borderRadius: '10px' }}>
+                      <i className="fa fa-calendar mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                      Minhas consultas
                     </Link>
                   </div>
                   <div className="col-md-3 col-sm-6 mb-3">
