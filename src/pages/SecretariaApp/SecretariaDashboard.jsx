@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import "../../assets/css/index.css";
-import { getFullName, getUserId } from "../../utils/userInfo";
+import { getFullName, getUserId, getUserRole } from "../../utils/userInfo";
 const AvatarForm = "/img/AvatarForm.jpg";
 const banner = "/img/banner.png";
 import {
@@ -693,6 +693,40 @@ function SecretariaDashboard() {
             </div>
           </div>
         </div>
+        <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card" style={{ borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+                      <div className="card-body">
+                        <div className="row">
+                          <div className="col-md-3 col-sm-6 mb-3">
+                            <Link to={`/${getUserRole()}/consultaform`} className="btn btn-outline-primary btn-lg w-100" style={{ borderRadius: '10px' }}>
+                              <i className="fa fa-calendar-plus-o mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                              Nova Consulta
+                            </Link>
+                          </div>
+                          <div className="col-md-3 col-sm-6 mb-3">
+                            <Link to={`/${getUserRole()}/patientlist`} className="btn btn-outline-success btn-lg w-100" style={{ borderRadius: '10px' }}>
+                              <i className="fa fa-user mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                              Pacientes
+                            </Link>
+                          </div>
+                          <div className="col-md-3 col-sm-6 mb-3">
+                            <Link to={`/${getUserRole()}/doctorlist`} className="btn btn-outline-info btn-lg w-100" style={{ borderRadius: '10px' }}>
+                              <i className="fa fa-stethoscope mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                              Médicos
+                            </Link>
+                          </div>
+                          <div className="col-md-3 col-sm-6 mb-3">
+                            <Link to={`/${getUserRole()}/agendaform`} className="btn btn-outline-warning btn-lg w-100" style={{ borderRadius: '10px' }}>
+                              <i className="fa fa-calendar-alt mb-2" style={{ fontSize: '24px', display: 'block' }}></i>
+                              Agenda Médica
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
         {/* Seção dos Gráficos */}
         <div className="row">
           {/* Consultas por Mês */}

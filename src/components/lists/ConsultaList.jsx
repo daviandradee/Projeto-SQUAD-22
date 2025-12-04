@@ -696,9 +696,24 @@ function ConsultaList() {
                                       type="button"
                                       className="action-btn action-btn-edit"
                                       title="Atender consulta"
-                                      onClick={() => navigate(`/call/${c.id}`)}
+                                      onClick={() => {
+                                        const userId = getUserRole() === 'paciente' ? c.patient_id : getUserRole() === 'medico' ? c.doctor_id : null;
+                                        const currentUserId = getUserRole() === 'paciente' ? c.patient_id : getUserRole() === 'medico' ? c.doctor_id : null;
+                                        // Verifica se o usuário logado é o paciente ou médico da consulta
+                                        const loggedUserId = getUserRole() === 'paciente' ? c.patient_id : getUserRole() === 'medico' ? c.doctor_id : null;
+                                        const isAllowed = [c.patient_id, c.doctor_id].includes(getUserRole() === 'paciente' ? c.patient_id : getUserRole() === 'medico' ? c.doctor_id : null);
+                                        if (!isAllowed) {
+                                          Swal.fire({
+                                            title: 'Acesso negado',
+                                            text: 'Apenas o paciente ou médico desta consulta pode entrar na chamada.',
+                                            icon: 'error',
+                                            confirmButtonText: 'OK',
+                                          });
+                                          return;
+                                        }
+                                        navigate(`/call/${c.id}`);
+                                      }}
                                     >
-                                      
                                       <span className="fa fa-phone"></span>
                                     </button>
                                   )}
