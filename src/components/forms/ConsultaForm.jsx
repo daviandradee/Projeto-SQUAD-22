@@ -7,6 +7,7 @@ import { getUserId } from "../../utils/userInfo";
 import { sendSMS } from "../../utils/sendSMS";
 import { getUserRole } from "../../utils/userInfo";
 import emailjs from 'emailjs-com';
+import Select from 'react-select';
 
 function ConsultaForm() {
   const role = getUserRole();
@@ -294,28 +295,22 @@ function ConsultaForm() {
                     <label>
                       Nome do paciente<span className="text-danger">*</span>
                     </label>
-                    <select
-                      className="select form-control"
+                    <Select
+                      classNamePrefix="react-select"
+                      options={pacientes.map((p) => ({
+                        value: p.id,
+                        label: p.name || p.nome || p.full_name || p.paciente_nome || `Paciente #${p.id}`
+                      }))}
                       name="patient_id"
-                      value={formData.patient_id}
-                      onChange={handleChange}
+                      value={pacientes.length ? pacientes.map((p) => ({
+                        value: p.id,
+                        label: p.name || p.nome || p.full_name || p.paciente_nome || `Paciente #${p.id}`
+                      })).find(opt => String(opt.value) === String(formData.patient_id)) : null}
+                      onChange={option => setFormData(prev => ({ ...prev, patient_id: option ? option.value : "" }))}
+                      isClearable
+                      placeholder="Digite ou selecione o paciente"
                       required
-                    >
-                      <option value="">Selecione o paciente</option>
-                      {pacientes.map((p) => {
-                        const nomePaciente =
-                          p.name ||
-                          p.nome ||
-                          p.full_name ||
-                          p.paciente_nome ||
-                          `Paciente #${p.id}`;
-                        return (
-                          <option key={p.id} value={p.id}>
-                            {nomePaciente}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -323,15 +318,25 @@ function ConsultaForm() {
                 <div className="col-md-6">
                   <div className="form-group">
                     <label>Tipo da consulta</label>
-                    <select
-                      className="select form-control"
+                    <Select
+                      classNamePrefix="react-select"
+                      options={[
+                        { value: "presencial", label: "Presencial" },
+                        { value: "telemedicina", label: "Telemedicina" }
+                      ]}
                       name="appointment_type"
-                      value={formData.appointment_type}
-                      onChange={handleChange}
-                    >
-                      <option value="presencial">Presencial</option>
-                      <option value="telemedicina">Telemedicina</option>
-                    </select>
+                      value={(() => {
+                        const opts = [
+                          { value: "presencial", label: "Presencial" },
+                          { value: "telemedicina", label: "Telemedicina" }
+                        ];
+                        return opts.find(opt => opt.value === formData.appointment_type) || null;
+                      })()}
+                      onChange={option => setFormData(prev => ({ ...prev, appointment_type: option ? option.value : "" }))}
+                      isClearable
+                      placeholder="Selecione o tipo de consulta"
+                      required
+                    />
                   </div>
                 </div>
               </div>
@@ -346,28 +351,22 @@ function ConsultaForm() {
                     <label>
                       Médico<span className="text-danger">*</span>
                     </label>
-                    <select
-                      className="select form-control"
+                    <Select
+                      classNamePrefix="react-select"
+                      options={medicos.map((m) => ({
+                        value: m.id,
+                        label: m.name || m.nome || m.full_name || m.doctor_name || `Médico #${m.id}`
+                      }))}
                       name="doctor_id"
-                      value={formData.doctor_id}
-                      onChange={handleChange}
+                      value={medicos.length ? medicos.map((m) => ({
+                        value: m.id,
+                        label: m.name || m.nome || m.full_name || m.doctor_name || `Médico #${m.id}`
+                      })).find(opt => String(opt.value) === String(formData.doctor_id)) : null}
+                      onChange={option => setFormData(prev => ({ ...prev, doctor_id: option ? option.value : "" }))}
+                      isClearable
+                      placeholder="Digite ou selecione o médico"
                       required
-                    >
-                      <option value="">Selecione o médico</option>
-                      {medicos.map((m) => {
-                        const nomeMedico =
-                          m.name ||
-                          m.nome ||
-                          m.full_name ||
-                          m.doctor_name ||
-                          `Médico #${m.id}`;
-                        return (
-                          <option key={m.id} value={m.id}>
-                            {nomeMedico}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -419,31 +418,30 @@ function ConsultaForm() {
                 <div className="col-md-6">
                   <div className="form-group">
                     <label>Horário</label>
-
-                    <select
-                      className="select form-control"
-                      name="scheduled_time"
-                      value={formData.scheduled_time}
-                      onChange={handleChange}
-                      required
-                      disabled={carregandoHorarios || !horariosDisponiveis.length}
-                    >
-                      <option value="">
-                        {carregandoHorarios
-                          ? "Carregando horários..."
-                          : horariosDisponiveis.length
-                            ? "Selecione um horário"
-                            : "Nenhum horário disponível"}
-                      </option>
-                      {horariosDisponiveis.map((slot) => {
+                    <Select
+                      classNamePrefix="react-select"
+                      options={horariosDisponiveis.map((slot) => {
                         const hora = slot.datetime.split("T")[1].substring(0, 5);
-                        return (
-                          <option key={slot.datetime} value={hora}>
-                            {hora}
-                          </option>
-                        );
+                        return { value: hora, label: hora };
                       })}
-                    </select>
+                      name="scheduled_time"
+                      value={(() => {
+                        const opts = horariosDisponiveis.map((slot) => {
+                          const hora = slot.datetime.split("T")[1].substring(0, 5);
+                          return { value: hora, label: hora };
+                        });
+                        return opts.find(opt => opt.value === formData.scheduled_time) || null;
+                      })()}
+                      onChange={option => setFormData(prev => ({ ...prev, scheduled_time: option ? option.value : "" }))}
+                      isClearable
+                      isDisabled={carregandoHorarios || !horariosDisponiveis.length}
+                      placeholder={carregandoHorarios
+                        ? "Carregando horários..."
+                        : horariosDisponiveis.length
+                          ? "Selecione um horário"
+                          : "Nenhum horário disponível"}
+                      required
+                    />
                   </div>
                 </div>
               </div>

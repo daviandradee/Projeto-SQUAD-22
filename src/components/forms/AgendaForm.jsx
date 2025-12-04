@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../utils/auth.js";
 import { getUserRole } from "../../utils/userInfo.js";
+import Select from 'react-select';
+import Swal from 'sweetalert2';
 
 function AgendaForm() {
   const [doctors, setDoctors] = useState([]);
@@ -100,8 +102,14 @@ function AgendaForm() {
         return text ? JSON.parse(text) : {};
       })
       .then(() => {
-        alert("✅ Agenda criada com sucesso!");
-        navigate(`/${role}/agendadoctor`);
+        Swal.fire({
+          title: 'Sucesso!',
+          text: 'Agenda criada com sucesso!',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        }).then(() => {
+          navigate(`/${role}/agendadoctor`);
+        });
       })
       .catch((err) => {
         console.error("❌ Erro ao criar agenda:", err);
@@ -126,24 +134,22 @@ function AgendaForm() {
               <div className="col-md-6">
                 <div className="form-group">
                   <label>Médico</label>
-                  <select
-                    className="form-control"
-                    value={doctorId}
-                    onChange={(e) => setDoctorId(e.target.value)}
+                  <Select
+                    classNamePrefix="react-select"
+                    options={doctors.map((doc) => ({
+                      value: doc.id,
+                      label: doc.full_name || doc.name || `ID: ${doc.id}`
+                    }))}
+                    value={doctors.length ? doctors.map((doc) => ({
+                      value: doc.id,
+                      label: doc.full_name || doc.name || `ID: ${doc.id}`
+                    })).find(opt => String(opt.value) === String(doctorId)) : null}
+                    onChange={option => setDoctorId(option ? option.value : "")}
+                    isClearable
+                    isLoading={loading}
+                    placeholder={loading ? "Carregando..." : "Selecionar médico"}
                     required
-                  >
-                    <option value="">
-                      {loading ? "Carregando..." : "Selecionar"}
-                    </option>
-                    {!loading && doctors.length === 0 && (
-                      <option disabled>Nenhum médico encontrado</option>
-                    )}
-                    {doctors.map((doc) => (
-                      <option key={doc.id} value={doc.id}>
-                        {doc.full_name || doc.name || `ID: ${doc.id}`}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -151,21 +157,34 @@ function AgendaForm() {
               <div className="col-md-6">
                 <div className="form-group">
                   <label>Dias disponíveis</label>
-                  <select
-                    className="form-control"
-                    value={weekday}
-                    onChange={(e) => setWeekday(e.target.value)}
+                  <Select
+                    classNamePrefix="react-select"
+                    options={[
+                      { value: "monday", label: "Segunda" },
+                      { value: "tuesday", label: "Terça" },
+                      { value: "wednesday", label: "Quarta" },
+                      { value: "thursday", label: "Quinta" },
+                      { value: "friday", label: "Sexta" },
+                      { value: "saturday", label: "Sábado" },
+                      { value: "sunday", label: "Domingo" }
+                    ]}
+                    value={(() => {
+                      const opts = [
+                        { value: "monday", label: "Segunda" },
+                        { value: "tuesday", label: "Terça" },
+                        { value: "wednesday", label: "Quarta" },
+                        { value: "thursday", label: "Quinta" },
+                        { value: "friday", label: "Sexta" },
+                        { value: "saturday", label: "Sábado" },
+                        { value: "sunday", label: "Domingo" }
+                      ];
+                      return opts.find(opt => opt.value === weekday) || null;
+                    })()}
+                    onChange={option => setWeekday(option ? option.value : "")}
+                    isClearable
+                    placeholder="Selecionar dia da semana"
                     required
-                  >
-                    <option value="">Selecionar</option>
-                    <option value="monday">Segunda</option>
-                    <option value="tuesday">Terça</option>
-                    <option value="wednesday">Quarta</option>
-                    <option value="thursday">Quinta</option>
-                    <option value="friday">Sexta</option>
-                    <option value="saturday">Sábado</option>
-                    <option value="sunday">Domingo</option>
-                  </select>
+                  />
                 </div>
               </div>
             </div>
@@ -198,14 +217,24 @@ function AgendaForm() {
             {/* Tipo e Status */}
             <div className="form-group mt-3">
               <label>Tipo de consulta</label>
-              <select
-                className="form-control"
-                value={appointmentType}
-                onChange={(e) => setAppointmentType(e.target.value)}
-              >
-                <option value="presencial">Presencial</option>
-                <option value="telemedicina">Telemedicina</option>
-              </select>
+              <Select
+                classNamePrefix="react-select"
+                options={[
+                  { value: "presencial", label: "Presencial" },
+                  { value: "telemedicina", label: "Telemedicina" }
+                ]}
+                value={(() => {
+                  const opts = [
+                    { value: "presencial", label: "Presencial" },
+                    { value: "telemedicina", label: "Telemedicina" }
+                  ];
+                  return opts.find(opt => opt.value === appointmentType) || null;
+                })()}
+                onChange={option => setAppointmentType(option ? option.value : "")}
+                isClearable
+                placeholder="Selecionar tipo de consulta"
+                required
+              />
             </div>
 
             <div className="form-group">
