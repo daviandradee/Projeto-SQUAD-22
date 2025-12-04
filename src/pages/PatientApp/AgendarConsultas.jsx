@@ -38,6 +38,7 @@ import Swal from "sweetalert2";
 import { getAccessToken } from "../../utils/auth.js";
 import { getPatientId } from "../../utils/userInfo";
 import { getUserRole } from '../../utils/userInfo';
+import Select from 'react-select';
 
 const AgendarConsulta = () => {
   const { medicoId } = useParams();
@@ -64,6 +65,7 @@ const AgendarConsulta = () => {
   const role = getUserRole();
   const tokenUsuario = getAccessToken();
   const patientId = getPatientId();
+  const [tipoConsulta, setTipoConsulta] = useState("presencial");
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAK = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -76,26 +78,31 @@ const AgendarConsulta = () => {
 
   const handleConfirmationModal = async () => {
     if (!dataSelecionada || !horarioSelecionado) {
-      alert("Selecione uma data e horário válidos");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Selecione uma data e horário válidos',
+        confirmButtonText: 'OK',
+      });
       return;
     }
 
-    const confirm = window.confirm(`
-      Confirmar agendamento:
-      
-      Médico: Dr. ${medico?.nome}
-      Especialidade: ${medico?.especialidade}
-      Data: ${new Date(dataSelecionada).toLocaleDateString('pt-BR')}
-      Horário: ${horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ''}
-      Valor: R$ ${medico?.valorConsulta}
-      
-      Deseja confirmar?
-    `);
+    const confirm = await Swal.fire({
+      title: 'Confirmar agendamento',
+      html: `Médico: Dr. ${medico?.nome}<br/>Especialidade: ${medico?.especialidade}<br/>Data: ${horarioSelecionado ? new Date(horarioSelecionado.datetime).toLocaleDateString('pt-BR') : ''}<br/>Horário: ${horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ''}<br/>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+    });
 
-    if (confirm) {
+    if (confirm.isConfirmed) {
       await confirmarAgendamento();
-
-      alert(`Consulta marcada com sucesso! Sua consulta com Dr. ${medico.nome} foi agendada.`);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Consulta marcada com sucesso!',
+        text: `Sua consulta com Dr. ${medico.nome} foi agendada.`,
+        confirmButtonText: 'OK',
+      });
       navigate(`/${role}/consultalist`);
     }
   };
@@ -166,7 +173,7 @@ const AgendarConsulta = () => {
       doctor_id: medicoId,
       start_date: startDate,
       end_date: endDate,
-      appointment_type: "presencial",
+      appointment_type: tipoConsulta,
     };
 
     try {
@@ -237,7 +244,7 @@ const AgendarConsulta = () => {
         doctor_id: medicoId,
         scheduled_at,
         duration_minutes: 30,
-        appointment_type: "presencial",
+        appointment_type: tipoConsulta,
         chief_complaint: formData.chief_complaint || "Consulta agendada pelo paciente",
         patient_notes: formData.patient_notes || "",
         created_by: patientId,
@@ -466,37 +473,25 @@ const AgendarConsulta = () => {
           <div className="col-md-6">
             <div className="form-group">
               <label>Horários Disponíveis<span className="text-danger">*</span></label>
-              <div>
-                <select
-                  className="form-control"
-                  value={horarioSelecionado ? horarioSelecionado.datetime.split("T")[1].substring(0, 5) : ""}
-                  onChange={(e) => {
-                    const horaValue = e.target.value;
-                    const horario = horariosDisponiveis.find(slot => {
-                      const hora = slot.datetime.split("T")[1].substring(0, 5);
-                      return hora === horaValue;
-                    });
-                    setHorarioSelecionado(horario);
-                  }}
-                  disabled={carregandoHorarios || !horariosDisponiveis.length}
-                >
-                  <option value="">
-                    {carregandoHorarios
-                      ? "Carregando horários..."
-                      : horariosDisponiveis.length
-                        ? "Selecione um horário"
-                        : "Nenhum horário disponível"}
-                  </option>
-                  {horariosDisponiveis.map((slot) => {
-                    const hora = slot.datetime.split("T")[1].substring(0, 5);
-                    return (
-                      <option key={slot.datetime} value={hora}>
-                        {hora}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              <Select
+                value={horarioSelecionado ? { value: horarioSelecionado.datetime, label: horarioSelecionado.datetime.split("T")[1].substring(0, 5) } : null}
+                onChange={option => {
+                  const horario = horariosDisponiveis.find(slot => slot.datetime === option.value);
+                  setHorarioSelecionado(horario);
+                }}
+                options={horariosDisponiveis.map(slot => ({
+                  value: slot.datetime,
+                  label: slot.datetime.split("T")[1].substring(0, 5)
+                }))}
+                isSearchable={false}
+                placeholder={carregandoHorarios ? "Carregando horários..." : horariosDisponiveis.length ? "Selecione um horário" : "Nenhum horário disponível"}
+                isDisabled={carregandoHorarios || !horariosDisponiveis.length}
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({ ...base, minHeight: 38 }),
+                  menu: (base) => ({ ...base, zIndex: 9999 })
+                }}
+              />
             </div>
           </div>
         </div>
@@ -540,6 +535,28 @@ const AgendarConsulta = () => {
               Receber confirmação por SMS
             </label>
           </div>
+        </div>
+
+        <div className="form-group">
+          <label>Tipo de consulta<span className="text-danger">*</span></label>
+          <Select
+            value={{ value: tipoConsulta, label: tipoConsulta === 'presencial' ? 'Presencial' : 'Telemedicina' }}
+            onChange={option => {
+              setTipoConsulta(option.value);
+              setHorarioSelecionado(null);
+              setHorariosDisponiveis([]);
+            }}
+            options={[
+              { value: 'presencial', label: 'Presencial' },
+              { value: 'telemedicina', label: 'Telemedicina' }
+            ]}
+            isSearchable={false}
+            classNamePrefix="react-select"
+            styles={{
+              control: (base) => ({ ...base, minHeight: 38 }),
+              menu: (base) => ({ ...base, zIndex: 9999 })
+            }}
+          />
         </div>
 
         <div className="m-t-20 text-center">
