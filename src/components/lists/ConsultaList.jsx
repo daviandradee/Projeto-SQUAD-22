@@ -510,18 +510,7 @@ function ConsultaList() {
                 />
 
                 {/* Filtro de status */}
-                <select
-                  className="form-control form-control-sm"
-                  style={{ minWidth: "80px", maxWidth: "125px", }}
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="">Status</option>
-                  <option value="requested">Solicitado</option>
-                  <option value="confirmed">Confirmado</option>
-                  <option value="completed">Concluído</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
+                
 
                 {/* Filtro De */}
                 <div className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
@@ -552,6 +541,28 @@ function ConsultaList() {
                     }}
                   />
                 </div>
+                <select
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "80px", maxWidth: "125px" }}
+                  value={typeFilter}
+                  onChange={e => setTypeFilter(e.target.value)}
+                >
+                  <option value="">Modo</option>
+                  <option value="presencial">Presencial</option>
+                  <option value="telemedicina">Telemedicina</option>
+                </select>
+                <select
+                  className="form-control form-control-sm"
+                  style={{ minWidth: "80px", maxWidth: "125px" }}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">Status</option>
+                  <option value="requested">Solicitado</option>
+                  <option value="confirmed">Confirmado</option>
+                  <option value="completed">Concluído</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
 
                 {/* Botões rápidos */}
                 <button

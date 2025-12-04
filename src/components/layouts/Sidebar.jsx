@@ -1,7 +1,6 @@
 import { getUserRole } from "../../utils/userInfo";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import AccessibilityWidget from "../AccessibilityWidget.jsx";
 import Chatbox from "../chat/Chatbox.jsx";
 import Navbar from "./Navbar.jsx";
 function Sidebar() {
@@ -110,7 +109,6 @@ function Sidebar() {
                             </ul>
                         </div>
                     </div>
-                    <AccessibilityWidget />
                     <Chatbox />
                 </div>
             </div>

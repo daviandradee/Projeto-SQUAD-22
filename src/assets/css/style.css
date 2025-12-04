@@ -467,8 +467,8 @@ table.table td h2 span {
 .btn-primary.active,
 .btn-primary:active,
 .open > .dropdown-toggle.btn-primary {
-	background-color: #009efb;
-	border: 1px solid #009efb;
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border: 1px solid linear-gradient(135deg, #004a99, #0077cc);
 	color: #fff;
 }
 .btn-primary.active.focus,
@@ -480,30 +480,30 @@ table.table td h2 span {
 .open > .dropdown-toggle.btn-primary.focus,
 .open > .dropdown-toggle.btn-primary:focus,
 .open > .dropdown-toggle.btn-primary:hover {
-	background-color: #009efb;
-	border: 1px solid #009efb;
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border: 1px solid linear-gradient(135deg, #004a99, #0077cc);
 }
 .btn-primary.active:not(:disabled):not(.disabled),
 .btn-primary:active:not(:disabled):not(.disabled),
 .show > .btn-primary.dropdown-toggle {
-	background-color: #009efb;
-	border-color: #009efb;
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border-color: linear-gradient(135deg, #004a99, #0077cc);
 	color: #fff;
 }
 .btn-outline-primary {
-	border-color: #009efb;
-	color: #009efb;
+	border-color: linear-gradient(135deg, #004a99, #0077cc);
+	color: linear-gradient(135deg, #004a99, #0077cc);
 }
 .btn-outline-primary:hover {
-	background-color: #009efb;
-	border-color: #009efb;
+	background: linear-gradient(135deg, #004a99, #0077cc);
+	border-color: linear-gradient(135deg, #004a99, #0077cc);
 	color: #fff;
 }
 .btn-outline-primary.active:not(:disabled):not(.disabled),
 .btn-outline-primary:active:not(:disabled):not(.disabled),
 .show > .btn-outline-primary.dropdown-toggle {
-	background-color: #009efb;
-	border-color: #009efb;
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border-color: linear-gradient(135deg, #004a99, #0077cc);
 	color: #fff;
 }
 .btn-success {
@@ -531,16 +531,16 @@ table.table td h2 span {
 	border: 1px solid #4ab657
 }
 .btn-info {
-	background-color: #009efb;
-	border: 1px solid #009efb
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border: linear-gradient(135deg, #004a99, #0077cc);
 }
 .btn-info:hover,
 .btn-info:focus,
 .btn-info.active,
 .btn-info:active,
 .open > .dropdown-toggle.btn-info {
-	background-color: #028ee1;
-	border: 1px solid #028ee1
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border: 1px solid linear-gradient(135deg, #004a99, #0077cc);
 }
 .btn-info.active.focus,
 .btn-info.active:focus,
@@ -551,8 +551,8 @@ table.table td h2 span {
 .open > .dropdown-toggle.btn-info.focus,
 .open > .dropdown-toggle.btn-info:focus,
 .open > .dropdown-toggle.btn-info:hover {
-	background-color: #028ee1;
-	border: 1px solid #028ee1
+	background-color: linear-gradient(135deg, #004a99, #0077cc);
+	border: 1px solid linear-gradient(135deg, #004a99, #0077cc);
 }
 .btn-warning {
 	background: #ffbc34;

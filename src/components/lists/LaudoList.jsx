@@ -513,19 +513,6 @@ function LaudoList() {
             onChange={e => setSearch(e.target.value)}
             style={{ minWidth: "300px", maxWidth: "450px", }}
           />
-          
-          {/* Filtro de status */}
-          <select
-            className="form-control form-control-sm"
-            style={{ minWidth: "80px", maxWidth: "125px", }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">Status</option>
-            <option value="draft">Rascunho</option>
-            <option value="completed">Concluído</option>
-          </select>
-
           {/* Filtro De */}
           <div className="d-flex align-items-center" style={{ gap: "0.2rem" }}>
             <label className="mb-0" style={{ whiteSpace: "nowrap", fontSize: "0.85rem" }}>De:</label>
@@ -555,6 +542,16 @@ function LaudoList() {
               }} 
             />
           </div>
+          <select
+            className="form-control form-control-sm"
+            style={{ minWidth: "80px", maxWidth: "125px", }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Status</option>
+            <option value="draft">Rascunho</option>
+            <option value="completed">Concluído</option>
+          </select>
 
           {/* Botões rápidos */}
           <button 
