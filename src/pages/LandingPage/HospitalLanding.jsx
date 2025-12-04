@@ -64,7 +64,7 @@ export default function HospitalLanding() {
         <div className="hospital-container hospital-about-content">
             <div className="hospital-about-image">
                 <img
-                    src="/img/banner.png"
+                    src="/img/logoazul.png"
                     alt="Interior da clínica"
                 />
             </div>
