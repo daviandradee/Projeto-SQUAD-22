@@ -423,7 +423,7 @@ function LaudoList() {
         return;
       }
       // Caminho da logo (ajuste se necessário)
-      const logoUrl = '/img/logomedconnect.png';
+      const logoUrl = '/img/logoazul.png';
       const pacienteNome = pacientesMap[data[0]?.patient_id] || 'Paciente';
       const pedido = data[0]?.order_number || 'N/A';
       const exame = data[0]?.exam || 'N/A';
@@ -448,7 +448,7 @@ function LaudoList() {
           </head>
           <body>
             <div class="header">
-              <img src="${logoUrl}" class="logo" alt="Logo"/>
+              <img src="/img/logoazul.png" class="logo" alt="Logo"/>
               <div>
                 <div class="clinic-info"><strong>MedConnect</strong> - Sistema de Laudos</div>
                 <div>${new Date().toLocaleDateString('pt-BR')}</div>
