@@ -529,11 +529,22 @@ function Chatbox() {
                         }
                     );
 
-                    const data_slots = await response.json();
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(errorText || "Erro ao buscar horários");
+                    }
+
+                    const responseText = await response.text();
+                    let data_slots;
+                    
+                    try {
+                        data_slots = responseText ? JSON.parse(responseText) : {};
+                    } catch (jsonError) {
+                        console.error("Erro ao parsear JSON:", jsonError, "Resposta:", responseText);
+                        throw new Error("Resposta inválida do servidor");
+                    }
 
                     console.log("🔍 Chatbox (Paciente) - Resposta da Edge Function:", data_slots);
-
-                    if (!response.ok) throw new Error(data_slots.error || "Erro ao buscar horários");
 
                     // Usa exatamente a mesma lógica do AgendaForm
                     const slotsDisponiveis = (data_slots?.slots || []).filter((s) => s.available);
@@ -623,7 +634,13 @@ function Chatbox() {
                     });
 
                     if (!res.ok) {
-                        const errorData = await res.json();
+                        const responseText = await res.text();
+                        let errorData;
+                        try {
+                            errorData = responseText ? JSON.parse(responseText) : {};
+                        } catch {
+                            errorData = { message: responseText || "Erro desconhecido" };
+                        }
                         throw new Error(errorData.message || "Não foi possível confirmar o agendamento.");
                     }
 
@@ -751,9 +768,27 @@ function Chatbox() {
             body: JSON.stringify({ contents: history })
         };
         try {
-            const response = await fetch(import.meta.env.GEMINI_API_URL, requestOptions);
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error.message || "Algo deu errado");
+            const response = await fetch(import.meta.env.VITE_API_URL, requestOptions);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || "Algo deu errado");
+            }
+            
+            const responseText = await response.text();
+            let data;
+            
+            try {
+                data = responseText ? JSON.parse(responseText) : {};
+            } catch (jsonError) {
+                console.error("Erro ao parsear JSON do Gemini:", jsonError, "Resposta:", responseText);
+                throw new Error("Resposta inválida da API");
+            }
+            
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                throw new Error("Resposta da API está incompleta");
+            }
+            
             const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
             
             // Verifica se o Gemini recomendou uma consulta médica
