@@ -7,7 +7,7 @@ import Login from "../pages/Login/Login.jsx";
 import MagicLink from "../pages/Login/Acessounico.jsx";
 import HospitalLanding from "../pages/LandingPage/HospitalLanding.jsx"
 import RoomPage from "../components/call/RoomPage.jsx";
-import Chat from "../components/chat.jsx";
+
 export const router = createBrowserRouter([
      {
         path: "/",
@@ -25,10 +25,6 @@ export const router = createBrowserRouter([
     {
         path: "/call/:roomId",
         element: <RoomPage />
-    },
-    {
-        path: "/chat",
-        element: <Chat />
     },
 
     // ✅ Se AdminRoutes for função:

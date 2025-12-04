@@ -18,6 +18,8 @@ import LaudoEdit from "../components/edits/LaudoEdit";
 import VerLaudo from "../components/VerLaudo";
 import DoctorCalendar from "../pages/DoctorApp/DoctorCalendar";
 import LaudoConsulta from "../components/LaudoConsulta";
+//chat 
+import Chat from "../components/chat.jsx";
 
 export const DoctorRoutes = 
     {path : "/medico",
@@ -45,6 +47,8 @@ export const DoctorRoutes =
         {path: "editlaudo/:id", element: <LaudoEdit />},
         {path: "verlaudo/:id", element: <VerLaudo />},
         {path: "doctorcalendar", element: <DoctorCalendar />},
-    
+        //chat
+        {path: "chat", element: <Chat />}
+
     ]
 };

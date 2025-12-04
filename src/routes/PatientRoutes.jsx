@@ -9,6 +9,9 @@ import ConsultaList from "../components/lists/ConsultaList";
 import MedicosDisponiveis from "../pages/PatientApp/MedicosDisponiveis";
 import AgendarConsulta from "../pages/PatientApp/AgendarConsultas";
 import VerLaudo from "../components/VerLaudo";
+//chat 
+
+import Chat from "../components/chat.jsx";
 
 
 export const PatientRoutes = 
@@ -25,5 +28,7 @@ export const PatientRoutes =
             {path: "medicosdisponiveis", element: <MedicosDisponiveis />},
             {path: "agendarconsulta/:medicoId", element: <AgendarConsulta />},
             {path: "verlaudo/:id", element: <VerLaudo />},
+            //chat
+            {path: "chat", element: <Chat />}
         ]
     };
