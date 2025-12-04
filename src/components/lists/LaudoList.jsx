@@ -423,7 +423,7 @@ function LaudoList() {
         return;
       }
       // Caminho da logo (ajuste se necessário)
-      const logoUrl = '/public/img/logomedconnect.png';
+      const logoUrl = '/img/logomedconnect.png';
       const pacienteNome = pacientesMap[data[0]?.patient_id] || 'Paciente';
       const pedido = data[0]?.order_number || 'N/A';
       const exame = data[0]?.exam || 'N/A';
